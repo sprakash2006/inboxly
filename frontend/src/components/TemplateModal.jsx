@@ -578,7 +578,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
             <div style={{ marginTop:8, borderTop:'1px solid #e4e0d8', paddingTop:2 }}>
               {buttons.filter(b => (b.text || '').trim()).map((b, i) => (
                 <div key={i} style={{ textAlign:'center', padding:'7px 4px', fontSize:12, color:'#00a5f4', fontWeight:500, borderTop: i > 0 ? '1px solid #e4e0d8' : 'none' }}>
-                  {{ URL:'↗ ', PHONE_NUMBER:'✆ ', COPY_CODE:'⧉ ' }[b.type] || ''}{b.text}
+                  {{ URL: <I n="external" s={12} />, PHONE_NUMBER: <I n="phone" s={12} />, COPY_CODE: <I n="copy" s={12} /> }[b.type] || null} {b.text}
                 </div>
               ))}
             </div>
@@ -606,7 +606,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                 <div style={{ marginTop:6 }}>
                   {c.buttons.filter(b => (b.text || '').trim()).map((b, bi) => (
                     <div key={bi} style={{ textAlign:'center', padding:'6px 4px', fontSize:11.5, color:'#00a5f4', fontWeight:500, borderTop:'1px solid #e4e0d8' }}>
-                      {b.type === 'URL' ? '↗ ' : ''}{b.text}
+                      {b.type === 'URL' ? <><I n="external" s={11} /> </> : null}{b.text}
                     </div>
                   ))}
                 </div>

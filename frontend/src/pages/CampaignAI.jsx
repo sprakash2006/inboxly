@@ -84,7 +84,7 @@ const GroundedDemo = () => {
         {/* the answer, with its receipts */}
         <div style={{ alignSelf: 'flex-start', maxWidth: '96%' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 7 }}>
-            <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: 'var(--lime)', fontWeight: 600 }}>✓ GROUNDED IN CAMPAIGN</span>
+            <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: 'var(--lime)', fontWeight: 600 }}><I n="check" s={10} /> GROUNDED IN CAMPAIGN</span>
             {d.facts.map(([k, v]) => (
               <span key={k} style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.06em', padding: '2px 7px', borderRadius: 5, background: 'rgba(13,148,136,0.10)', border: '1px solid var(--gbd)', color: 'var(--t2)' }}>
                 <span style={{ color: 'var(--green)', fontWeight: 700 }}>{k}</span> {v}

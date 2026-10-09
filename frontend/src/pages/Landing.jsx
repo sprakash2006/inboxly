@@ -130,7 +130,7 @@ const CampaignTap = () => {
         {/* The template as it lands on the customer's phone. */}
         <div style={{ background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', borderRadius: '13px 13px 13px 3px', padding: '11px 13px' }}>
           <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--t1)' }}>
-            <strong>Summer Sale 🎉</strong><br />
+            <strong>Summer Sale</strong><br />
             Premium Plan at ₹999/month.<br />
             Get 50% OFF until 15 August.<br />
             <span style={{ color: 'var(--t2)' }}>Unlimited messages · AI automation · Analytics · Priority support</span>
@@ -939,7 +939,7 @@ const Playground = () => {
 
               <div style={{ padding: '18px 15px', display: 'flex', flexDirection: 'column', gap: 12, background: '#efeae2', minHeight: 300 }}>
                 <div style={{ alignSelf: 'flex-start', maxWidth: '92%', borderRadius: '4px 14px 14px 14px', background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', padding: '11px 13px' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--t1)', lineHeight: 1.4 }}>🔔 {pg.title} is live!</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--t1)', lineHeight: 1.4 }}><I n="bell" s={13} c="var(--accent)" /> {pg.title} is live!</p>
                   <p style={{ fontSize: 12.5, color: 'var(--t2)', marginTop: 5, lineHeight: 1.5 }}>
                     {pg.discount} OFF on {pg.product} — tap to shop or ask me anything.
                   </p>
@@ -953,7 +953,7 @@ const Playground = () => {
                     </div>
                     <div style={{ alignSelf: 'flex-start', maxWidth: '96%', minWidth: 0 }}>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 6 }}>
-                        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: 'var(--lime)', fontWeight: 600 }}>✓ VERIFIED FROM YOUR CAMPAIGN</span>
+                        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: 'var(--lime)', fontWeight: 600 }}><I n="check" s={10} /> VERIFIED FROM YOUR CAMPAIGN</span>
                         {facts.map(([k, v]) => (
                           <span key={k} style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.06em', padding: '2px 7px', borderRadius: 5, background: 'rgba(13,148,136,0.1)', border: '1px solid var(--gbd)', color: 'var(--t2)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             <span style={{ color: 'var(--green)', fontWeight: 700 }}>{k}</span> {v}

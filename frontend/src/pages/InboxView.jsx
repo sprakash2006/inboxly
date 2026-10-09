@@ -204,16 +204,16 @@ const MediaAttachment = ({ conversationId, message }) => {
 const DeliveryTick = ({ status, error }) => {
   const spec = {
     PENDING:   { glyph: '·',  color: 'var(--t3)',  label: 'Sending' },
-    SENT:      { glyph: '✓',  color: 'var(--t3)',  label: 'Sent' },
-    DELIVERED: { glyph: '✓✓', color: 'var(--t2)', label: 'Delivered' },
-    READ:      { glyph: '✓✓', color: 'var(--green)', label: 'Read' },
+    SENT:      { icon: 'check',  color: 'var(--t3)',  label: 'Sent' },
+    DELIVERED: { icon: 'checks', color: 'var(--t2)', label: 'Delivered' },
+    READ:      { icon: 'checks', color: 'var(--green)', label: 'Read' },
     FAILED:    { glyph: '!',        color: '#dc2626',    label: 'Failed' },
   }[status];
   if (!spec) return null;
   return (
     <span title={error || spec.label}
-      style={{ fontSize: 10, lineHeight: 1, color: spec.color, fontWeight: 700, letterSpacing: '-1px' }}>
-      {spec.glyph}
+      style={{ display: 'inline-flex', alignItems: 'center', fontSize: 10, lineHeight: 1, color: spec.color, fontWeight: 700 }}>
+      {spec.icon ? <I n={spec.icon} s={13} c={spec.color} w={2} /> : spec.glyph}
     </span>
   );
 };
@@ -1049,7 +1049,7 @@ export default function InboxView() {
                                 <span style={{ fontSize:9, color:'var(--t2)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em' }}>{m.senderUser.name}</span>
                               ) : (
                                 <span style={{ fontFamily:'var(--mono)', fontSize:8.5, letterSpacing:'.08em', color:'var(--green)', fontWeight:700 }}>
-                                  ✓ INBOXLY AI{context?.aiSession?.campaign ? ' · CAMPAIGN-GROUNDED' : ''}
+                                  <I n="check" s={10} /> INBOXLY AI{context?.aiSession?.campaign ? ' · CAMPAIGN-GROUNDED' : ''}
                                 </span>
                               )}
                             </div>

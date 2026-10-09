@@ -179,7 +179,7 @@ const CsvTab = ({ onSaved }) => {
       )}
       {result && (
         <div style={{ padding:'10px 13px', borderRadius:8, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)', fontSize:13, fontWeight:600 }}>
-          ✓ Imported {result.imported} contact{result.imported !== 1 ? 's' : ''}.
+          <I n="checkc" s={13} /> Imported {result.imported} contact{result.imported !== 1 ? 's' : ''}.
         </div>
       )}
       <input ref={inputRef} type="file" accept=".csv,text/csv" style={{ display:'none' }} onChange={e => { setFile(e.target.files[0]); setResult(null); }} />

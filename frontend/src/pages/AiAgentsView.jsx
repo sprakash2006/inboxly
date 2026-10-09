@@ -662,7 +662,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                               border: '1px solid rgba(15,23,42,0.06)',
                             }}
                           >
-                            ⚡ {act.replace('crm.', '')}
+                            <I n="zap" s={11} /> {act.replace('crm.', '')}
                           </span>
                         ))}
                       </div>

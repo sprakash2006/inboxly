@@ -604,7 +604,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
           )}
           {csvResult && (
             <div style={{ padding:'10px 13px', borderRadius:8, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)', fontSize:13, fontWeight:600 }}>
-              ✓ Imported {csvResult.imported} contact{csvResult.imported !== 1 ? 's' : ''} and added to audience.
+              <I n="checkc" s={13} /> Imported {csvResult.imported} contact{csvResult.imported !== 1 ? 's' : ''} and added to audience.
             </div>
           )}
           <input ref={fileRef} type="file" accept=".csv,text/csv" style={{ display:'none' }} onChange={e => { setCsvFile(e.target.files[0]); setCsvResult(null); }} />
@@ -1127,7 +1127,7 @@ const StepRetries = ({ initial = null, onRetryToggle, onSaved, onCommit }) => {
       )}
       <InfoAlert>A message is only charged once, however many attempts it takes. Every failure that could succeed later — frequency capping, rate limits, timeouts, transient Meta errors — is retried on this schedule. Failures that can never succeed (an invalid number, a blocked recipient, a rejected template) are marked Failed straight away and never retried.</InfoAlert>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Btn onClick={commit}>{saved ? 'Saved ✓' : 'Save Retry Config'}</Btn>
+        <Btn onClick={commit}>{saved ? <><I n="check" s={14} /> Saved</> : 'Save Retry Config'}</Btn>
       </div>
     </div>
   );
@@ -1245,7 +1245,7 @@ const StepFallback = ({ retriesActive, onSaved }) => {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-        <Btn onClick={commit} disabled={!canEnable || smsBlocked}>{saved ? 'Saved ✓' : 'Save Fallback Config'}</Btn>
+        <Btn onClick={commit} disabled={!canEnable || smsBlocked}>{saved ? <><I n="check" s={14} /> Saved</> : 'Save Fallback Config'}</Btn>
       </div>
     </div>
   );

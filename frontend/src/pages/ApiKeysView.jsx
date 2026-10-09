@@ -311,7 +311,7 @@ export default function ApiKeysView() {
                             border: on ? '1px solid var(--gbd)' : '1px solid var(--bd)',
                           }}
                         >
-                          {on ? '✓ ' : ''}{sc.label}
+                          {on ? <><I n="check" s={11} /> </> : null}{sc.label}
                         </button>
                       );
                     })}
@@ -397,7 +397,7 @@ export default function ApiKeysView() {
           </div>
           {sendError && <p style={{ fontSize:12, color:'#dc2626', margin:'0 0 12px' }}>{sendError}</p>}
           <Btn onClick={sendTest} disabled={sending} style={{ width:'100%', justifyContent:'center', boxShadow:'var(--glow)' }}>
-            {sending ? 'Sending…' : sent ? '✓ Sent!' : <>
+            {sending ? 'Sending…' : sent ? <><I n="check" s={13} /> Sent!</> : <>
               <I n="send" s={14} c="#08090c" />
               Send Test Message
             </>}

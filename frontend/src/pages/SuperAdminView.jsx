@@ -1307,7 +1307,7 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
                       style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 7, background: 'rgba(15,23,42,0.25)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 11.5, fontFamily: 'ui-monospace, monospace', outline: 'none' }} />
                     <button onClick={async () => { try { await navigator.clipboard.writeText(issued.url); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked: the link is shown */ } }}
                       style={{ padding: '7px 12px', borderRadius: 7, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {copied ? 'Copied ✓' : 'Copy link'}
+                      {copied ? <><I n="check" s={13} /> Copied</> : 'Copy link'}
                     </button>
                   </div>
                 </div>

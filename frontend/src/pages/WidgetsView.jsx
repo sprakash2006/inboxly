@@ -492,7 +492,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                                background: form.type === t.id ? 'var(--gbg)' : 'rgba(15,23,42,0.02)' }}>
                       <p style={{ fontSize: 12.5, fontWeight: 600, color: form.type === t.id ? 'var(--green)' : 'var(--t1)', marginBottom: 3 }}>
                         {t.label}
-                        {t.recommended && <span style={{ marginLeft: 5, fontSize: 9, fontWeight: 800, color: 'var(--green)' }}>★</span>}
+                        {t.recommended && <span style={{ marginLeft: 5, fontSize: 9, fontWeight: 800, color: 'var(--green)' }}><I n="star" s={10} c="var(--green)" /></span>}
                       </p>
                       <p style={{ fontSize: 10.5, color: 'var(--t3)', lineHeight: 1.4 }}>{t.hint}</p>
                     </div>

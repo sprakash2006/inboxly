@@ -238,7 +238,7 @@ export default function WorkspaceSetup({ onNav }) {
 
           {isLast && (
             <div style={{ textAlign: 'center', padding: '10px 0 6px' }}>
-              <div style={{ fontSize: 40, marginBottom: 14 }}>🎉</div>
+              <div style={{ marginBottom: 14 }}><I n="party" s={40} c="var(--accent)" /></div>
               <p style={{ fontSize: 15, color: 'var(--t2)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto' }}>
                 Your workspace is ready. Connect a WhatsApp number, import your contacts, and your first campaign can go out
                 today.

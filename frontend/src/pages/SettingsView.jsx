@@ -623,7 +623,7 @@ export default function SettingsView() {
                   style={{ flex:1, minWidth:0, padding:'8px 10px', borderRadius:7, background:'rgba(15,23,42,0.25)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:11.5, fontFamily:'ui-monospace, monospace', outline:'none' }} />
                 <Btn size="sm" variant="outline" onClick={async ()=>{
                   try { await navigator.clipboard.writeText(lastInvite.url); setCopiedInvite(true); setTimeout(()=>setCopiedInvite(false), 2000); } catch { /* clipboard blocked: the link is selectable above */ }
-                }}>{copiedInvite ? 'Copied ✓' : 'Copy link'}</Btn>
+                }}>{copiedInvite ? <><I n="check" s={13} /> Copied</> : 'Copy link'}</Btn>
               </div>
             </div>
           )}
@@ -649,7 +649,7 @@ export default function SettingsView() {
                         creating a new one is the equivalent action. */}
                     {inv.kind !== 'LINK' && (
                     <button onClick={()=>resendInvite(inv.id)} disabled={resendingId===inv.id} style={{ padding:'4px 10px', borderRadius:6, background: resentId===inv.id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)', border: `1px solid ${resentId===inv.id ? 'var(--gbd)' : 'var(--bd)'}`, cursor: resendingId===inv.id ? 'not-allowed' : 'pointer', fontSize:11.5, fontWeight:600, color: resentId===inv.id ? 'var(--green)' : 'var(--t2)', opacity: resendingId===inv.id ? 0.6 : 1 }}>
-                      {resendingId===inv.id ? 'Sending…' : resentId===inv.id ? 'Sent ✓' : 'Resend'}
+                      {resendingId===inv.id ? 'Sending…' : resentId===inv.id ? <><I n="check" s={13} /> Sent</> : 'Resend'}
                     </button>
                     )}
                     <button onClick={()=>revokeInvite(inv.id)} style={{ padding:'4px 10px', borderRadius:6, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.18)', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#dc2626' }}>
@@ -822,7 +822,7 @@ export default function SettingsView() {
           </div>
           {isAdmin && (
             <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:12, marginTop:16 }}>
-              {prefsSaved && <span style={{ fontSize:12, color:'var(--green)', fontWeight:600 }}>Saved ✓</span>}
+              {prefsSaved && <span style={{ fontSize:12, color:'var(--green)', fontWeight:600 }}><I n="check" s={13} /> Saved</span>}
               <Btn onClick={savePreferences} disabled={savingPrefs}>{savingPrefs ? 'Saving…' : 'Save Preferences'}</Btn>
             </div>
           )}

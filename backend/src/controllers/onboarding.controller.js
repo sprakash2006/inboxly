@@ -276,7 +276,7 @@ export const chatWithAi = async (req, res) => {
         // The inbound handler runs workflows directly now, so the duplicate is
         // gone — it would only have made the workflow harder to edit later.
         responseText = `Done — I built the "${wf.name}" automation as a draft. Review it under Automation → Workflows and switch it on when it looks right${triggerStep?.subtype === 'keyword' ? ` — it will then reply when someone messages "${triggerStep.value}"` : ''}.`;
-        card = { title: 'Workflow Drafted', icon: '⚙️', details: { name: wf.name, steps: spec.nodes.length, status: 'INACTIVE' } };
+        card = { title: 'Workflow Drafted', icon: 'wflow', details: { name: wf.name, steps: spec.nodes.length, status: 'INACTIVE' } };
         state = { step: 'IDLE' };
         await save();
         return res.json({ content: responseText, card });
@@ -290,7 +290,7 @@ export const chatWithAi = async (req, res) => {
             : '';
           if (numberCount === 0) {
             responseText = "I've drafted your template copy below, but you need to connect a WhatsApp number before it can be saved and submitted to Meta.";
-            card = { title: 'Template Draft (not saved)', icon: '📝', details: { name: draft.name, category: draft.category, preview: draft.body } };
+            card = { title: 'Template Draft (not saved)', icon: 'template', details: { name: draft.name, category: draft.category, preview: draft.body } };
           } else {
             // Category comes from the draft: saving a UTILITY message as
             // MARKETING is a common Meta rejection reason.
@@ -299,10 +299,10 @@ export const chatWithAi = async (req, res) => {
             });
             if (saved.error) {
               responseText = `I drafted the copy below but couldn't save it: ${saved.error}`;
-              card = { title: 'Template Draft (not saved)', icon: '📝', details: { name: draft.name, category: draft.category, preview: draft.body } };
+              card = { title: 'Template Draft (not saved)', icon: 'template', details: { name: draft.name, category: draft.category, preview: draft.body } };
             } else {
               responseText = `I've created your template and submitted it to Meta for review (category ${draft.category}). It can be used once it's approved.${imageHint}`;
-              card = { title: 'Template Submitted', icon: '📝', details: { name: saved.tpl.name, category: draft.category, status: 'PENDING', preview: draft.body, ...(draft.suggestImage ? { suggestedHeader: 'Image' } : {}) } };
+              card = { title: 'Template Submitted', icon: 'template', details: { name: saved.tpl.name, category: draft.category, status: 'PENDING', preview: draft.body, ...(draft.suggestImage ? { suggestedHeader: 'Image' } : {}) } };
             }
           }
           state = { step: 'IDLE' };
@@ -328,7 +328,7 @@ export const chatWithAi = async (req, res) => {
               responseText = `I couldn't create that campaign: ${saved.error}`;
             } else {
               responseText = `I've drafted the "${saved.campaign.name}" campaign using your "${plan.template.name}" template${plan.why ? ` — ${plan.why}` : ''}. Open it from the Campaigns page to pick recipients and launch it.`;
-              card = { title: 'Campaign Drafted', icon: '🚀', details: { name: saved.campaign.name, template: plan.template.name, status: 'DRAFT' } };
+              card = { title: 'Campaign Drafted', icon: 'send', details: { name: saved.campaign.name, template: plan.template.name, status: 'DRAFT' } };
             }
           }
           state = { step: 'IDLE' };
@@ -371,15 +371,15 @@ export const chatWithAi = async (req, res) => {
 
       if (numberCount === 0) {
         responseText = "I've drafted the copy, but connect a WhatsApp number first to save and submit it to Meta.";
-        card = { title: 'Template Draft (not saved)', icon: '📝', details: { name: state.templateName, category, preview: body } };
+        card = { title: 'Template Draft (not saved)', icon: 'template', details: { name: state.templateName, category, preview: body } };
       } else {
         const saved = await saveTemplate(workspaceId, { name: state.templateName, category, language, components });
         if (saved.error) {
           responseText = `I couldn't save that template: ${saved.error}`;
-          card = { title: 'Template Draft (not saved)', icon: '📝', details: { name: state.templateName, category, preview: body } };
+          card = { title: 'Template Draft (not saved)', icon: 'template', details: { name: state.templateName, category, preview: body } };
         } else {
           responseText = `Created and submitted to Meta for review (category ${category}). It can be used once it's approved.${imageHint}`;
-          card = { title: 'Template Submitted', icon: '📝', details: { name: saved.tpl.name, category, status: 'PENDING', preview: body, ...(draft?.suggestImage ? { suggestedHeader: 'Image' } : {}) } };
+          card = { title: 'Template Submitted', icon: 'template', details: { name: saved.tpl.name, category, status: 'PENDING', preview: body, ...(draft?.suggestImage ? { suggestedHeader: 'Image' } : {}) } };
         }
       }
       state = { step: 'IDLE' };
@@ -420,7 +420,7 @@ export const chatWithAi = async (req, res) => {
           responseText = `I couldn't create that campaign: ${saved.error}`;
         } else {
           responseText = `Your campaign is saved as a draft using the "${template.name}" template${why ? ` — ${why}` : ''}. Add recipients and launch it from the Campaigns page.`;
-          card = { title: 'Campaign Drafted', icon: '🚀', details: { name: saved.campaign.name, template: template.name, status: 'DRAFT' } };
+          card = { title: 'Campaign Drafted', icon: 'send', details: { name: saved.campaign.name, template: template.name, status: 'DRAFT' } };
         }
       } else {
         responseText = `I couldn't find a template matching "${text}". Please try again.`;

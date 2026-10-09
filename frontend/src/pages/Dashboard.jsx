@@ -2,7 +2,7 @@ import { Logo } from '../components/Logo.jsx';
 import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { can, canManage, canBill, isReadOnly, canOpenSection, roleLabel, ROLE_LABELS } from '../lib/permissions.js';
 import { aiAgentsHref } from '../lib/aiAgentsApi.js';
-import { I } from '../components/Icons.jsx';
+import { I, ICON_NAMES } from '../components/Icons.jsx';
 import { Btn } from '../components/Btn.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
 import { openMobileNav } from '../components/MobileNavButton.jsx';
@@ -830,7 +830,7 @@ const HomeView = () => {
           <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
             <div className="modal-card" style={{ background:'var(--surf-solid)', border:'1px solid rgba(15,23,42,0.08)', width: 400, borderRadius: 12, padding: 24, display:'flex', flexDirection:'column', alignItems:'center', boxShadow:'0 24px 64px rgba(15,23,42,0.15)' }}>
               <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                <div style={{ fontSize: '24px' }}>🔒</div>
+                <div><I n="lock" s={24} c="var(--accent)" /></div>
               </div>
               <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 18, color:'#0f172a', marginBottom: 8, margin: 0 }}>Login Required</h3>
               <p style={{ fontSize: 14, color:'rgba(15,23,42,0.6)', textAlign:'center', marginBottom: 24, lineHeight: 1.5 }}>
@@ -942,7 +942,7 @@ const HomeView = () => {
                     padding: '12px',
                   }}>
                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#0d9488', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {aiCard.icon || '✅'} {aiCard.title}
+                      <I n={ICON_NAMES.includes(aiCard.icon) ? aiCard.icon : 'checkc'} s={16} c="var(--accent)" /> {aiCard.title}
                     </div>
                     {aiCard.details && Object.entries(aiCard.details).map(([k, v]) => (
                       <div key={k} style={{ fontSize: '11px', marginBottom: '4px' }}>
@@ -981,7 +981,7 @@ const HomeView = () => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: number ? 'var(--gbg)' : 'rgba(15,23,42,0.04)', border: `1px solid ${number ? 'var(--gbd)' : 'var(--bd)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: number ? 1 : .55 }}>{'\u{1F4F1}'}</span>
+                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: number ? 1 : .55 }}><I n="smartphone" s={20} c="var(--accent)" /></span>
               </div>
               <div>
                 <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '15px', color: 'var(--t1)', marginBottom: '2px' }}>{number?.phoneNumber ?? 'No number connected'}</p>
@@ -1004,7 +1004,7 @@ const HomeView = () => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: igState.tone === 'ok' ? 1 : .55 }}>{'\u{1F4F7}'}</span>
+                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: igState.tone === 'ok' ? 1 : .55 }}><I n="insta" s={20} c="var(--accent)" /></span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '15px', color: 'var(--t1)', marginBottom: '2px' }}>{igState.title}</p>
@@ -2643,40 +2643,22 @@ const SUPERADMIN_NAV = [...ADMIN_TABS, { id: 'settings', label: 'Settings', icon
 // ADMIN_NAV/ADMIN_TABS already define, so routing and VALID_SECTIONS are
 // untouched. Any id not listed here still renders, under a trailing "MORE"
 // band, so a new nav entry can never silently vanish from the sidebar.
-// Sidebar glyphs, lifted from the design set's own nav (Inboxly Dashboard's
-// navData). The app keeps its SVG icon set everywhere else — these are only
-// the sidebar, which is what the design specifies.
-//
-// Written as escapes rather than literal characters so the file stays ASCII and
-// survives any editor or terminal that is not UTF-8 clean.
-//
-// Worth knowing: colour emoji are painted from the platform's own font, so they
-// ignore currentColor and will not tint with the active state, and they differ
-// between Windows, macOS and Android. The active row is still unmistakable from
-// its fill, left border and bolder label. U+2726 and U+26A1 are text glyphs
-// rather than colour emoji, so those two do follow the text colour.
-const NAV_EMOJI = {
-  // straight from the design set
-  home: '\u{1F3E0}', inbox: '\u{1F4AC}', campaigns: '\u{1F4E3}', templates: '\u{1F4C4}',authentication: '\u{1F510}',
-
-  contacts: '\u{1F465}', 'ai-agent': '\u2726', automation: '\u26A1', 'intent-matching': '\u{1F3AF}',
-  analytics: '\u{1F4CA}', 'chat-analysis': '\u{1F50E}', 'user-analytics': '\u{1F4C8}',
-  integrations: '\u{1F50C}', setup: '\u{1F4F1}', api: '\u{1F511}', payments: '\u{1F4B3}',
-  support: '\u{1F6DF}', settings: '\u2699\uFE0F',
+// Sidebar icons, by section id. Lucide line icons via <I>, so they take the
+// row's colour: teal when active, slate otherwise.
+const NAV_ICONS = {
+  home: 'home', inbox: 'inbox', campaigns: 'megaphone', templates: 'template', authentication: 'fingerprint',
+  contacts: 'contacts', 'ai-agent': 'sparkl', automation: 'zap', 'intent-matching': 'target',
+  analytics: 'chart', 'chat-analysis': 'scan', 'user-analytics': 'trending',
+  integrations: 'plug', setup: 'smartphone', api: 'key', payments: 'credit',
+  support: 'support', settings: 'cog', profile: 'user',
   // crm navigation
-  'crm-overview': '\u{1F4CA}', 'ai-chatbots': '\u{1F916}', leads: '\u{1F3AF}', deals: '\u{1F4BC}',
-  tasks: '\u2705',
-  // absent from the design set — chosen to sit alongside the rest
-  widget: '\u{1F310}', legal: '\u{1F4DC}', resources: '\u{1F4DA}',
-  'admin-overview': '\u{1F9ED}', 'admin-analytics': '\u{1F4CA}', 'admin-revenue': '\u{1F4B0}',
-  'admin-transactions': '\u{1F9FE}', 'admin-payments': '\u2705', 'admin-campaigns': '\u{1F4E3}',
-  'admin-workspaces': '\u{1F3E2}', 'admin-users': '\u{1F464}', 'admin-numbers': '\u{1F4F1}',
-  'admin-plans': '\u{1F4CB}', 'admin-support': '\u{1F6DF}', 'admin-api-management': '\u{1F511}',
+  'crm-overview': 'layout', 'ai-chatbots': 'bot', leads: 'target', deals: 'briefcase', tasks: 'check-square',
+  widget: 'widget', legal: 'file', resources: 'book',
+  'admin-overview': 'layout', 'admin-analytics': 'analytics', 'admin-revenue': 'wallet',
+  'admin-transactions': 'receipt', 'admin-payments': 'credit', 'admin-campaigns': 'megaphone',
+  'admin-workspaces': 'building', 'admin-users': 'users', 'admin-numbers': 'smartphone',
+  'admin-plans': 'layers', 'admin-support': 'support', 'admin-api-management': 'key', 'admin-audit': 'shield',
 };
-
-// The two glyphs the design set uses that are text, not colour emoji: these
-// alone follow currentColor and need a little more size to hold their own.
-const TEXT_GLYPHS = new Set(['\u2726', '\u26A1']);
 
 const NAV_GROUPS = [
   { name: 'COMMAND',    ids: ['home', 'inbox'] },
@@ -2915,11 +2897,9 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
                   onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
                   onMouseLeave={e => { if (!on) e.currentTarget.style.background = 'transparent'; }}
                   title={col ? (item.id === 'crm-overview' && crmBadge > 0 ? `${item.label} (${crmBadge} urgent)` : item.label) : ''}>
-                  {/* Fixed-width cell so labels line up whether the glyph is
-                      wide (emoji) or narrow, and held back when inactive so
-                      nineteen colour glyphs don't all shout at once. */}
-                  <span aria-hidden="true" style={{ width: 18, textAlign: 'center', fontSize: TEXT_GLYPHS.has(NAV_EMOJI[item.id]) ? 15.5 : 14.5, lineHeight: 1, flexShrink: 0, opacity: on ? 1 : 0.85, color: on ? 'var(--accent)' : 'var(--t2)' }}>
-                    {NAV_EMOJI[item.id] || '\u2022'}
+                  {/* Fixed-width cell so every label lines up. */}
+                  <span aria-hidden="true" style={{ width: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <I n={NAV_ICONS[item.id] || item.icon || 'layout'} s={17} w={on ? 2 : 1.75} c={on ? 'var(--accent)' : 'var(--t2)'} />
                   </span>
                   {!col && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, minWidth: 0 }}>

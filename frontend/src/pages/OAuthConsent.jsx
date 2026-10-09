@@ -1,3 +1,4 @@
+import { I } from '../components/Icons.jsx';
 /**
  * The consent screen: "<App> wants access to your <Workspace> workspace."
  *
@@ -154,7 +155,7 @@ export default function OAuthConsent({ search = '' }) {
       <ul style={{ listStyle: 'none', margin: '0 0 24px', padding: 0, display: 'flex', flexDirection: 'column', gap: '9px' }}>
         {info.scopes.map((s) => (
           <li key={s.id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px', color: 'var(--t1)' }}>
-            <span style={{ color: 'var(--green)', lineHeight: 1.5 }}>✓</span>
+            <span style={{ lineHeight: 1.5 }}><I n="check" s={14} c="var(--green)" /></span>
             <span>{s.label}</span>
           </li>
         ))}

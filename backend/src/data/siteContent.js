@@ -224,7 +224,7 @@ export const CAMPAIGN_AI = {
   demo: {
     brand: 'Vastra Studio',
     brandNote: 'Inboxly AI · knows this campaign',
-    campaign: '🎉 Republic Day Drop — flat 30% off the Linen Kurta set.',
+    campaign: 'Republic Day Drop — flat 30% off the Linen Kurta set.',
     cta: 'Shop the drop',
     question: 'Does 30% work on the linen set in size L?',
     facts: [['OFFER', '30% off'], ['ITEM', 'Linen Kurta'], ['SIZE', 'L · in stock']],

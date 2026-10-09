@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext, Fragment } from 'react';
-import { I } from '../components/Icons.jsx';
+import { I, ICON_NAMES } from '../components/Icons.jsx';
 import { Btn } from '../components/Btn.jsx';
 import { wFetch } from '../lib/api.js';
 import { wJson } from '../lib/automationApi.js';
@@ -437,7 +437,7 @@ const CustomAutoReplyTab = () => {
             <textarea value={resp} onChange={e => setResp(e.target.value)} placeholder="Auto-reply message…" rows={3}
               style={{ ...inputStyle, resize:'vertical' }} />
           </div>
-          {error && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {error}</p>}
+          {error && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}><I n="alertt" s={13} c="#dc2626" /> {error}</p>}
           <div style={{ display:'flex', gap:8 }}>
             <Btn onClick={save} disabled={saving} style={{ boxShadow:'var(--glow)' }}>{saving ? 'Saving…' : editing ? 'Update Trigger' : 'Save Trigger'}</Btn>
             <Btn variant="ghost" onClick={cancel}>Cancel</Btn>
@@ -709,7 +709,7 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
                   <div style={{ display:'flex', gap:6, marginTop:2, flexWrap:'wrap' }}>
                     <Btn size="sm" onClick={() => onGenerate(wf)} disabled={busy || saved}
                       style={saved ? {} : { boxShadow:'var(--glow)' }}>
-                      {busy ? 'Generating…' : saved ? 'Saved as draft ✓' : 'Generate Workflow'}
+                      {busy ? 'Generating…' : saved ? <><I n="check" s={13} /> Saved as draft</> : 'Generate Workflow'}
                     </Btn>
                     <Btn size="sm" variant="ghost" onClick={() => onEdit(wf)} disabled={busy}>Edit in builder</Btn>
                   </div>
@@ -1370,7 +1370,7 @@ const WorkflowsTab = () => {
 
           {error && (
             <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
-              <p style={{ fontSize:12, color:'#dc2626', margin:0, flex:1, minWidth:240 }}>⚠️ {error}</p>
+              <p style={{ fontSize:12, color:'#dc2626', margin:0, flex:1, minWidth:240 }}><I n="alertt" s={13} c="#dc2626" /> {error}</p>
               {errorFix && <Btn size="sm" variant="outline" onClick={() => applyFix(errorFix)}>{errorFix.label}</Btn>}
             </div>
           )}
@@ -2158,7 +2158,19 @@ const WorkflowCard = ({ workflow: w, stats, readOnly, runsTick, onToggle, onEdit
 // sensitivity threshold — because they are what decides whether any of this
 // runs at all, and adds the thing that was missing: the rules themselves.
 
-const INTENT_ICONS = ['📦', '💰', '🚚', '↩️', '😡', '📅', '🧾', '❓', '🎁', '🔧'];
+// Icon names from components/Icons.jsx. The intent stores the name (the
+// backend keeps up to 8 characters, which every name here fits).
+const INTENT_ICONS = ['package', 'money', 'truck', 'undo', 'frown', 'calendar', 'receipt', 'help', 'gift', 'wrench'];
+
+// Intents saved before icons replaced emoji still carry the emoji; show the
+// matching icon for those, and a neutral target for anything unknown.
+const LEGACY_INTENT_ICONS = {
+  '\u{1F4E6}': 'package', '\u{1F4B0}': 'money', '\u{1F69A}': 'truck', '↩️': 'undo', '↩': 'undo',
+  '\u{1F621}': 'frown', '\u{1F4C5}': 'calendar', '\u{1F9FE}': 'receipt', '❓': 'help', '\u{1F381}': 'gift',
+  '\u{1F527}': 'wrench',
+};
+const intentIconName = (icon) => (ICON_NAMES.includes(icon) ? icon : LEGACY_INTENT_ICONS[icon] || 'target');
+const IntentIcon = ({ icon, s = 17, c = 'var(--accent)' }) => <I n={intentIconName(icon)} s={s} c={c} />;
 
 const ACTION_TYPES = [
   { id: 'ai',       label: 'AI agent',       hint: 'Answer with the deployed agent' },
@@ -2172,7 +2184,7 @@ const ACTION_TYPES = [
 const IntentEditor = ({ intent, onClose, onSaved }) => {
   const editing = !!intent;
   const [name, setName] = useState(intent?.name || '');
-  const [icon, setIcon] = useState(intent?.icon && INTENT_ICONS.includes(intent.icon) ? intent.icon : INTENT_ICONS[0]);
+  const [icon, setIcon] = useState(intent?.icon ? intentIconName(intent.icon) : INTENT_ICONS[0]);
   const [actionType, setActionType] = useState(intent?.actionType || 'ai');
   const [actionTarget, setActionTarget] = useState(intent?.actionTarget || '');
   const [phrases, setPhrases] = useState(Array.isArray(intent?.phrases) ? intent.phrases : []);
@@ -2217,10 +2229,12 @@ const IntentEditor = ({ intent, onClose, onSaved }) => {
             <label style={labelStyle}>Icon</label>
             <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
               {INTENT_ICONS.map(g => (
-                <button key={g} type="button" onClick={() => setIcon(g)}
-                  style={{ width:36, height:36, borderRadius:9, fontSize:17, cursor:'pointer', lineHeight:1,
+                <button key={g} type="button" onClick={() => setIcon(g)} aria-label={g} aria-pressed={icon === g}
+                  style={{ width:36, height:36, borderRadius:9, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
                            background: icon === g ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
-                           border:`1px solid ${icon === g ? 'var(--gbd)' : 'var(--bd)'}` }}>{g}</button>
+                           border:`1px solid ${icon === g ? 'var(--gbd)' : 'var(--bd)'}` }}>
+                  <IntentIcon icon={g} c={icon === g ? 'var(--accent)' : 'var(--t2)'} />
+                </button>
               ))}
             </div>
           </div>
@@ -2404,7 +2418,7 @@ const AIIntentMatchingTab = () => {
 
           {!loadingRules && rules.length === 0 && (
             <div style={{ ...card, padding:'30px 24px', textAlign:'center' }}>
-              <div style={{ fontSize:26, marginBottom:10 }}>🎯</div>
+              <div style={{ marginBottom:10 }}><I n="target" s={28} c="var(--accent)" /></div>
               <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--t1)', marginBottom:6 }}>No intents yet</p>
               <p style={{ fontSize:13, color:'var(--t2)', lineHeight:1.6, maxWidth:380, margin:'0 auto 16px' }}>
                 An intent is a thing customers ask for and where that question should go. Until you add one, every inbound
@@ -2417,8 +2431,8 @@ const AIIntentMatchingTab = () => {
           {rules.map(rule => (
             <div key={rule.id} style={{ ...card, padding:'16px 18px', opacity: rule.isActive ? 1 : 0.6, transition:'opacity .15s' }}>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <span style={{ width:36, height:36, borderRadius:10, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>
-                  {rule.icon}
+                <span style={{ width:36, height:36, borderRadius:10, background:'var(--gbg)', border:'1px solid var(--gbd)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <IntentIcon icon={rule.icon} />
                 </span>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14.5, color:'var(--t1)' }}>{rule.name}</div>
@@ -2460,7 +2474,7 @@ const AIIntentMatchingTab = () => {
                   {testResult.matched ? 'Matched intent' : 'No match'}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                  <span style={{ fontSize:19 }}>{testResult.matched ? testResult.intent.icon : '🤖'}</span>
+                  <span style={{ fontSize:19 }}><IntentIcon icon={testResult.matched ? testResult.intent.icon : 'bot'} s={19} /></span>
                   <div style={{ minWidth:0 }}>
                     <div style={{ fontSize:13.5, fontWeight:700, color:'var(--t1)' }}>
                       {testResult.matched ? testResult.intent.name : 'Falls through to the AI agent'}
@@ -2972,7 +2986,7 @@ const FormPreview = ({ name, schema }) => {
       <p style={{ fontSize:12, fontWeight:700, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.07em' }}>Preview</p>
       <div style={{ border:'1px solid var(--bd)', borderRadius:14, background:'rgba(15,23,42,0.02)', overflow:'hidden', display:'flex', flexDirection:'column', minHeight:300 }}>
         <div style={{ padding:'10px 14px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', gap:8 }}>
-          <span style={{ color:'var(--t3)', fontSize:13 }}>✕</span>
+          <I n="x" s={13} c="var(--t3)" />
           <span style={{ flex:1, textAlign:'center', fontSize:12.5, fontWeight:600, color:'var(--t1)' }}>{name?.trim() || 'Untitled form'}</span>
         </div>
 
@@ -3518,7 +3532,7 @@ const SmartListsTab = () => {
                 <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. +14155552671" style={inputStyle} />
               </div>
             </div>
-            {contactError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {contactError}</p>}
+            {contactError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}><I n="alertt" s={13} c="#dc2626" /> {contactError}</p>}
             <div style={{ display:'flex', gap:8 }}>
               <Btn onClick={saveContact} style={{ boxShadow:'var(--glow)' }}>{editingContact ? 'Update' : 'Add'}</Btn>
               <Btn variant="ghost" onClick={cancelContactForm}>Cancel</Btn>
@@ -3576,7 +3590,7 @@ const SmartListsTab = () => {
             <label style={labelStyle}>Description (optional)</label>
             <input value={segDesc} onChange={e => setSegDesc(e.target.value)} placeholder="e.g. High-value customers" style={inputStyle} />
           </div>
-          {segError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {segError}</p>}
+          {segError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}><I n="alertt" s={13} c="#dc2626" /> {segError}</p>}
           <div style={{ display:'flex', gap:8 }}>
             <Btn onClick={saveSeg} style={{ boxShadow:'var(--glow)' }}>{editingSeg ? 'Update Segment' : 'Create Segment'}</Btn>
             <Btn variant="ghost" onClick={cancelSegForm}>Cancel</Btn>

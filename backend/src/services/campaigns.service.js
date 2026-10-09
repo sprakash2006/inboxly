@@ -1,0 +1,1383 @@
+import { prisma } from '../lib/prisma.js';
+import { findManyChunked } from '../lib/paging.js';
+import { campaignQueue } from '../queues/campaign.queue.js';
+import { assertWithinLimit } from './subscription.service.js';
+import { normalizeRetryConfig, retryPolicySummary } from '../lib/retry.js';
+import { credit, debit } from './wallet.service.js';
+import { getOptedOutPhoneSet, normalizePhone } from './optout.service.js';
+import { notifyWorkspace } from './notification.service.js';
+import { billedCount, campaignMessageRate, getRemainingQuota, reserveCampaignQuota, releaseCampaignQuota } from './campaignBilling.service.js';
+import { splitCampaignCharge, settleCampaignUnits } from '../lib/campaignCharge.js';
+import { getAgent } from './aiAgent.service.js';
+import { normalizeCtaLabel, buildCampaignContext, findCtaButton } from './campaignAi.service.js';
+import { isCopyCodeAuthenticationTemplate } from '../authentication/authentication.service.js';
+import { assertPlanFeature } from './planFeatures.service.js';
+
+const money = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+
+// A number needs a country code and a subscriber part to be sendable. Anything
+// shorter is a typo, not a phone number, and Meta would reject it anyway — so
+// it's reported as invalid up front instead of billed for and failed later.
+const MIN_MSISDN_DIGITS = 8;
+const MAX_MSISDN_DIGITS = 15; // E.164
+
+const isSendableNumber = (phone) => {
+  const digits = normalizePhone(phone);
+  return digits.length >= MIN_MSISDN_DIGITS && digits.length <= MAX_MSISDN_DIGITS;
+};
+
+// Turns the wizard's `aiAgent` block into the three columns the campaign
+// stores, or null when the caller didn't mention it (so an unrelated PATCH
+// can't quietly detach an agent).
+//
+// The agent id is validated against this workspace's own agent — an id from
+// the client is never written through unchecked — and an undeployed agent is
+// refused outright, because a campaign whose CTA leads nowhere is worse than
+// one with no CTA at all.
+async function resolveAiAgentConfig(workspaceId, aiAgent) {
+  if (aiAgent === undefined || aiAgent === null) return null;
+
+  if (aiAgent.enabled !== true) {
+    return { aiAgentEnabled: false, aiAgentId: null, aiAgentCtaLabel: null };
+  }
+
+  // A campaign agent is the campaignAi plan feature (CF-051); detaching one
+  // above stays open so a downgraded workspace can still edit its drafts.
+  await assertPlanFeature(workspaceId, 'campaignAi');
+  const agent = await getAgent(workspaceId, aiAgent.agentId ?? null);
+  if (!agent.deployed) {
+    const e = new Error('Deploy your WhatsApp AI Agent before attaching it to a campaign.');
+    e.status = 400; throw e;
+  }
+  return {
+    aiAgentEnabled: true,
+    aiAgentId: agent.id,
+    aiAgentCtaLabel: normalizeCtaLabel(aiAgent.ctaLabel),
+  };
+}
+
+// Fallback channels are the `fallback` plan feature. Saving a config with
+// both channels off (or clearing it) is always allowed.
+async function assertFallbackAllowed(workspaceId, fallbackConfig) {
+  if (fallbackConfig?.smsEnabled || fallbackConfig?.emailEnabled) {
+    await assertPlanFeature(workspaceId, 'fallback');
+  }
+}
+
+// Non-fatal advice for the wizard: without a quick-reply button on the
+// approved template there is no button for Meta to render, so the CTA can only
+// be reached by the customer typing the label. Meta refuses buttons that were
+// not part of the approved template, so this cannot be fixed at send time.
+export function campaignCtaWarnings(template, ctaLabel) {
+  const button = findCtaButton(template?.components, ctaLabel);
+  if (!button) {
+    return [`"${template?.name || 'This template'}" has no quick-reply button, so WhatsApp cannot show a tappable CTA. Add a quick-reply button to the template (Meta must approve it), or tell customers to reply "${normalizeCtaLabel(ctaLabel)}".`];
+  }
+  if (button.text && normalizeCtaLabel(button.text) !== normalizeCtaLabel(ctaLabel)) {
+    return [`The template's quick-reply button reads "${button.text}", so that is what customers will tap — the CTA label is only used for replies typed by hand.`];
+  }
+  return [];
+}
+
+const campaignTypeFilter = (type) => {
+  if (type === 'authentication') return { template: { category: { equals: 'AUTHENTICATION', mode: 'insensitive' } } };
+  if (type === 'regular') return { NOT: { template: { category: { equals: 'AUTHENTICATION', mode: 'insensitive' } } } };
+  return {};
+};
+
+// This migration is the first point at which a campaign send could persist an
+// AuthenticationTransaction.campaignId. A campaign created before it finished
+// cannot be assigned historical OTP rows safely: those rows deliberately have
+// no campaign identity. Keep that provenance distinction explicit so unknown
+// historical verification metrics are never presented as zero.
+const AUTH_CAMPAIGN_LINK_MIGRATION = '20260907000000_campaign_authentication_analytics';
+let authenticationLinkStartedAt;
+
+async function getAuthenticationLinkStartedAt() {
+  if (authenticationLinkStartedAt !== undefined) return authenticationLinkStartedAt;
+  try {
+    const rows = await prisma.$queryRaw`
+      SELECT "finished_at"
+      FROM "_prisma_migrations"
+      WHERE "migration_name" = ${AUTH_CAMPAIGN_LINK_MIGRATION}
+        AND "finished_at" IS NOT NULL
+      ORDER BY "finished_at" DESC
+      LIMIT 1
+    `;
+    authenticationLinkStartedAt = rows[0]?.finished_at ?? null;
+  } catch (error) {
+    // Failing closed is safer than converting unverifiable historical data to
+    // zeros if a provider does not expose Prisma's migration table.
+    console.error('[CampaignAnalytics] Could not read Authentication linkage migration:', error.message);
+    authenticationLinkStartedAt = null;
+  }
+  return authenticationLinkStartedAt;
+}
+
+const hasUnavailableHistoricalAuthenticationMetrics = (campaign, hasLinkedTransactions, linkStartedAt) =>
+  !hasLinkedTransactions && (!linkStartedAt || campaign.createdAt < linkStartedAt);
+
+// A URL button opens the approved destination inside WhatsApp. Meta does not
+// send an inbound webhook for that action, so it cannot be honestly counted
+// without a destination URL that was approved as a Inboxly tracking redirect.
+// Keep this description alongside the detail report so the UI can distinguish
+// "no clicks yet" from "this button type has no observable click event".
+const buttonTrackingInfo = (components) => {
+  const definitions = [];
+  const addButtons = (items, cardIndex = null) => {
+    (Array.isArray(items) ? items : []).forEach((button, buttonIndex) => {
+      definitions.push({
+        id: cardIndex === null ? `button-${buttonIndex}` : `card-${cardIndex}-button-${buttonIndex}`,
+        title: String(button?.text || '').trim() || `Button ${buttonIndex + 1}`,
+        type: String(button?.type || '').toUpperCase() || 'UNKNOWN',
+        cardIndex,
+        buttonIndex,
+      });
+    });
+  };
+
+  for (const component of Array.isArray(components) ? components : []) {
+    if (String(component?.type || '').toUpperCase() === 'BUTTONS') {
+      addButtons(component.buttons);
+    }
+    if (String(component?.type || '').toUpperCase() === 'CAROUSEL') {
+      (Array.isArray(component.cards) ? component.cards : []).forEach((card, cardIndex) => {
+        const buttons = (Array.isArray(card?.components) ? card.components : [])
+          .find((item) => String(item?.type || '').toUpperCase() === 'BUTTONS')?.buttons;
+        addButtons(buttons, cardIndex);
+      });
+    }
+  }
+
+  const hasUrlButtons = definitions.some((button) => button.type === 'URL');
+  return {
+    mode: hasUrlButtons ? 'UNAVAILABLE' : 'WEBHOOK',
+    reason: hasUrlButtons
+      ? 'This campaign uses WhatsApp URL buttons. WhatsApp opens those links directly and does not send Inboxly a click webhook. Tracking requires a Inboxly redirect URL to be approved in the template before it is sent.'
+      : null,
+    buttons: definitions,
+  };
+};
+
+export async function listCampaigns(workspaceId, { page = 1, limit = 20, type } = {}) {
+  const skip = (page - 1) * limit;
+  const where = { workspaceId, ...campaignTypeFilter(type) };
+  const [data, total] = await Promise.all([
+    prisma.campaign.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        template: { select: { id: true, name: true } },
+        waNumber: { select: { id: true, phoneNumber: true, displayName: true } },
+      },
+    }),
+    prisma.campaign.count({ where }),
+  ]);
+
+  // The retry counters are per-recipient, so the list column has to be derived
+  // rather than read off the campaign row. Two grouped counts over the page's
+  // campaigns, not one query per row.
+  const ids = data.map((c) => c.id);
+  const linkStartedAt = type === 'authentication'
+    ? await getAuthenticationLinkStartedAt()
+    : null;
+  const [retriedRows, retryingRows, authRows, acceptedRows] = ids.length
+    ? await Promise.all([
+        prisma.campaignRecipient.groupBy({
+          by: ['campaignId'],
+          where: { campaignId: { in: ids }, retryCount: { gt: 0 } },
+          _count: { _all: true },
+        }),
+        prisma.campaignRecipient.groupBy({
+          by: ['campaignId'],
+          where: { campaignId: { in: ids }, status: 'RETRYING' },
+          _count: { _all: true },
+        }),
+        type === 'authentication'
+          ? prisma.authenticationTransaction.groupBy({
+              by: ['campaignId', 'status'],
+              where: { campaignId: { in: ids } },
+              _count: { _all: true },
+            })
+          : Promise.resolve([]),
+        type === 'authentication'
+          ? prisma.authenticationTransaction.groupBy({
+              by: ['campaignId'],
+              where: { campaignId: { in: ids }, metaMessageId: { not: null } },
+              _count: { _all: true },
+            })
+          : Promise.resolve([]),
+      ])
+    : [[], [], [], []];
+
+  const retriedBy = new Map(retriedRows.map((r) => [r.campaignId, r._count._all]));
+  const retryingBy = new Map(retryingRows.map((r) => [r.campaignId, r._count._all]));
+  const authenticationBy = new Map();
+  const acceptedBy = new Map(acceptedRows.map((row) => [row.campaignId, row._count._all]));
+  for (const row of authRows) {
+    const counts = authenticationBy.get(row.campaignId) || {};
+    counts[row.status] = row._count._all;
+    authenticationBy.set(row.campaignId, counts);
+  }
+
+  return {
+    data: data.map((c) => {
+      const authCounts = authenticationBy.get(c.id) || null;
+      const historicalUnknown = type === 'authentication'
+        && hasUnavailableHistoricalAuthenticationMetrics(c, Boolean(authCounts), linkStartedAt);
+      // Recipient delivery records remain campaign-scoped even for campaigns
+      // that predate OTP linkage, so OTP requests can still be reported there.
+      const totalRequests = authCounts
+        ? Object.values(authCounts).reduce((sum, value) => sum + value, 0)
+        : (c.sent ?? 0);
+      return {
+        ...c,
+        retried: retriedBy.get(c.id) ?? 0,
+        retrying: retryingBy.get(c.id) ?? 0,
+        ...(type === 'authentication' ? { authentication: {
+          totalRequests,
+          acceptedByWhatsApp: historicalUnknown ? null : (acceptedBy.get(c.id) ?? 0),
+          verified: historicalUnknown ? null : (authCounts?.VERIFIED || 0),
+          expired: historicalUnknown ? null : (authCounts?.EXPIRED || 0),
+          failed: historicalUnknown ? null : (authCounts?.FAILED || 0),
+          verificationRate: historicalUnknown || totalRequests === 0
+            ? null
+            : Number(((((authCounts?.VERIFIED || 0) / totalRequests) * 100)).toFixed(1)),
+          trackingAvailable: !historicalUnknown,
+        } } : {}),
+      };
+    }),
+    total,
+  };
+}
+
+export async function createCampaign(workspaceId, { name, templateId, numberId, whatsappNumberId, retryConfig, fallbackConfig, aiAgent, goal }, user = null) {
+  if (!name || !String(name).trim()) { const e = new Error('Campaign name is required'); e.status = 400; throw e; }
+  // Plan's campaign cap (null = unlimited); reads the plan live so admin edits
+  // in the Plans tab apply immediately.
+  await assertWithinLimit(workspaceId, 'campaign');
+  const resolvedNumberId = numberId ?? whatsappNumberId;
+  const [template, waNumber] = await Promise.all([
+    prisma.template.findFirst({ where: { id: templateId, workspaceId } }),
+    prisma.waNumber.findFirst({ where: { id: resolvedNumberId, workspaceId } }),
+  ]);
+
+  if (!template) { const e = new Error('Template not found'); e.status = 404; throw e; }
+  if (template.status === 'DELETED') {
+    const e = new Error('That template was deleted on Meta and can no longer be used'); e.status = 400; throw e;
+  }
+  if (!waNumber) { const e = new Error('WhatsApp number not found'); e.status = 404; throw e; }
+  // Enforce per-number template privacy: the template must belong to this number
+  // (or be a legacy template with no number binding yet).
+  if (template.waNumberId && template.waNumberId !== waNumber.id) {
+    const e = new Error('Selected template belongs to a different WhatsApp number'); e.status = 400; throw e;
+  }
+
+  const aiConfig = await resolveAiAgentConfig(workspaceId, aiAgent);
+  await assertFallbackAllowed(workspaceId, fallbackConfig);
+
+  return prisma.campaign.create({
+    data: {
+      workspaceId, name: String(name).trim(), templateId, waNumberId: waNumber.id, status: 'DRAFT',
+      createdByUserId: user?.id ?? null,
+      ...(aiConfig ?? {}),
+      // Advanced wizard config (retries / fallback channels), persisted as JSON
+      // and read by the retry engine and fallback.service. Reply flows and
+      // conversion tracking are refused by the validator until they exist.
+      retryConfig: retryConfig ? normalizeRetryConfig(retryConfig) : undefined,
+      goal: goal ?? undefined,
+      fallbackConfig: fallbackConfig ?? undefined,
+    },
+  });
+}
+
+export async function updateCampaign(workspaceId, campaignId, {
+  name, retryConfig, fallbackConfig, aiAgent, goal,
+  templateId, numberId, whatsappNumberId, scheduledAt,
+}) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'DRAFT' && campaign.status !== 'SCHEDULED') {
+    const e = new Error('Only DRAFT or SCHEDULED campaigns can be updated'); e.status = 400; throw e;
+  }
+  const data = {};
+  if (name !== undefined) data.name = String(name).trim();
+
+  // Which template a draft sends, and from which number, are the two things a
+  // half-finished campaign most often needs changed — but they were the two
+  // this function would not accept, so reopening a draft could never really
+  // edit it. They are validated exactly as createCampaign validates them,
+  // including the per-number template privacy rule, rather than trusted.
+  //
+  // DRAFT only: a SCHEDULED campaign has already been costed and queued
+  // against a specific template, so swapping it underneath would bill for one
+  // message and send another.
+  const resolvedNumberId = numberId ?? whatsappNumberId;
+  const changingContent = templateId !== undefined || resolvedNumberId !== undefined;
+  if (changingContent && campaign.status !== 'DRAFT') {
+    const e = new Error('The template and sending number can only be changed while the campaign is a draft');
+    e.status = 400; throw e;
+  }
+  if (changingContent) {
+    const nextTemplateId = templateId ?? campaign.templateId;
+    const nextNumberId = resolvedNumberId ?? campaign.waNumberId;
+    const [template, waNumber] = await Promise.all([
+      prisma.template.findFirst({ where: { id: nextTemplateId, workspaceId } }),
+      nextNumberId
+        ? prisma.waNumber.findFirst({ where: { id: nextNumberId, workspaceId } })
+        : Promise.resolve(null),
+    ]);
+    if (!template) { const e = new Error('Template not found'); e.status = 404; throw e; }
+    if (template.status === 'DELETED') {
+      const e = new Error('That template was deleted on Meta and can no longer be used'); e.status = 400; throw e;
+    }
+    if (!waNumber) { const e = new Error('WhatsApp number not found'); e.status = 404; throw e; }
+    if (template.waNumberId && template.waNumberId !== waNumber.id) {
+      const e = new Error('Selected template belongs to a different WhatsApp number'); e.status = 400; throw e;
+    }
+    data.templateId = template.id;
+    data.waNumberId = waNumber.id;
+  }
+
+  // A draft can carry the schedule the user picked before they finished. It is
+  // still only a stored intention — nothing sends until launchCampaign runs,
+  // which takes its own scheduledAt.
+  if (scheduledAt !== undefined) {
+    if (scheduledAt === null || scheduledAt === '') data.scheduledAt = null;
+    else {
+      const when = new Date(scheduledAt);
+      if (Number.isNaN(when.getTime())) { const e = new Error('scheduledAt is not a valid date'); e.status = 400; throw e; }
+      data.scheduledAt = when;
+    }
+  }
+  if (retryConfig !== undefined) data.retryConfig = retryConfig ? normalizeRetryConfig(retryConfig) : null;
+  if (goal !== undefined) data.goal = goal;
+  if (fallbackConfig !== undefined) {
+    await assertFallbackAllowed(workspaceId, fallbackConfig);
+    data.fallbackConfig = fallbackConfig;
+  }
+  const aiConfig = await resolveAiAgentConfig(workspaceId, aiAgent);
+  if (aiConfig) Object.assign(data, aiConfig);
+
+  return prisma.campaign.update({ where: { id: campaignId }, data });
+}
+
+// Makes the campaign's audience exactly `contactIds`.
+//
+// addRecipients() below is add-only (skipDuplicates), which is right when a
+// wizard is building an audience up but wrong when someone reopens a draft and
+// deselects people — the audience could only ever grow, so a "removed" contact
+// was still messaged at launch. Replacing is therefore its own operation
+// rather than a flag, and it deletes only what the new selection drops.
+export async function setRecipients(workspaceId, campaignId, contactIds) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'DRAFT') {
+    const e = new Error('The audience can only be changed while the campaign is a draft'); e.status = 400; throw e;
+  }
+
+  const ids = Array.isArray(contactIds) ? [...new Set(contactIds.filter(Boolean))] : [];
+
+  // Emptying the audience is a legitimate mid-edit state for a draft — the
+  // launch path is what insists on having someone to send to.
+  if (ids.length === 0) {
+    await prisma.campaignRecipient.deleteMany({ where: { campaignId } });
+    await prisma.campaign.update({ where: { id: campaignId }, data: { totalContacts: 0 } });
+    return { added: 0, removed: 0, kept: 0, blocked: 0, totalContacts: 0, invalidIds: [] };
+  }
+
+  const validContacts = await prisma.contact.findMany({
+    where: { id: { in: ids }, workspaceId },
+    select: { id: true, phoneNumber: true, optedOut: true },
+  });
+  const validIds = validContacts.map((c) => c.id);
+  const invalidIds = ids.filter((id) => !validIds.includes(id));
+  if (validIds.length === 0) {
+    const e = new Error(`No valid contacts in this workspace. Invalid IDs: ${JSON.stringify(invalidIds)}`);
+    e.status = 400; throw e;
+  }
+
+  const existing = await prisma.campaignRecipient.findMany({
+    where: { campaignId }, select: { contactId: true },
+  });
+  const existingIds = new Set(existing.map((r) => r.contactId));
+  const wanted = new Set(validIds);
+  const toRemove = [...existingIds].filter((id) => !wanted.has(id));
+  const toAdd = validIds.filter((id) => !existingIds.has(id));
+
+  if (toRemove.length) {
+    await prisma.campaignRecipient.deleteMany({ where: { campaignId, contactId: { in: toRemove } } });
+  }
+  if (toAdd.length) {
+    await prisma.campaignRecipient.createMany({
+      data: toAdd.map((contactId) => ({ campaignId, contactId })),
+      skipDuplicates: true,
+    });
+  }
+
+  const total = await prisma.campaignRecipient.count({ where: { campaignId } });
+  await prisma.campaign.update({ where: { id: campaignId }, data: { totalContacts: total } });
+
+  const blockedSet = await getOptedOutPhoneSet(workspaceId, validContacts.map((c) => c.phoneNumber));
+  const blocked = validContacts.filter((c) => c.optedOut === true || blockedSet.has(normalizePhone(c.phoneNumber))).length;
+
+  return {
+    added: toAdd.length,
+    removed: toRemove.length,
+    kept: validIds.length - toAdd.length,
+    blocked,
+    invalidIds,
+    totalContacts: total,
+  };
+}
+
+export async function addRecipients(workspaceId, campaignId, contactIds) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'DRAFT') { const e = new Error('Recipients can only be added while the campaign is a draft'); e.status = 400; throw e; }
+
+  const ids = Array.isArray(contactIds) ? [...new Set(contactIds.filter(Boolean))] : [];
+  const validContacts = await prisma.contact.findMany({
+    where: { id: { in: ids }, workspaceId },
+    select: { id: true, phoneNumber: true, optedOut: true },
+  });
+  const validIds = validContacts.map((c) => c.id);
+  const invalidIds = ids.filter((id) => !validIds.includes(id));
+
+  if (validIds.length === 0) {
+    const e = new Error(`No valid contacts in this workspace. Invalid IDs: ${JSON.stringify(invalidIds)}`);
+    e.status = 400;
+    throw e;
+  }
+
+  const createData = validIds.map((contactId) => ({ campaignId, contactId }));
+  // createMany reports the number of rows actually inserted — skipDuplicates
+  // silently drops recipients already on the campaign, so use the real count.
+  const { count: added } = await prisma.campaignRecipient.createMany({ data: createData, skipDuplicates: true });
+  const duplicates = validIds.length - added;
+
+  const total = await prisma.campaignRecipient.count({ where: { campaignId } });
+  await prisma.campaign.update({ where: { id: campaignId }, data: { totalContacts: total } });
+
+  // Opted-out recipients are reported here so the wizard can show the count
+  // before launch. They stay on the campaign (the report needs them under
+  // "Skipped") and are marked SKIPPED — never sent, never billed — at launch.
+  const blockedSet = await getOptedOutPhoneSet(workspaceId, validContacts.map((c) => c.phoneNumber));
+  const blocked = validContacts.filter((c) => c.optedOut === true || blockedSet.has(normalizePhone(c.phoneNumber))).length;
+
+  return { added, skipped: invalidIds.length + duplicates, duplicates, invalidIds, blocked, totalContacts: total };
+}
+
+// All that pricing and launch read from each recipient's contact; the full row
+// was loaded before, for up to 10,000 recipients at a time.
+const AUDIENCE_CONTACT_FIELDS = { id: true, name: true, phoneNumber: true, optedOut: true };
+
+// Breaks a set of contacts into the four buckets the campaign summary screen
+// shows — valid / duplicate / blocked / invalid — and prices the valid ones.
+// Used both by the pre-launch preview endpoint and by launchCampaign itself,
+// so the number the customer approves is the number they're charged.
+async function analyseAudience(workspaceId, contacts) {
+  const seenContactIds = new Set();
+  const seenPhones = new Set();
+
+  const valid = [];
+  const duplicates = [];
+  const invalid = [];
+  const candidates = [];
+
+  for (const contact of contacts) {
+    if (!contact) continue;
+    const digits = normalizePhone(contact.phoneNumber);
+    if (seenContactIds.has(contact.id) || (digits && seenPhones.has(digits))) {
+      duplicates.push(contact);
+      continue;
+    }
+    seenContactIds.add(contact.id);
+    if (digits) seenPhones.add(digits);
+
+    if (!isSendableNumber(contact.phoneNumber)) { invalid.push(contact); continue; }
+    candidates.push(contact);
+  }
+
+  const blockedSet = await getOptedOutPhoneSet(workspaceId, candidates.map((c) => c.phoneNumber));
+  const blocked = [];
+  for (const contact of candidates) {
+    if (contact.optedOut === true || blockedSet.has(normalizePhone(contact.phoneNumber))) blocked.push(contact);
+    else valid.push(contact);
+  }
+
+  return { valid, duplicates, blocked, invalid };
+}
+
+// The template's category, which prices the campaign (campaignMessageRate).
+async function resolveTemplateCategory(workspaceId, templateId) {
+  if (!templateId) return null;
+  const template = await prisma.template.findFirst({
+    where: { id: templateId, workspaceId },
+    select: { category: true },
+  });
+  return template?.category ?? null;
+}
+
+async function priceAudience(workspaceId, contacts, templateCategory = null) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { walletBalance: true },
+  });
+  if (!workspace) { const e = new Error('Workspace not found'); e.status = 404; throw e; }
+
+  const { valid, duplicates, blocked, invalid } = await analyseAudience(workspaceId, contacts);
+  const costPerMessage = await campaignMessageRate(workspaceId, templateCategory);
+  const { remaining } = await getRemainingQuota(workspaceId);
+  const { quotaUnits, walletUnits, totalCost } = splitCampaignCharge({
+    units: valid.length, remainingQuota: remaining, rate: costPerMessage,
+  });
+  const walletBalance = Number(workspace.walletBalance);
+
+  return {
+    totalContacts: contacts.length,
+    validContacts: valid.length,
+    duplicateContacts: duplicates.length,
+    blockedContacts: blocked.length,
+    invalidContacts: invalid.length,
+    messageCategory: templateCategory ?? null,
+    costPerMessage,
+    // Messages the plan's remaining quota covers, and those the wallet pays.
+    quotaCoveredMessages: quotaUnits,
+    walletChargedMessages: walletUnits,
+    remainingQuota: remaining === Infinity ? null : remaining,
+    totalCost,
+    walletBalance,
+    remainingBalance: money(walletBalance - totalCost),
+    sufficientBalance: walletBalance >= totalCost,
+    blockedNumbers: blocked.slice(0, 25).map((c) => ({ id: c.id, name: c.name, phoneNumber: c.phoneNumber })),
+    validContactIds: valid.map((c) => c.id),
+  };
+}
+
+// Pre-launch summary (Part 4 of the spec). Accepts either a list of contact
+// ids (the create-campaign wizard, before the campaign row exists) or an
+// existing draft campaign id.
+export async function estimateCampaignCost(workspaceId, { contactIds, campaignId, templateId } = {}) {
+  let contacts = [];
+  // Pricing depends on the template's category. An existing campaign carries
+  // its own template; the wizard estimates before the campaign row exists and
+  // so passes the template it has selected.
+  let category = null;
+
+  if (campaignId) {
+    const campaign = await prisma.campaign.findFirst({
+      where: { id: campaignId, workspaceId },
+      select: { id: true, template: { select: { category: true } } },
+    });
+    if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+    category = campaign.template?.category ?? null;
+    const recipients = await findManyChunked(prisma.campaignRecipient, {
+      where: { campaignId, status: 'PENDING' },
+      include: { contact: { select: AUDIENCE_CONTACT_FIELDS } },
+    });
+    contacts = recipients.map((r) => r.contact).filter(Boolean);
+  } else {
+    category = await resolveTemplateCategory(workspaceId, templateId);
+    const ids = Array.isArray(contactIds) ? contactIds.filter(Boolean) : [];
+    if (ids.length === 0) { const e = new Error('Select at least one contact to estimate a campaign'); e.status = 400; throw e; }
+    if (ids.length > 10_000) { const e = new Error('A campaign can target at most 10,000 contacts at a time'); e.status = 400; throw e; }
+    const found = await prisma.contact.findMany({ where: { id: { in: [...new Set(ids)] }, workspaceId }, select: AUDIENCE_CONTACT_FIELDS });
+    const byId = new Map(found.map((c) => [c.id, c]));
+    // Preserve the caller's list (including its repeats) so "duplicate
+    // contacts" reflects what they actually selected.
+    contacts = ids.map((cid) => byId.get(cid)).filter(Boolean);
+    const missing = ids.length - contacts.length;
+    if (missing > 0) {
+      const summary = await priceAudience(workspaceId, contacts, category);
+      return { ...summary, totalContacts: ids.length, invalidContacts: summary.invalidContacts + missing };
+    }
+  }
+
+  return priceAudience(workspaceId, contacts, category);
+}
+
+// Meta refuses to send a template it has not approved, so a campaign built on
+// one is money and time spent on a guaranteed failure. Only DELETED was checked
+// before, which let a REJECTED or still-in-review template be launched to the
+// whole audience — every recipient failing with 132000/132001 and the reason
+// buried in per-recipient errors.
+//
+// Checked at launch rather than only at creation: a template is very often
+// still PENDING when the campaign is drafted, and Meta can reject or disable it
+// at any time afterwards.
+function assertTemplateSendable(template) {
+  if (!template) { const e = new Error('This campaign has no template'); e.status = 400; throw e; }
+  // An authentication campaign generates a code per recipient, which the send
+  // path only supports for COPY_CODE templates; anything else would charge
+  // the whole audience for sends that all fail.
+  if (template.status === 'APPROVED' && String(template.category || '').toUpperCase() === 'AUTHENTICATION'
+    && !isCopyCodeAuthenticationTemplate(template)) {
+    const e = new Error(`Template "${template.name}" is an authentication template without a COPY_CODE button. Authentication campaigns need an approved COPY_CODE template.`);
+    e.status = 422;
+    e.code = 'TEMPLATE_NOT_SENDABLE';
+    e.details = { templateId: template.id, status: template.status };
+    throw e;
+  }
+  if (template.status === 'APPROVED') return;
+
+  const reason = {
+    PENDING: `Template "${template.name}" is still in review with Meta. Wait for it to be approved before launching.`,
+    REJECTED: `Template "${template.name}" was rejected by Meta and cannot be sent. Edit it and resubmit for review, or pick a different template.`,
+    DELETED: `Template "${template.name}" no longer exists on Meta. Pick a different template.`,
+  }[template.status] || `Template "${template.name}" is not approved for sending (status: ${template.status}).`;
+
+  const e = new Error(reason);
+  e.status = 422;
+  e.code = 'TEMPLATE_NOT_SENDABLE';
+  e.details = { templateId: template.id, status: template.status };
+  throw e;
+}
+
+export async function launchCampaign(workspaceId, campaignId, scheduledAt, retryConfig, user = null) {
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, workspaceId },
+    // The whole template, not just its category: a campaign carrying an AI
+    // agent snapshots its content below, and that snapshot is what the agent
+    // answers from for the life of every conversation this campaign starts.
+    include: { template: true },
+  });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'DRAFT') {
+    const e = new Error('Campaign is not in DRAFT status'); e.status = 400; throw e;
+  }
+
+  // Before anything is charged or queued.
+  assertTemplateSendable(campaign.template);
+
+  // Validate the schedule before touching money — a bad date must not leave a
+  // charged, unqueued campaign behind.
+  let scheduledDate = null;
+  if (scheduledAt) {
+    scheduledDate = new Date(scheduledAt);
+    if (Number.isNaN(scheduledDate.getTime())) {
+      const e = new Error('Invalid scheduledAt date'); e.status = 400; throw e;
+    }
+    // Reject clearly-past dates instead of silently firing immediately.
+    if (scheduledDate.getTime() - Date.now() < -60_000) {
+      const e = new Error('scheduledAt must be in the future'); e.status = 400; throw e;
+    }
+  }
+
+  const recipients = await findManyChunked(prisma.campaignRecipient, {
+    where: { campaignId, status: 'PENDING' },
+    include: { contact: { select: AUDIENCE_CONTACT_FIELDS } },
+  });
+  if (recipients.length === 0) {
+    const e = new Error('Add at least one recipient before launching'); e.status = 400; throw e;
+  }
+
+  const contacts = recipients.map((r) => r.contact).filter(Boolean);
+  const { valid, blocked, invalid } = await analyseAudience(workspaceId, contacts);
+  const sendableIds = new Set(valid.map((c) => c.id));
+
+  // Opted-out and unsendable recipients are marked up front so they are never
+  // attempted and never billed. A blocked number is a skip, not a failure —
+  // and one blocked number must never stop the campaign.
+  const skipIds = recipients.filter((r) => !sendableIds.has(r.contactId)).map((r) => r.id);
+  const blockedIds = new Set(blocked.map((c) => c.id));
+  if (skipIds.length > 0) {
+    await prisma.campaignRecipient.updateMany({
+      where: { id: { in: recipients.filter((r) => blockedIds.has(r.contactId)).map((r) => r.id) } },
+      data: { status: 'SKIPPED', failReason: 'Recipient opted out', retryStatus: 'SKIPPED' },
+    });
+    const invalidIds = new Set(invalid.map((c) => c.id));
+    await prisma.campaignRecipient.updateMany({
+      where: { id: { in: recipients.filter((r) => invalidIds.has(r.contactId)).map((r) => r.id) } },
+      // INVALID_NUMBER (rather than PERMANENT_FAILURE) marks this as rejected
+      // at launch, before any charge — settleCampaignRefund() relies on that
+      // to tell "never billed" apart from "billed and attempted".
+      data: { status: 'FAILED', failedAt: new Date(), failReason: 'Invalid phone number', retryStatus: 'INVALID_NUMBER' },
+    });
+  }
+
+  if (valid.length === 0) {
+    const e = new Error(
+      blocked.length > 0
+        ? 'Every recipient on this campaign has opted out — there is nobody left to send to.'
+        : 'No recipient on this campaign has a valid phone number.'
+    );
+    e.status = 400;
+    throw e;
+  }
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { walletBalance: true },
+  });
+  // Priced by the template's category on this workspace's plan — the same
+  // messageRate() inbox overage uses. Persisted onto the campaign below, so
+  // refunds and the campaign detail view keep using the rate actually charged.
+  const costPerMessage = await campaignMessageRate(workspaceId, campaign.template?.category);
+  const walletBefore = Number(workspace.walletBalance);
+
+  // The plan's remaining included messages are spent first; the wallet only
+  // pays for the rest. This early check uses a read of the quota; the
+  // reservation below is what actually takes it.
+  const quotaPreview = await getRemainingQuota(workspaceId);
+  const preview = splitCampaignCharge({ units: valid.length, remainingQuota: quotaPreview.remaining, rate: costPerMessage });
+  if (preview.totalCost > walletBefore) {
+    const e = new Error('Insufficient Wallet Balance. Please recharge your wallet.');
+    e.status = 402;
+    e.code = 'INSUFFICIENT_WALLET_BALANCE';
+    e.details = { required: preview.totalCost, balance: walletBefore, shortfall: money(preview.totalCost - walletBefore) };
+    throw e;
+  }
+
+  // Claim the campaign for charging. `chargedAt: null` in the WHERE is the
+  // idempotency guard: a browser refresh, a double-submit, a network retry or
+  // a resumed launch all lose this race and stop here instead of paying twice.
+  const claim = await prisma.campaign.updateMany({
+    where: { id: campaignId, workspaceId, status: 'DRAFT', chargedAt: null },
+    data: { chargedAt: new Date() },
+  });
+  if (claim.count === 0) {
+    const e = new Error('This campaign has already been launched'); e.status = 409; throw e;
+  }
+
+  let reservation;
+  try {
+    reservation = await reserveCampaignQuota(workspaceId, valid.length);
+  } catch (err) {
+    await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
+    throw err;
+  }
+  const { quotaUnits, totalCost } = splitCampaignCharge({
+    units: valid.length, remainingQuota: reservation.reserved, rate: costPerMessage,
+  });
+  const undoReservation = () => releaseCampaignQuota(workspaceId, reservation.periodStart, quotaUnits)
+    .catch((e) => console.error(`[Campaign] Could not release quota for ${campaignId}:`, e.message));
+
+  let walletAfter = walletBefore;
+  if (totalCost > 0) {
+    let charge;
+    try {
+      charge = await debit(workspaceId, totalCost, {
+        reason: `Campaign: ${campaign.name}`,
+        reference: campaignId,
+        category: 'CAMPAIGN',
+        // Unique per campaign — the ledger itself refuses a second charge.
+        idempotencyKey: `campaign_charge_${campaignId}`,
+      });
+    } catch (err) {
+      await undoReservation();
+      await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
+      throw err;
+    }
+    if (!charge.ok) {
+      // Balance moved between the check above and the debit (a concurrent
+      // campaign spent it, or the quota was spent first). Release the claim
+      // so the customer can retry.
+      await undoReservation();
+      await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
+      const e = new Error('Insufficient Wallet Balance. Please recharge your wallet.');
+      e.status = 402;
+      e.code = 'INSUFFICIENT_WALLET_BALANCE';
+      e.details = { required: totalCost, balance: charge.balance, shortfall: money(totalCost - charge.balance) };
+      throw e;
+    }
+    walletAfter = charge.balance;
+  }
+
+  const normRetry = retryConfig ? normalizeRetryConfig(retryConfig) : (campaign.retryConfig ? normalizeRetryConfig(campaign.retryConfig) : undefined);
+  const costData = {
+    costPerMessage,
+    totalCost,
+    walletBefore,
+    walletAfter,
+    quotaUnits,
+    quotaPeriodStart: quotaUnits > 0 ? reservation.periodStart : null,
+    // Baselines for the live counters the campaigns list reads. The worker
+    // increments from here as it sends.
+    skipped: blocked.length,
+    failed: invalid.length,
+    ...(user?.id ? { createdByUserId: user.id } : {}),
+    ...(normRetry !== undefined ? { retryConfig: normRetry } : {}),
+    // Frozen here, at the moment the campaign is paid for and committed. Each
+    // recipient re-snapshots its own personalised copy at send time; this is
+    // the fallback for anyone whose row is gone, and what the agent's test
+    // panel reads for a campaign that has already launched.
+    ...(campaign.aiAgentEnabled
+      ? {
+        aiAgentContext: buildCampaignContext({
+          campaign,
+          template: campaign.template,
+          ctaLabel: campaign.aiAgentCtaLabel,
+        }),
+      }
+      : {}),
+  };
+
+  let queuedJob = null;
+  try {
+    if (scheduledDate) {
+      const delay = Math.max(0, scheduledDate.getTime() - Date.now());
+      const job = queuedJob = await campaignQueue.add('send-campaign', { campaignId, workspaceId }, { delay });
+      // SCHEDULED status distinguishes "queued for future" from a true draft and
+      // lets startup recovery re-queue lost jobs after a Redis/server restart.
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { ...costData, status: 'SCHEDULED', scheduledAt: scheduledDate, queueJobId: String(job.id) },
+      });
+    } else {
+      const job = queuedJob = await campaignQueue.add('send-campaign', { campaignId, workspaceId });
+      // The worker flips the campaign to RUNNING once it actually starts —
+      // marking RUNNING here would show a false "running" state if the worker
+      // never picks the job up.
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { ...costData, scheduledAt: new Date(), queueJobId: String(job.id) },
+      });
+    }
+  } catch (err) {
+    // The campaign never made it into the queue, so it never starts — refund
+    // in full rather than leaving the customer charged for nothing. A job
+    // that was queued before the bookkeeping failed must not send unpaid.
+    if (queuedJob) await queuedJob.remove().catch((err) => console.error(`[Campaign] Could not remove queued job for campaign ${campaignId} after a failed launch — it may send unpaid:`, err.message));
+    await refundCampaign(campaignId, totalCost, 'Campaign could not be queued');
+    await undoReservation();
+    await prisma.campaign.updateMany({
+      where: { id: campaignId },
+      data: { chargedAt: null, status: 'DRAFT', quotaUnits: 0, quotaPeriodStart: null },
+    });
+    throw err;
+  }
+
+  notifyWorkspace(workspaceId, {
+    type: 'CAMPAIGN_LAUNCHED',
+    title: scheduledDate ? `Campaign "${campaign.name}" scheduled` : `Campaign "${campaign.name}" launched`,
+    body: `${valid.length} recipient${valid.length === 1 ? '' : 's'} · ${quotaUnits ? `${quotaUnits} from plan quota · ` : ''}₹${totalCost.toFixed(2)} deducted${blocked.length ? ` · ${blocked.length} skipped (opted out)` : ''}`,
+    link: 'campaigns',
+    meta: { campaignId },
+  }).catch((err) => console.warn(`[Campaign] Launch notification failed for ${campaignId}:`, err.message));
+
+  const launched = await prisma.campaign.findUnique({ where: { id: campaignId } });
+  return {
+    ...launched,
+    summary: {
+      totalContacts: recipients.length,
+      validContacts: valid.length,
+      blockedContacts: blocked.length,
+      invalidContacts: invalid.length,
+      costPerMessage,
+      quotaCoveredMessages: quotaUnits,
+      totalCost,
+      walletBefore,
+      walletAfter,
+    },
+  };
+}
+
+// Credits back the unspent part of a campaign charge. Idempotent via both the
+// `refundedAt` guard and the ledger's unique idempotency key, so a retried
+// cancel can't refund twice.
+async function refundCampaign(campaignId, amount, reason) {
+  const value = money(amount);
+  if (!(value > 0)) return null;
+
+  const claim = await prisma.campaign.updateMany({
+    where: { id: campaignId, refundedAt: null },
+    data: { refundedAt: new Date(), refundAmount: value },
+  });
+  if (claim.count === 0) return null;
+
+  const campaign = await prisma.campaign.findUnique({ where: { id: campaignId } });
+  if (!campaign) return null;
+
+  const result = await credit(campaign.workspaceId, value, {
+    reason: `${reason}: ${campaign.name}`,
+    reference: campaignId,
+    category: 'REFUND',
+    gateway: 'system',
+    idempotencyKey: `campaign_refund_${campaignId}`,
+  }).catch((err) => {
+    console.error(`[Campaign] Refund failed for ${campaignId}:`, err.message);
+    return null;
+  });
+
+  if (!result) {
+    await prisma.campaign.updateMany({ where: { id: campaignId }, data: { refundedAt: null, refundAmount: null } });
+    return null;
+  }
+
+  await prisma.campaign.update({ where: { id: campaignId }, data: { walletAfter: result.balance } });
+  return result;
+}
+
+export async function getCampaign(workspaceId, campaignId) {
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, workspaceId },
+    include: {
+      template: true,
+      waNumber: { select: { id: true, phoneNumber: true, displayName: true } },
+      recipients: {
+        take: 100,
+        orderBy: { sentAt: 'desc' },
+        include: { contact: { select: { id: true, name: true, phoneNumber: true } } },
+      },
+    },
+  });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+
+  // The draft editor needs the whole audience to tick the right boxes, and
+  // `recipients` above is capped at 100 and ordered by sentAt — which is null
+  // on every draft, so it is neither complete nor meaningfully ordered. Ids
+  // only, and only for drafts, so a launched campaign's report payload does
+  // not grow by ten thousand strings.
+  let recipientContactIds;
+  if (campaign.status === 'DRAFT') {
+    const all = await prisma.campaignRecipient.findMany({
+      where: { campaignId }, select: { contactId: true },
+    });
+    recipientContactIds = all.map((r) => r.contactId);
+  }
+
+  // Counters live on the campaign row for speed, but the report is derived
+  // from the recipients themselves so it can never drift from reality.
+  const byStatus = await prisma.campaignRecipient.groupBy({
+    by: ['status'],
+    where: { campaignId },
+    _count: { _all: true },
+  });
+  const counts = Object.fromEntries(byStatus.map((row) => [row.status, row._count._all]));
+  const totalRecipients = byStatus.reduce((sum, row) => sum + row._count._all, 0);
+
+  // Retry bookkeeping for the report. `retried` counts people, not attempts —
+  // one contact that took four tries is one retried message — while `attempts`
+  // is what those tries cost in sends. `nextRetryAt` is the soonest wave still
+  // owed, which is what the view renders as "retrying in 2h".
+  const [retried, retrySucceeded, retryAttempts, nextRetry] = await Promise.all([
+    prisma.campaignRecipient.count({ where: { campaignId, retryCount: { gt: 0 } } }),
+    prisma.campaignRecipient.count({ where: { campaignId, retryStatus: 'SUCCESS' } }),
+    prisma.campaignRecipient.aggregate({ where: { campaignId }, _sum: { retryCount: true } }),
+    prisma.campaignRecipient.findFirst({
+      where: { campaignId, status: 'RETRYING', nextRetryAt: { not: null } },
+      orderBy: { nextRetryAt: 'asc' },
+      select: { nextRetryAt: true },
+    }),
+  ]);
+  const isAuthentication = String(campaign.template?.category || '').toUpperCase() === 'AUTHENTICATION';
+  const buttonTracking = isAuthentication ? null : buttonTrackingInfo(campaign.template?.components);
+  const [replyRows, buttonRows, authStatusRows, acceptedByWhatsApp] = await Promise.all([
+    isAuthentication ? Promise.resolve([]) : prisma.message.groupBy({
+      by: ['campaignRecipientId'],
+      where: { direction: 'INBOUND', campaignRecipientId: { not: null }, campaignRecipient: { campaignId } },
+      _count: { _all: true },
+    }),
+    isAuthentication ? Promise.resolve([]) : prisma.message.groupBy({
+      by: ['body'],
+      where: { direction: 'INBOUND', type: { in: ['BUTTON', 'INTERACTIVE'] }, campaignRecipient: { campaignId } },
+      _count: { _all: true },
+      orderBy: { _count: { body: 'desc' } },
+    }),
+    isAuthentication ? prisma.authenticationTransaction.groupBy({
+      by: ['status'], where: { workspaceId, campaignId }, _count: { _all: true },
+    }) : Promise.resolve([]),
+    isAuthentication ? prisma.authenticationTransaction.count({
+      where: { workspaceId, campaignId, metaMessageId: { not: null } },
+    }) : Promise.resolve(null),
+  ]);
+  const authCounts = Object.fromEntries(authStatusRows.map((row) => [row.status, row._count._all]));
+  const delivered = (counts.DELIVERED || 0) + (counts.READ || 0);
+  const sent = (counts.SENT || 0) + delivered;
+  const linkStartedAt = isAuthentication ? await getAuthenticationLinkStartedAt() : null;
+  const historicalAuthenticationMetricsUnavailable = isAuthentication
+    && hasUnavailableHistoricalAuthenticationMetrics(campaign, authStatusRows.length > 0, linkStartedAt);
+  const totalRequests = authStatusRows.length > 0
+    ? authStatusRows.reduce((sum, row) => sum + row._count._all, 0)
+    : sent;
+
+  return {
+    ...campaign,
+    // Present only on drafts — the complete audience, so reopening one in the
+    // wizard re-selects exactly the contacts that were saved.
+    ...(recipientContactIds ? { recipientContactIds } : {}),
+    // Whether the CTA can actually be tapped, or only typed — the template's
+    // buttons decide that, and they can only change with Meta's approval.
+    aiAgentWarnings: campaign.aiAgentEnabled
+      ? campaignCtaWarnings(campaign.template, campaign.aiAgentCtaLabel)
+      : [],
+    // Read through the same normaliser the engine schedules against, so the
+    // policy shown here is the policy that will actually run.
+    retryPolicy: retryPolicySummary(campaign.retryConfig),
+    report: {
+      totalContacts: totalRecipients || campaign.totalContacts,
+      sent,
+      delivered,
+      read: counts.READ || 0,
+      failed: counts.FAILED || 0,
+      skipped: counts.SKIPPED || 0,
+      pending: (counts.PENDING || 0) + (counts.RETRYING || 0),
+      // Retry engine. `failed` above is only ever the permanent kind — a
+      // recipient still waiting on an attempt is RETRYING, not FAILED.
+      retrying: counts.RETRYING || 0,
+      retried,
+      retrySucceeded,
+      retryAttempts: retryAttempts._sum.retryCount || 0,
+      nextRetryAt: nextRetry?.nextRetryAt ?? null,
+      costPerMessage: campaign.costPerMessage == null ? null : Number(campaign.costPerMessage),
+      totalCost: campaign.totalCost == null ? null : Number(campaign.totalCost),
+      walletBefore: campaign.walletBefore == null ? null : Number(campaign.walletBefore),
+      walletAfter: campaign.walletAfter == null ? null : Number(campaign.walletAfter),
+      refundAmount: campaign.refundAmount == null ? null : Number(campaign.refundAmount),
+      replies: isAuthentication ? null : replyRows.reduce((sum, row) => sum + row._count._all, 0),
+      // `replies` is the number of inbound reply events, so its rate must use
+      // that same event count rather than the number of distinct recipients.
+      replyRate: isAuthentication || sent === 0 ? null : Number(((replyRows.reduce((sum, row) => sum + row._count._all, 0) / sent) * 100).toFixed(1)),
+      // A static WhatsApp URL button has no click webhook. `null` means the
+      // metric is unobservable, which is materially different from zero.
+      totalClicks: isAuthentication || buttonTracking?.mode === 'UNAVAILABLE'
+        ? null
+        : buttonRows.reduce((sum, row) => sum + row._count._all, 0),
+      buttonClicks: isAuthentication ? [] : buttonRows.map((row) => ({ label: row.body || 'Button', clicks: row._count._all })),
+      buttonTracking,
+      authentication: isAuthentication ? {
+        totalRequests,
+        acceptedByWhatsApp: historicalAuthenticationMetricsUnavailable ? null : acceptedByWhatsApp,
+        verified: historicalAuthenticationMetricsUnavailable ? null : (authCounts.VERIFIED || 0),
+        expired: historicalAuthenticationMetricsUnavailable ? null : (authCounts.EXPIRED || 0),
+        failed: historicalAuthenticationMetricsUnavailable ? null : (authCounts.FAILED || 0),
+        verificationRate: historicalAuthenticationMetricsUnavailable || totalRequests === 0
+          ? null
+          : Number((((authCounts.VERIFIED || 0) / totalRequests) * 100).toFixed(1)),
+        trackingAvailable: !historicalAuthenticationMetricsUnavailable,
+      } : null,
+    },
+  };
+}
+
+// Halts a running campaign without destroying it. The worker checks the
+// campaign's status before every single send, so pausing takes effect within
+// one message rather than at the end of the batch.
+export async function pauseCampaign(workspaceId, campaignId) {
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, workspaceId },
+    include: { template: { select: { category: true } } },
+  });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (!['RUNNING', 'SCHEDULED'].includes(campaign.status)) {
+    const e = new Error(`Only a running or scheduled campaign can be paused — this one is ${campaign.status}.`);
+    e.status = 400; throw e;
+  }
+
+  const claimed = await prisma.campaign.updateMany({
+    where: { id: campaignId, workspaceId, status: { in: ['RUNNING', 'SCHEDULED'] } },
+    data: { status: 'PAUSED' },
+  });
+  if (claimed.count === 0) {
+    const e = new Error('This campaign changed state while it was being paused — refresh and try again.'); e.status = 409; throw e;
+  }
+  // Retry jobs that come due while paused skip and leave their row RETRYING;
+  // resume re-queues them. OTP retries are folded back into the main send
+  // instead, since a code delivered hours later is useless.
+  if (String(campaign.template?.category || '').toUpperCase() === 'AUTHENTICATION') {
+    await prisma.campaignRecipient.updateMany({
+      where: { campaignId, status: 'RETRYING' },
+      data: { status: 'PENDING', nextRetryAt: null, retryStatus: null },
+    });
+  }
+
+  // A scheduled campaign has a delayed job waiting; drop it so it cannot fire
+  // while paused. Resuming re-queues.
+  if (campaign.queueJobId) {
+    const job = await campaignQueue.getJob(campaign.queueJobId).catch((err) => { console.error(`[Campaign] Could not look up the queued job for paused campaign ${campaign.id}:`, err.message); return null; });
+    if (job) await job.remove().catch((err) => console.error(`[Campaign] Could not remove the queued job for paused campaign ${campaign.id}:`, err.message));
+  }
+
+  const remaining = await prisma.campaignRecipient.count({ where: { campaignId, status: 'PENDING' } });
+  return { ok: true, status: 'PAUSED', remaining };
+}
+
+// Puts a paused campaign back in the queue. Recipients already sent to keep
+// their status, so resuming continues rather than restarting — the worker only
+// ever picks up recipients still PENDING.
+export async function resumeCampaign(workspaceId, campaignId) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'PAUSED') {
+    const e = new Error(`Only a paused campaign can be resumed — this one is ${campaign.status}.`);
+    e.status = 400; throw e;
+  }
+
+  const remaining = await prisma.campaignRecipient.count({ where: { campaignId, status: 'PENDING' } });
+
+  // The template can have been rejected by Meta while the campaign sat paused.
+  if (remaining > 0) {
+    const template = await prisma.template.findUnique({ where: { id: campaign.templateId } });
+    assertTemplateSendable(template);
+  }
+
+  // A campaign paused before its scheduled time goes back to waiting for it.
+  const delay = !campaign.launchedAt && campaign.scheduledAt
+    ? Math.max(0, campaign.scheduledAt.getTime() - Date.now())
+    : 0;
+  const nextStatus = delay > 0 && remaining > 0 ? 'SCHEDULED' : 'RUNNING';
+
+  // Atomic, so two resume clicks cannot both start a send loop.
+  const claimed = await prisma.campaign.updateMany({
+    where: { id: campaignId, workspaceId, status: 'PAUSED' },
+    data: { status: nextStatus },
+  });
+  if (claimed.count === 0) {
+    const e = new Error('This campaign is no longer paused.'); e.status = 409; throw e;
+  }
+
+  if (nextStatus === 'SCHEDULED') {
+    let job;
+    try {
+      job = await campaignQueue.add('send-campaign', { campaignId, workspaceId }, { delay });
+    } catch (err) {
+      await prisma.campaign.updateMany({ where: { id: campaignId, status: 'SCHEDULED' }, data: { status: 'PAUSED' } });
+      throw err;
+    }
+    await prisma.campaign.update({ where: { id: campaignId }, data: { queueJobId: String(job.id) } });
+    return { ok: true, status: 'SCHEDULED', remaining };
+  }
+
+  // Retries that came due while paused were skipped, and their rows left
+  // RETRYING for exactly this moment.
+  const { checkAndCompleteCampaign, recoverPendingRetries } = await import('./retry.service.js');
+  await recoverPendingRetries({ campaignId }).catch((e) =>
+    console.error(`[Campaign] Could not re-queue retries for ${campaignId}:`, e.message));
+
+  if (remaining === 0) {
+    // Nothing left for the main loop. Completing through the normal path
+    // (rather than writing COMPLETED here) reconciles the counters and
+    // settles the unspent reservation.
+    const completed = await checkAndCompleteCampaign(campaignId);
+    return { ok: true, status: completed ? 'COMPLETED' : 'RUNNING', remaining: 0 };
+  }
+
+  // Every resume carries `resume: true`. The worker's claim only accepts
+  // DRAFT/SCHEDULED, so without the flag it treated the job as a duplicate of
+  // a run already in progress and silently dropped it, leaving the campaign
+  // RUNNING with nothing sending.
+  let job;
+  try {
+    job = await campaignQueue.add('send-campaign', { campaignId, workspaceId, resume: true });
+  } catch (err) {
+    await prisma.campaign.updateMany({ where: { id: campaignId, status: 'RUNNING' }, data: { status: 'PAUSED' } });
+    throw err;
+  }
+  await prisma.campaign.update({ where: { id: campaignId }, data: { queueJobId: String(job.id) } });
+
+  return { ok: true, status: 'RUNNING', remaining };
+}
+
+export async function cancelCampaign(workspaceId, campaignId) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (['COMPLETED', 'CANCELLED', 'FAILED'].includes(campaign.status)) {
+    const e = new Error(`Campaign is already ${campaign.status}`); e.status = 400; throw e;
+  }
+
+  // Set CANCELLED first: the worker re-checks this before every send and at
+  // claim time, so even a job that slipped into 'active' stops quickly.
+  const claimed = await prisma.campaign.updateMany({
+    where: { id: campaignId, workspaceId, status: { notIn: ['COMPLETED', 'CANCELLED', 'FAILED'] } },
+    data: { status: 'CANCELLED' },
+  });
+  if (claimed.count === 0) {
+    const e = new Error('This campaign has already finished'); e.status = 409; throw e;
+  }
+
+  // Remove the queued job by its stored ID (reliable) and by scan (fallback).
+  if (campaign.queueJobId) {
+    const job = await campaignQueue.getJob(campaign.queueJobId).catch((err) => { console.error(`[Campaign] Could not look up the queued job for campaign ${campaign.id}:`, err.message); return null; });
+    if (job) await job.remove().catch((err) => console.error(`[Campaign] Could not remove the queued job for campaign ${campaign.id}:`, err.message));
+  }
+  const jobs = await campaignQueue.getJobs(['delayed', 'waiting', 'paused']).catch((err) => { console.error(`[Campaign] Could not scan queued jobs for campaign ${campaignId}:`, err.message); return []; });
+  for (const job of jobs) {
+    if (job.data?.campaignId === campaignId) await job.remove().catch((err) => console.error(`[Campaign] Could not remove job ${job.id} for campaign ${campaignId}:`, err.message));
+  }
+
+  // A send already handed to Meta when the cancel landed finishes and claims
+  // its charge; settling before it does would refund a message that went out.
+  // Wait briefly for it — if it is still in flight, the recovery sweep
+  // settles the campaign shortly after.
+  for (let i = 0; i < 5 && await countInFlightRecipients(campaignId) > 0; i += 1) {
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  await settleCampaignRefund(campaignId, 'Refund for cancelled campaign');
+
+  return prisma.campaign.findUnique({ where: { id: campaignId } });
+}
+
+const SETTLEABLE_STATUSES = ['COMPLETED', 'CANCELLED', 'FAILED'];
+
+// Recipients a worker may be handing to Meta right now: claimed by the main
+// loop, or claimed by a retry job.
+export function countInFlightRecipients(campaignId) {
+  return prisma.campaignRecipient.count({
+    where: {
+      campaignId,
+      OR: [{ status: 'SENDING' }, { status: 'RETRYING', retryStatus: 'IN_PROGRESS' }],
+    },
+  });
+}
+
+// Settles terminal campaigns whose settlement was deferred (or lost to a
+// crash). Recent ones only, so the scan stays small; a campaign untouched for
+// SETTLE_ABANDON_MS has no live send left, and its in-flight rows are ignored.
+const SETTLE_LOOKBACK_MS = 3 * 24 * 60 * 60_000;
+const SETTLE_ABANDON_MS = 10 * 60_000;
+export async function settleFinishedCampaigns({ now = new Date() } = {}) {
+  const due = await prisma.campaign.findMany({
+    where: {
+      status: { in: SETTLEABLE_STATUSES },
+      chargedAt: { not: null },
+      updatedAt: { gt: new Date(now.getTime() - SETTLE_LOOKBACK_MS) },
+      refundedAt: null,
+    },
+    select: { id: true, status: true, updatedAt: true },
+    take: 100,
+  });
+  let settled = 0;
+  for (const c of due) {
+    const ignoreInFlight = c.updatedAt < new Date(now.getTime() - SETTLE_ABANDON_MS);
+    const reason = c.status === 'CANCELLED' ? 'Refund for cancelled campaign'
+      : c.status === 'FAILED' ? 'Refund for failed campaign' : 'Refund for unsent campaign messages';
+    const result = await settleCampaignRefund(c.id, reason, { ignoreInFlight }).catch((e) => {
+      console.error(`[Campaign] Deferred settlement failed for ${c.id}:`, e.message);
+      return null;
+    });
+    if (result) settled += 1;
+  }
+  return settled;
+}
+
+// Refunds every message that was paid for at launch but never actually left
+// the system. Called whenever a campaign reaches a terminal state —
+// cancelled, failed, or completed — so money can never be kept for a send
+// that didn't happen.
+//
+// The arithmetic is deliberately derived from what was charged rather than
+// from the recipient rows alone:
+//   paidFor  = totalCost / costPerMessage + quotaUnits  (the valid recipients at launch)
+//   consumed = recipients the worker really handed to Meta
+// Sends use up the quota share first, so the unsent remainder comes back as
+// money before it comes back as quota.
+// Recipients rejected at launch carry retryStatus INVALID_NUMBER or SKIPPED
+// and were never part of `paidFor`, so they cancel out of both sides. A
+// contact who replies STOP mid-campaign lands in `paidFor` but not in
+// `consumed`, and is therefore refunded — which is the behaviour that makes
+// "you are never charged for a blocked number" true even when the block
+// arrives after the campaign has started.
+//
+// Settlement is one-shot, so it only runs once nothing can still be billed: in
+// a terminal state, with no recipient mid-send. A deferred settlement is
+// completed by the recovery sweep (settleFinishedCampaigns), which passes
+// `ignoreInFlight` once those rows are old enough to be abandoned.
+export async function settleCampaignRefund(campaignId, reason = 'Refund for unsent campaign messages', { ignoreInFlight = false } = {}) {
+  const campaign = await prisma.campaign.findUnique({ where: { id: campaignId } });
+  if (!campaign || !campaign.chargedAt) return null;
+  if (!SETTLEABLE_STATUSES.includes(campaign.status)) return null;
+  if (!ignoreInFlight && await countInFlightRecipients(campaignId) > 0) {
+    console.log(`[Campaign] Settlement of ${campaignId} deferred — a send is still in flight`);
+    return null;
+  }
+
+  const perMessage = Number(campaign.costPerMessage || 0);
+  const totalCost = Number(campaign.totalCost || 0);
+  // Messages covered by plan quota are not in totalCost; they are paid for in
+  // quota and come back as quota (lib/campaignCharge.js).
+  const walletUnits = perMessage > 0 && totalCost > 0 ? Math.round(totalCost / perMessage) : 0;
+  const quotaUnits = Number(campaign.quotaUnits || 0);
+
+  // Only a message that actually went out is billable, and "went out" is
+  // recorded explicitly: campaignBilling claims a charge on the recipient row
+  // the moment an attempt reaches Meta, exactly once however many retries it
+  // took. Counting those claims rather than re-deriving from delivery status
+  // is what makes the refund agree with what was charged by construction —
+  // the previous status-based count could drift from the ledger whenever a
+  // webhook moved a recipient between states after settlement was computed.
+  // Unbilled recipients (FAILED, SKIPPED, PENDING, RETRYING) are refunded.
+  const billed = await billedCount(campaignId);
+  const { walletRefundUnits, quotaReleaseUnits } = settleCampaignUnits({ walletUnits, quotaUnits, billed });
+
+  if (quotaReleaseUnits > 0 && !campaign.quotaReleasedAt) {
+    // One-shot, independent of the wallet refund's own guard.
+    const claim = await prisma.campaign.updateMany({
+      where: { id: campaignId, quotaReleasedAt: null },
+      data: { quotaReleasedAt: new Date() },
+    });
+    if (claim.count > 0) {
+      await releaseCampaignQuota(campaign.workspaceId, campaign.quotaPeriodStart, quotaReleaseUnits)
+        .catch((e) => console.error(`[Campaign] Quota release failed for ${campaignId}:`, e.message));
+    }
+  }
+
+  if (campaign.refundedAt) return null;
+  const refundable = walletUnits > 0 ? Math.min(money(walletRefundUnits * perMessage), totalCost) : 0;
+  if (!(refundable > 0)) {
+    // Nothing owed back. Stamping the settlement keeps it from being revisited.
+    await prisma.campaign.updateMany({
+      where: { id: campaignId, refundedAt: null },
+      data: { refundedAt: new Date(), refundAmount: 0 },
+    });
+    return null;
+  }
+
+  console.log(`[Campaign] Refunding ₹${refundable} to ${campaign.workspaceId} — ${walletUnits} paid from wallet, ${quotaUnits} from quota, ${billed} sent (${campaign.name})`);
+  return refundCampaign(campaignId, refundable, reason);
+}
+
+// Called at startup: re-queue SCHEDULED campaigns whose BullMQ jobs were lost
+// (e.g. ephemeral Redis restart). Past-due campaigns fire immediately.
+export async function recoverScheduledCampaigns() {
+  // A worker killed mid-send leaves recipients stranded in SENDING: claimed by
+  // a process that no longer exists, so nothing will ever pick them up. Only
+  // rows with no sentAt are released — one that reached Meta before the crash
+  // must not be sent a second time.
+  const released = await prisma.campaignRecipient.updateMany({
+    where: { status: 'SENDING', sentAt: null },
+    data: { status: 'PENDING' },
+  });
+  if (released.count > 0) {
+    console.log(`[Recovery] Released ${released.count} recipient(s) stranded mid-send by a previous shutdown`);
+  }
+
+  const scheduled = await prisma.campaign.findMany({
+    where: { status: 'SCHEDULED' },
+    select: { id: true, workspaceId: true, scheduledAt: true, queueJobId: true },
+  });
+
+  if (scheduled.length === 0) return 0;
+
+  // Batched (CF-153): one Redis round trip to see which recorded jobs
+  // survived, one addBulk for the rest, one UPDATE to record their ids —
+  // instead of three round trips per scheduled campaign at boot.
+  const withJob = scheduled.filter((c) => c.queueJobId);
+  const alive = new Set();
+  if (withJob.length > 0) {
+    const client = await campaignQueue.client;
+    const pipeline = client.pipeline();
+    for (const c of withJob) pipeline.exists(campaignQueue.toKey(c.queueJobId));
+    const results = await pipeline.exec();
+    results.forEach(([err, found], i) => { if (!err && Number(found) > 0) alive.add(withJob[i].id); });
+  }
+
+  const missing = scheduled.filter((c) => !alive.has(c.id));
+  if (missing.length === 0) return 0;
+  const now = Date.now();
+  const jobs = await campaignQueue.addBulk(missing.map((c) => ({
+    name: 'send-campaign',
+    data: { campaignId: c.id, workspaceId: c.workspaceId },
+    opts: { delay: Math.max(0, (c.scheduledAt?.getTime() ?? 0) - now) },
+  })));
+  const ids = missing.map((c) => c.id);
+  const jobIds = jobs.map((job) => String(job.id));
+  await prisma.$executeRaw`
+    UPDATE "Campaign" AS c SET "queueJobId" = v.job
+    FROM unnest(${ids}::text[], ${jobIds}::text[]) AS v(id, job)
+    WHERE c."id" = v.id
+  `;
+  return missing.length;
+}

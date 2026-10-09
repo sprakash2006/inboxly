@@ -1,0 +1,697 @@
+import { z } from 'zod';
+import { LeadStatus, DealStage } from '@prisma/client';
+const DEAL_STAGES = Object.keys(DealStage);
+const LEAD_STATUSES = Object.keys(LeadStatus);
+
+import { hasMeaningfulText } from '../lib/textValidation.js';
+import { workflowNodesSchema } from './workflowNodes.js';
+
+// validate({ body, params, query }) ΓÇö parsed values replace the originals so
+// controllers receive clean, typed input instead of raw request payloads.
+export function validate(schemas) {
+  return (req, res, next) => {
+    try {
+      if (schemas.body)   req.body   = schemas.body.parse(req.body ?? {});
+      if (schemas.params) Object.assign(req.params, schemas.params.parse(req.params));
+      if (schemas.query)  Object.assign(req.query, schemas.query.parse(req.query));
+      next();
+    } catch (err) {
+      if (err?.name === 'ZodError') {
+        const issue = err.issues?.[0];
+        const field = issue?.path?.join('.') || '';
+        const msg = issue?.message || 'Validation error';
+        const readable = field && !msg.toLowerCase().includes(field.toLowerCase())
+          ? `${msg} (${field})`
+          : msg;
+        return res.status(400).json({ error: readable, message: readable, details: err.flatten().fieldErrors });
+      }
+      next(err);
+    }
+  };
+}
+
+const id = z.string().min(1);
+
+// Zod wrapper around the shared hasMeaningfulText() rule ΓÇö reused across
+// signup, campaigns, templates, and every automation module (workflows, AI
+// agent, smart lists, WhatsApp forms) instead of each schema re-implementing
+// its own regex.
+function meaningfulText(schema, label = 'This field') {
+  return schema.refine((v) => hasMeaningfulText(v), { message: `${label} must contain at least one letter` });
+}
+
+// The roles a workspace can hand out, ordered as the UI lists them. Declared
+// once so the invite, link-invite and role-change schemas cannot drift apart ΓÇö
+// they were four separate copies of ['ADMIN', 'CLIENT'].
+const workspaceRole = () => z.enum(['VIEWER', 'AGENT', 'CLIENT', 'ADMIN']);
+
+export const authSchemas = {
+  register: z.object({
+    name: meaningfulText(z.string().trim().min(1, 'Name is required').max(100), 'Name'),
+    email: z.string().trim().email('Valid email required').max(254),
+    password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+    // Accepted for backwards compatibility and deliberately not honoured: a
+    // self-registered user gets no workspace at all until they create one
+    // (which makes them ADMIN of it) or accept an invite (which sets the role
+    // the inviter chose). See services/auth.service.js#register.
+    role: workspaceRole().default('CLIENT'),
+    inviteToken: z.string().trim().min(1).optional(),
+  }),
+  signupStart: z.object({
+    name: meaningfulText(z.string().trim().min(1, 'Name is required').max(100), 'Name'),
+    email: z.string().trim().email('Valid email required').max(254),
+    password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  }),
+  signupVerify: z.object({
+    email: z.string().trim().email('Valid email required'),
+    code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code'),
+    // Inert, as in `register` above.
+    role: workspaceRole().default('CLIENT'),
+    inviteToken: z.string().trim().min(1).optional(),
+  }),
+  signupResend: z.object({ email: z.string().trim().email('Valid email required') }),
+  login: z.object({
+    email: z.string().trim().email('Valid email required'),
+    password: z.string().min(1, 'Password is required'),
+  }),
+  refresh: z.object({ refreshToken: z.string().min(1) }),
+  forgotPassword: z.object({ email: z.string().trim().email('Valid email required') }),
+  resetPassword: z.object({
+    email: z.string().trim().email('Valid email required'),
+    code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code'),
+    newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  }),
+};
+
+export const workspaceSchemas = {
+  create: z.object({
+    name: z.string().trim().min(1, 'Workspace name is required').max(100).optional(),
+  }),
+};
+
+// The campaign's AI Agent block. `agentId` is only shape-checked here ΓÇö it is
+// resolved against the workspace's own agent in campaigns.service.js, because
+// an id that parses is not the same as an id the caller is allowed to use.
+const aiAgentConfig = z.object({
+  enabled: z.boolean().default(false),
+  agentId: z.union([id, z.null()]).optional(),
+  ctaLabel: meaningfulText(z.string().trim().min(1).max(25), 'CTA label').optional(),
+}).strict();
+
+// Campaign advanced config. Explicit, bounded shapes instead of z.any(): these
+// are written to the Campaign row as JSON. Unknown keys are stripped.
+const retryTime = z.string().trim().max(16);
+const campaignRetryConfig = z.object({
+  enabled: z.boolean().optional(),
+  active: z.boolean().optional(),
+  retryEndDate: z.union([z.string().max(40), z.null()]).optional(),
+  endDate: z.union([z.string().max(40), z.null()]).optional(),
+  retryPattern: z.enum(['smart', 'hourly']).optional(),
+  pattern: z.enum(['smart', 'hourly']).optional(),
+  noRetryWindow: z.union([z.object({ start: retryTime, end: retryTime }), z.null()]).optional(),
+  noRetryStart: retryTime.optional(),
+  noRetryEnd: retryTime.optional(),
+});
+// Indian SMS must carry a template registered on the operators' DLT platform
+// (TRAI TCCCPR 2018): the template id and the sender's Principal Entity id are
+// both 19-digit numbers. Fallback SMS cannot be switched on without them, and
+// fallback.service.js refuses to send (uncharged) when they are missing.
+const dltId = z.string().trim().regex(/^\d{19}$/, 'must be the 19-digit id from your DLT portal');
+const campaignFallbackConfig = z.object({
+  smsEnabled: z.boolean().default(false),
+  smsFrom: z.string().trim().max(32).optional(),
+  smsText: z.string().max(1500).optional(),
+  dltTemplateId: z.union([dltId, z.literal('')]).optional(),
+  dltEntityId: z.union([dltId, z.literal('')]).optional(),
+  emailEnabled: z.boolean().default(false),
+  emailSubject: z.string().max(200).optional(),
+  emailText: z.string().max(5000).optional(),
+}).superRefine((v, ctx) => {
+  if (!v.smsEnabled) return;
+  if (!v.smsFrom) ctx.addIssue({ code: 'custom', path: ['smsFrom'], message: 'SMS fallback needs a sender ID (your DLT-registered header)' });
+  if (!v.dltTemplateId) ctx.addIssue({ code: 'custom', path: ['dltTemplateId'], message: 'SMS fallback needs the DLT template id the message text is registered under' });
+  if (!v.dltEntityId) ctx.addIssue({ code: 'custom', path: ['dltEntityId'], message: 'SMS fallback needs your DLT Principal Entity id' });
+  if (!v.smsText?.trim()) ctx.addIssue({ code: 'custom', path: ['smsText'], message: 'SMS fallback needs the registered message text' });
+});
+// Reply flows and conversion tracking were stored but never executed. Until
+// they exist a value is refused rather than silently ignored; null is still
+// accepted so clients that always send the key keep working.
+const unavailableCampaignFeature = (label) => z.unknown()
+  .refine((v) => v === null || v === undefined, { message: `${label} are not available yet` })
+  .optional();
+
+export const campaignSchemas = {
+  create: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Campaign name'),
+    templateId: id,
+    numberId: id.optional(),
+    whatsappNumberId: id.optional(),
+    replyRules: unavailableCampaignFeature('Reply flows'),
+    retryConfig: z.union([campaignRetryConfig, z.null()]).optional(),
+    trackingConfig: unavailableCampaignFeature('Conversion tracking settings'),
+    fallbackConfig: z.union([campaignFallbackConfig, z.null()]).optional(),
+    aiAgent: aiAgentConfig.optional(),
+    goal: z.enum(['sales', 'launch', 'reengage', 'nurture']).optional(),
+  }).refine((v) => v.numberId || v.whatsappNumberId, { message: 'numberId is required' }),
+  addRecipients: z.object({ contactIds: z.array(id).min(1, 'At least one contact is required').max(10_000) }),
+  // Replacing an audience may legitimately empty it ΓÇö a draft mid-edit does
+  // not have to have anyone selected yet. Launch is what insists on that.
+  setRecipients: z.object({ contactIds: z.array(id).max(10_000) }),
+  update: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Campaign name').optional(),
+    replyRules: unavailableCampaignFeature('Reply flows'),
+    retryConfig: z.union([campaignRetryConfig, z.null()]).optional(),
+    trackingConfig: unavailableCampaignFeature('Conversion tracking settings'),
+    fallbackConfig: z.union([campaignFallbackConfig, z.null()]).optional(),
+    aiAgent: aiAgentConfig.optional(),
+    // Editable while the campaign is still a draft; the service enforces that.
+    templateId: id.optional(),
+    numberId: id.optional(),
+    whatsappNumberId: id.optional(),
+    scheduledAt: z.union([z.string(), z.date(), z.null()]).optional(),
+    goal: z.enum(['sales', 'launch', 'reengage', 'nurture']).optional(),
+  }),
+  launch: z.object({
+    scheduledAt: z.union([z.string(), z.date(), z.null()]).optional(),
+    retryConfig: z.union([campaignRetryConfig, z.null()]).optional(),
+  }),
+  // Either a selection of contacts (wizard, before the campaign exists) or an
+  // existing draft campaign.
+  estimate: z.object({
+    contactIds: z.array(id).max(10_000).optional(),
+    campaignId: id.optional(),
+    // Drives per-category message pricing before the campaign row exists.
+    templateId: id.optional(),
+  }).refine((v) => (v.contactIds && v.contactIds.length > 0) || v.campaignId, {
+    message: 'Provide contactIds or a campaignId',
+    path: ['contactIds'],
+  }),
+};
+
+export const contactSchemas = {
+  create: z.object({
+    name: z.string().trim().min(1).max(120),
+    phoneNumber: z.string().trim().min(6).max(20),
+    email: z.union([z.string().trim().email(), z.literal(''), z.null()]).optional().transform((v) => (v ? v : null)),
+    tags: z.array(z.string().trim().max(50)).max(30).optional().default([]),
+    // Shape only. The keys and value types are checked against the workspace's
+    // own field definitions in workspaceCustomFields.service.js#validateCustomFields ΓÇö
+    // a schema here could not know what fields this workspace has.
+    customFields: z.record(z.union([z.string(), z.number(), z.null()])).optional(),
+  }),
+  update: z.object({
+    name: z.string().trim().min(1).max(120).optional(),
+    phoneNumber: z.string().trim().min(6).max(20).optional(),
+    email: z.union([z.string().trim().email(), z.literal(''), z.null()]).optional().transform((v) => (v === '' ? null : v)),
+    tags: z.array(z.string().trim().max(50)).max(30).optional(),
+    optedOut: z.boolean().optional(),
+    customFields: z.record(z.union([z.string(), z.number(), z.null()])).optional(),
+  }).strict(),
+};
+
+export const segmentSchemas = {
+  create: z.object({
+    name: z.string().trim().min(1).max(80),
+    desc: z.string().trim().max(300).optional().nullable(),
+    color: z.string().trim().max(30).optional().nullable(),
+  }),
+  // Whitelist ΓÇö blocks mass assignment of workspaceId/id/createdAt.
+  update: z.object({
+    name: z.string().trim().min(1).max(80).optional(),
+    desc: z.string().trim().max(300).optional().nullable(),
+    color: z.string().trim().max(30).optional().nullable(),
+  }).strict(),
+};
+
+// Templates carry their actual message text inside a BODY component (e.g.
+// [{ type: 'BODY', text: '...' }]) ΓÇö the top-level `name` is just a Meta
+// identifier slug, so the meaningful-text check has to look inside
+// `components` rather than at `name`.
+//
+// An authentication template is the exception: Meta writes that message itself
+// and the body carries no text at all, only `add_security_recommendation`. It
+// is recognised by the shape of the body rather than by the request's category,
+// because an update may change the components without restating the category.
+function checkBodyText(components, ctx) {
+  if (!Array.isArray(components)) return;
+  const body = components.find((c) => String(c?.type || '').toUpperCase() === 'BODY');
+  if (body && body.text === undefined && 'add_security_recommendation' in body) return;
+  if (body && !hasMeaningfulText(body.text)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['components'],
+      message: 'Template body must contain at least one letter ΓÇö emoji/symbol-only text is not allowed',
+    });
+  }
+}
+
+export const templateSchemas = {
+  create: z.object({
+    name: z.string().trim().regex(/^[a-z0-9_]{1,64}$/, 'Lowercase letters, numbers, underscores only'),
+    category: z.enum(['MARKETING', 'UTILITY', 'AUTHENTICATION']),
+    language: z.string().trim().min(2).max(10),
+    components: z.array(z.record(z.any())).min(1),
+    waNumberId: id.optional(),
+    // Stored bytes of the header image, so a campaign can re-send the picture
+    // after approval. Zod strips unknown keys, so it has to be declared here
+    // or it never reaches the service.
+    headerAssetId: id.optional(),
+  }).superRefine((v, ctx) => checkBodyText(v.components, ctx)),
+  update: z.object({
+    name: z.string().trim().regex(/^[a-z0-9_]{1,64}$/).optional(),
+    category: z.enum(['MARKETING', 'UTILITY', 'AUTHENTICATION']).optional(),
+    language: z.string().trim().min(2).max(10).optional(),
+    components: z.array(z.record(z.any())).min(1).optional(),
+  }).strict().superRefine((v, ctx) => checkBodyText(v.components, ctx)),
+};
+
+// `edges` is still accepted so older clients keep working, but the engine runs
+// the ordered node list only and the service no longer stores it.
+export const workflowSchemas = {
+  create: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Workflow name'),
+    nodes: workflowNodesSchema,
+    edges: z.array(z.unknown()).max(200).optional(),
+    isActive: z.boolean().optional(),
+  }),
+  update: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Workflow name').optional(),
+    nodes: workflowNodesSchema.optional(),
+    edges: z.array(z.unknown()).max(200).optional(),
+    isActive: z.boolean().optional(),
+  }).strict(),
+};
+
+export const automationSchemas = {
+  createTrigger: z.object({
+    keyword: meaningfulText(z.string().trim().min(1).max(80), 'Keyword'),
+    responseTemplate: meaningfulText(z.string().trim().min(1).max(1000), 'Response message'),
+    isActive: z.boolean().optional(),
+  }),
+  updateTrigger: z.object({
+    keyword: meaningfulText(z.string().trim().min(1).max(80), 'Keyword').optional(),
+    responseTemplate: meaningfulText(z.string().trim().min(1).max(1000), 'Response message').optional(),
+    isActive: z.boolean().optional(),
+  }).strict(),
+
+  // Basic Automations now carry the reply text and working hours, not just the
+  // three on/off flags. The schedule (businessHours) and the on/off switch
+  // (businessHoursEnabled) are independent so disabling never wipes the days.
+  updateBasic: z.object({
+    autoOooEnabled: z.boolean().optional(),
+    autoWelcomeEnabled: z.boolean().optional(),
+    autoDelayedEnabled: z.boolean().optional(),
+    welcomeMessage: meaningfulText(z.string().trim().min(1).max(1000), 'Welcome message').optional(),
+    oooMessage: meaningfulText(z.string().trim().min(1).max(1000), 'Out-of-office message').optional(),
+    delayedMessage: meaningfulText(z.string().trim().min(1).max(1000), 'Delayed response message').optional(),
+    delayedAfterMinutes: z.coerce.number().int().min(1).max(1440).optional(),
+    businessHoursEnabled: z.boolean().optional(),
+    businessHours: z.object({
+      tz: z.string().trim().min(1).max(64).optional(),
+      enabled: z.boolean().optional(),
+      days: z.array(z.object({
+        day: z.coerce.number().int().min(0).max(6),
+        enabled: z.boolean(),
+        start: z.string().trim().optional(),
+        end: z.string().trim().optional(),
+      })).max(7),
+    }).nullable().optional(),
+  }).strict(),
+};
+
+const formField = z.object({
+  key: z.string().trim().max(60).optional(),
+  label: meaningfulText(z.string().trim().min(1).max(300), 'Question'),
+  type: z.enum(['text', 'email', 'phone', 'number', 'choice']).optional(),
+  required: z.boolean().optional(),
+  options: z.array(z.string().trim().min(1).max(100)).max(10).optional(),
+});
+
+export const instagramSchemas = {
+  create: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Flow name'),
+    source: z.enum(['dm', 'comment', 'story_reply']).optional(),
+    // Empty keyword is legal ΓÇö it means "reply to everything on this source".
+    keyword: z.string().trim().max(80).optional(),
+    responseTemplate: meaningfulText(z.string().trim().min(1).max(1000), 'Reply message'),
+    alsoSendDm: z.boolean().optional(),
+    isActive: z.boolean().optional(),
+  }),
+  update: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Flow name').optional(),
+    source: z.enum(['dm', 'comment', 'story_reply']).optional(),
+    keyword: z.string().trim().max(80).optional(),
+    responseTemplate: meaningfulText(z.string().trim().min(1).max(1000), 'Reply message').optional(),
+    alsoSendDm: z.boolean().optional(),
+    isActive: z.boolean().optional(),
+  }).strict(),
+};
+
+export const whatsappFormSchemas = {
+  create: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Form name'),
+    // `schema` is the real field list; the old numeric `fields` is derived from
+    // it server-side and no longer accepted from the client.
+    schema: z.array(formField).max(50).optional(),
+    // Display-only tags; deduplicated and capped server-side.
+    categories: z.array(z.string().trim().max(40)).max(10).optional(),
+    keyword: z.string().trim().max(80).optional(),
+    completionMessage: meaningfulText(z.string().trim().min(1).max(1000), 'Completion message').optional(),
+    status: z.enum(['Draft', 'Active']).optional(),
+  }),
+  update: z.object({
+    name: meaningfulText(z.string().trim().min(1).max(120), 'Form name').optional(),
+    schema: z.array(formField).max(50).optional(),
+    categories: z.array(z.string().trim().max(40)).max(10).optional(),
+    keyword: z.string().trim().max(80).optional(),
+    completionMessage: meaningfulText(z.string().trim().min(1).max(1000), 'Completion message').optional(),
+    status: z.enum(['Draft', 'Active']).optional(),
+  }).strict(),
+};
+
+export const memberSchemas = {
+  invite: z.object({
+    email: z.string().trim().email(),
+    role: workspaceRole().default('CLIENT'),
+  }),
+  updateRole: z.object({ role: workspaceRole() }),
+};
+
+export const apiKeySchemas = {
+  create: z.object({
+    name: z.string().trim().min(1, 'Name is required').max(100),
+    environment: z.string().trim().min(1).max(30).optional(),
+    // Validated against the catalogue in lib/apiScopes.js, which raises a 400
+    // naming any unknown scope. Omitted means the safe default set.
+    scopes: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  }),
+  testMessage: z.object({
+    to: z.string().trim().min(6, 'A valid phone number is required').max(24),
+    templateId: z.string().trim().min(1).max(64).optional(),
+    message: z.string().trim().min(1).max(1000).optional(),
+    // Values for a template's {{1}}, {{2}}, ΓÇª placeholders, in order.
+    variables: z.array(z.string().max(500)).max(20).optional().default([]),
+  }).refine((v) => v.templateId || v.message, {
+    message: 'Provide a Template ID or a Message',
+    path: ['message'],
+  }),
+};
+
+export const optOutSchemas = {
+  block: z.object({
+    phoneNumber: z.string().trim().min(6, 'A valid phone number is required').max(24),
+    reason: z.string().trim().max(200).optional(),
+  }),
+  bulkUnblock: z.object({
+    ids: z.array(id).min(1, 'Select at least one number to unblock').max(500),
+  }),
+};
+
+const webhookUrl = z.string().trim().url('Must be a valid URL (e.g. https://your-server.com/webhook)')
+  .refine((v) => /^https?:\/\//i.test(v), 'URL must start with http:// or https://');
+
+export const settingsSchemas = {
+  update: z.object({
+    webhookUrl: z.union([webhookUrl, z.literal('')]).optional(),
+    webhookEvents: z.array(z.enum(['messages', 'reactions', 'deliveries', 'reads', 'referrals'])).max(5).optional(),
+    notifyNewConversation: z.boolean().optional(),
+    notifyTemplateApproved: z.boolean().optional(),
+    notifyTemplateRejected: z.boolean().optional(),
+    notifyCampaignCompleted: z.boolean().optional(),
+    notifyHighOptout: z.boolean().optional(),
+    notifyRateLimit: z.boolean().optional(),
+    emailNotifyCampaignCompleted: z.boolean().optional(),
+    emailNotifyTemplateApproved: z.boolean().optional(),
+    emailNotifyTemplateRejected: z.boolean().optional(),
+    emailNotifyMemberInvite: z.boolean().optional(),
+    // Workspace profile and branding. The service validates the colour, the
+    // logo scheme and the time zone properly ΓÇö this layer only keeps obvious
+    // junk and oversized payloads out of it.
+    name: z.string().trim().min(1, 'Workspace name is required').max(120).optional(),
+    industry: z.union([z.string().trim().max(80), z.literal('')]).optional(),
+    timezone: z.string().trim().min(1).max(64).optional(),
+    // Country for contact numbers typed without a code; checked against the
+    // supported list in the service.
+    defaultPhoneCountry: z.string().trim().length(2).optional(),
+    brandColor: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/, 'Use a 6-digit hex colour').optional(),
+    brandLogoUrl: z.union([z.string().trim().url().max(500), z.literal('')]).optional(),
+    // Settings -> lead capture: create a lead when a contact replies to a campaign.
+    autoLeadFromReply: z.boolean().optional(),
+  }),
+};
+
+export const invitationSchemas = {
+  create: z.object({
+    email: z.string().trim().email(),
+    role: workspaceRole().default('CLIENT'),
+  }),
+  // A shareable link takes no address. maxUses caps how many people can join
+  // through it; omitted means unlimited until it expires or is revoked.
+  createLink: z.object({
+    role: workspaceRole().default('CLIENT'),
+    maxUses: z.coerce.number().int().positive().max(500).optional(),
+  }),
+};
+
+const phone = z.string().trim().max(30).regex(/^[0-9+\-\s()]{6,30}$/, 'Enter a valid phone number');
+
+export const userSchemas = {
+  updateProfile: z.object({
+    name: z.string().trim().min(1, 'Name is required').max(100).optional(),
+    phone: z.union([phone, z.literal('')]).optional(),
+    jobTitle: z.union([z.string().trim().max(100), z.literal('')]).optional(),
+    company: z.union([z.string().trim().max(100), z.literal('')]).optional(),
+    timezone: z.union([z.string().trim().max(60), z.literal('')]).optional(),
+    language: z.union([z.string().trim().max(60), z.literal('')]).optional(),
+  }).strict(),
+  changePassword: z.object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128)
+      .regex(/[a-zA-Z]/, 'Password must include at least one letter')
+      .regex(/[0-9]/, 'Password must include at least one number'),
+  }).refine((v) => v.newPassword !== v.currentPassword, {
+    message: 'New password must be different from your current password',
+    path: ['newPassword'],
+  }),
+  // Password for ordinary accounts; confirmEmail for Google accounts, which
+  // have no password to re-authenticate against. The service decides which
+  // one it requires ΓÇö both are optional here.
+  deleteAccount: z.object({
+    password: z.string().max(128).optional(),
+    confirmEmail: z.string().trim().max(200).optional(),
+  }),
+};
+
+export const clusterSchemas = {
+  create: z.object({
+    name: z.string().trim().min(1, 'Cluster name is required').max(120),
+    description: z.union([z.string().trim(), z.literal(''), z.null()]).optional().transform((v) => (v ? v : null)),
+    contactIds: z.array(z.string().min(1)).min(1, 'At least one contact must be selected').max(10_000),
+  }),
+  update: z.object({
+    name: z.string().trim().min(1, 'Cluster name is required').max(120).optional(),
+    description: z.union([z.string().trim(), z.literal(''), z.null()]).optional().transform((v) => (v === '' ? null : v)),
+    contactIds: z.array(z.string().min(1)).min(1, 'At least one contact must be selected').max(10_000).optional(),
+  }),
+};
+
+
+const TASK_STATUSES = ['PENDING', 'COMPLETED'];
+const CRM_ACTIVITY_TYPES = ['NOTE', 'CALL', 'EMAIL', 'MEETING'];
+
+const optionalRef = z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null)));
+
+export const leadSchemas = {
+  create: z.object({
+    contactId: id.optional(),
+    name: z.string().trim().min(1).max(120).optional(),
+    phoneNumber: z.string().trim().min(6).max(20).optional(),
+    email: z.union([z.string().trim().email(), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    source: z.union([z.string().trim().max(60), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    ownerUserId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    notes: z.union([z.string().trim().max(2000), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    status: z.string().trim().max(60).optional(),
+    company: z.union([z.string().trim().max(120), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    budget: z.coerce.number().optional(),
+    companySize: z.coerce.number().optional(),
+    industry: z.union([z.string().trim().max(100), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    checklistAnswers: z.record(z.any()).optional(),
+    tags: z.array(z.string().trim().max(50)).optional(),
+    prospecting: z.record(z.any()).optional(),
+  }).refine((d) => d.contactId || (d.name && d.phoneNumber) || d.phoneNumber, {
+    message: 'Provide contactId, or a phoneNumber to create the contact',
+  }),
+  update: z.object({
+    status: z.string().trim().max(60).optional(),
+    ownerUserId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    source: z.union([z.string().trim().max(60), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    notes: z.union([z.string().trim().max(2000), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    // Shape only. The values are validated against the workspace's field
+    // definitions in customFields.service.js, which is the only place that
+    // knows what a given key is allowed to contain.
+    customFields: z.record(z.any()).nullable().optional(),
+    tags: z.array(z.string().trim().max(50)).optional(),
+    prospecting: z.record(z.any()).optional(),
+    budget: z.coerce.number().optional(),
+    companySize: z.coerce.number().optional(),
+    industry: z.union([z.string().trim().max(100), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    company: z.union([z.string().trim().max(120), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    qualificationAnswers: z.record(z.any()).optional(),
+  }).strict(),
+  convert: z.object({
+    title: z.string().trim().min(1, 'Deal title is required').max(160),
+    value: z.coerce.number().nonnegative().optional().nullable(),
+    currency: z.string().trim().length(3).optional(),
+    stage: z.string().trim().min(1).max(50).optional(),
+    expectedCloseDate: z.coerce.date().optional().nullable(),
+    ownerUserId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+  }),
+};
+
+export const dealSchemas = {
+  create: z.object({
+    contactId: id,
+    leadId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    title: z.string().trim().min(1, 'Deal title is required').max(160),
+    value: z.coerce.number().nonnegative().optional().nullable(),
+    currency: z.string().trim().length(3).optional(),
+    stage: z.string().trim().min(1).max(50).optional(),
+    ownerUserId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    expectedCloseDate: z.coerce.date().optional().nullable(),
+  }),
+  update: z.object({
+    title: z.string().trim().min(1).max(160).optional(),
+    value: z.coerce.number().nonnegative().optional().nullable(),
+    currency: z.string().trim().length(3).optional(),
+    ownerUserId: z.union([id, z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    expectedCloseDate: z.coerce.date().optional().nullable(),
+    customFields: z.record(z.any()).nullable().optional(),
+  }).strict(),
+  stageUpdate: z.object({
+    stage: z.string().trim().min(1).max(50),
+    lostReason: z.union([z.string().trim().max(500), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+  }).strict(),
+};
+
+export const taskSchemas = {
+  create: z.object({
+    title: z.string().trim().min(1, 'Task title is required').max(200),
+    description: z.union([z.string().trim().max(2000), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    status: z.enum(TASK_STATUSES).optional(),
+    dueDate: z.coerce.date().optional().nullable(),
+    assignedToUserId: optionalRef,
+    leadId: optionalRef,
+    dealId: optionalRef,
+    contactId: optionalRef,
+  }),
+  // .strict() is what keeps `workspaceId` out of the update payload ΓÇö without
+  // it the service spreads the body into prisma.task.update and the task
+  // silently moves to whatever workspace the caller names.
+  update: z.object({
+    title: z.string().trim().min(1).max(200).optional(),
+    description: z.union([z.string().trim().max(2000), z.literal(''), z.null()]).optional().transform((v) => (v === undefined ? undefined : (v || null))),
+    status: z.enum(TASK_STATUSES).optional(),
+    dueDate: z.coerce.date().optional().nullable(),
+    assignedToUserId: optionalRef,
+    leadId: optionalRef,
+    dealId: optionalRef,
+    contactId: optionalRef,
+  }).strict(),
+};
+
+export const crmActivitySchemas = {
+  create: z.object({
+    type: z.enum(CRM_ACTIVITY_TYPES).optional(),
+    content: z.string().trim().min(1, 'Activity content is required').max(5000),
+    leadId: optionalRef,
+    dealId: optionalRef,
+    contactId: optionalRef,
+  }),
+};
+
+// AI Agents studio (/ai-agents). Agent and channel config is stored as JSON,
+// so these bound every key and length rather than letting a body be spread in.
+const studioAgentFields = {
+  name: meaningfulText(z.string().trim().min(1).max(80), 'Agent name'),
+  description: z.string().trim().max(500),
+  purpose: z.string().trim().max(2000),
+  systemPrompt: z.string().trim().max(4000),
+  guidelines: z.array(z.string().trim().min(1).max(80)).max(20),
+  actions: z.array(z.string().trim().min(1).max(60)).max(10),
+  knowledgeTypes: z.array(z.string().trim().min(1).max(60)).max(20),
+  enabled: z.boolean(),
+};
+
+export const aiAgentsStudioSchemas = {
+  createAgent: z.object(studioAgentFields).partial().required({ name: true }).strict(),
+  updateAgent: z.object(studioAgentFields).partial().strict(),
+  channelParams: z.object({ channelKey: z.enum(['whatsapp']) }).passthrough(),
+  updateChannel: z.object({
+    assignedAgentId: id.max(100).optional(),
+    enabled: z.boolean().optional(),
+  }).strict(),
+  executeAction: z.object({
+    actionId: z.string().trim().min(1).max(60),
+    params: z.object({
+      leadId: id.optional(),
+      contactId: id.optional(),
+      conversationId: id.optional(),
+      assignedToUserId: id.optional(),
+      title: z.string().trim().max(200).optional(),
+      note: z.string().trim().max(1000).optional(),
+      dueInDays: z.number().int().min(0).max(365).optional(),
+    }).strict().default({}),
+  }).strict(),
+  test: z.object({
+    message: z.string().trim().min(1, 'Type a message to test').max(2000),
+  }).strict(),
+};
+
+// Autonomous CRM agent (/agent).
+export const autonomousAgentSchemas = {
+  settings: z.object({ enabled: z.boolean() }).strict(),
+};
+
+// Public API (x-api-key). A missing or malformed body used to reach the send
+// path and crash there; it is a 400 here instead.
+const publicRecipient = z.union([z.string(), z.number()])
+  .transform((v) => String(v).trim())
+  .pipe(z.string().min(1, '`to` (recipient phone number) is required').max(32));
+const publicWaNumberId = z.string().trim().min(1).max(64).optional();
+
+export const publicApiSchemas = {
+  sendMessage: z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('template'),
+      to: publicRecipient,
+      waNumberId: publicWaNumberId,
+      template: z.object({
+        name: z.string().trim().min(1, 'template.name is required').max(512),
+        // Meta's shape is { code: 'en_US' }; a bare string is accepted too.
+        language: z.union([
+          z.string().trim().min(1).max(15).transform((code) => ({ code })),
+          z.object({ code: z.string().trim().min(1).max(15) }),
+        ]).optional(),
+        // Values for {{1}}, {{2}}, … in order.
+        variables: z.array(z.union([z.string().max(1024), z.number()]).transform(String)).max(100).optional(),
+      }, { required_error: '`template` is required when type is "template"' }),
+    }),
+    z.object({
+      type: z.literal('text'),
+      to: publicRecipient,
+      waNumberId: publicWaNumberId,
+      body: z.string({ required_error: '`body` is required when type is "text"' })
+        .trim().min(1, '`body` is required when type is "text"').max(4096),
+    }),
+  ], { errorMap: () => ({ message: '`type` must be "template" or "text"' }) }),
+};
+
+export const whatsappSchemas = {
+  connectOwn: z.object({
+    phoneNumber: z.string().trim().min(6, 'phoneNumber is required').max(30),
+    metaPhoneNumberId: z.string().trim().regex(/^\d{5,30}$/, 'metaPhoneNumberId must be the numeric phone number ID from Meta'),
+    wabaId: z.string().trim().regex(/^\d{5,30}$/, 'wabaId must be the numeric WhatsApp Business Account ID'),
+    accessToken: z.string().trim().min(20, 'accessToken is required').max(1024),
+    displayName: z.string().trim().max(120).optional(),
+  }),
+};

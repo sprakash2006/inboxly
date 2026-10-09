@@ -1,0 +1,111 @@
+import { randomBytes } from 'crypto';
+import * as authService from '../services/auth.service.js';
+import { redis } from '../lib/redis.js';
+import { revokeAccessToken } from '../lib/tokenDenylist.js';
+import { env } from '../config/env.js';
+import { prisma } from '../lib/prisma.js';
+import * as audit from '../services/audit.service.js';
+
+// ─── OTP signup ───────────────────────────────────────────────────────────────
+export async function startSignup(req, res) {
+  const result = await authService.startSignup(req.body);
+  res.json(result);
+}
+export async function verifySignup(req, res) {
+  const result = await authService.verifySignup(req.body);
+  res.status(201).json(result);
+}
+export async function resendSignupOtp(req, res) {
+  const result = await authService.resendSignupOtp(req.body);
+  res.json(result);
+}
+
+// ─── Forgot / reset password ────────────────────────────────────────────────
+export async function forgotPassword(req, res) {
+  const result = await authService.startPasswordReset(req.body);
+  res.json(result);
+}
+export async function resetPassword(req, res) {
+  const result = await authService.resetPassword(req.body);
+  res.json(result);
+}
+
+export async function login(req, res) {
+  const result = await authService.login(req.body);
+  res.json(result);
+}
+
+export async function refresh(req, res) {
+  const { refreshToken } = req.body;
+  if (!refreshToken) return res.status(400).json({ error: 'refreshToken required' });
+  const result = await authService.refresh(refreshToken);
+  res.json(result);
+}
+
+// Ends the session properly: the refresh token is deleted so it can never mint
+// another access token, *and* the access token presented with this request is
+// revoked by jti so it stops working immediately instead of remaining valid for
+// the rest of its lifetime.
+export async function logout(req, res) {
+  const { refreshToken } = req.body || {};
+  await authService.logout(refreshToken);
+  if (req.user?.jti) await revokeAccessToken(req.user.jti, req.user.exp);
+  // "Return to admin" ends an impersonation through here; close the trail.
+  if (req.user?.impersonatedBy) {
+    const admin = await prisma.user.findUnique({ where: { id: req.user.impersonatedBy }, select: { email: true } }).catch((err) => { console.warn('[Auth] Could not load the impersonating admin for the audit trail:', err.message); return null; });
+    await audit.record({
+      actor: { id: req.user.impersonatedBy, email: admin?.email },
+      action: 'impersonate.end',
+      targetType: 'user',
+      targetLabel: req.user.id,
+      meta: { userId: req.user.id, workspaceId: req.user.workspaceId || null },
+    });
+  }
+  res.json({ message: 'Logged out successfully' });
+}
+
+// Tokens must never travel in a redirect URL (browser history, proxy/CDN
+// logs, Referer leakage). Instead we stash the session under a short-lived
+// one-time code in Redis and redirect with only that code; the SPA exchanges
+// it via POST /auth/exchange.
+const memoryCodes = new Map();
+
+export async function googleCallback(req, res) {
+  const session = req.user; // { accessToken, refreshToken, user, workspace }
+  const code = randomBytes(32).toString('hex');
+  try {
+    if (redis.status === 'ready') {
+      await redis.set(`oauth:code:${code}`, JSON.stringify(session), 'EX', 120);
+    } else {
+      memoryCodes.set(code, JSON.stringify(session));
+      setTimeout(() => memoryCodes.delete(code), 120000);
+    }
+    return res.redirect(`${env.CLIENT_URL}/auth/callback?code=${code}`);
+  } catch (err) {
+    console.error('[Google OAuth] Failed to store one-time code:', err.message);
+    return res.redirect(`${env.CLIENT_URL}/login?oauth_error=session_store_failed`);
+  }
+}
+
+export async function exchangeOneTimeCode(req, res) {
+  const { code } = req.body || {};
+  if (!code || !/^[0-9a-f]{64}$/.test(code)) {
+    return res.status(400).json({ error: 'Invalid code' });
+  }
+  const key = `oauth:code:${code}`;
+  let raw = null;
+  
+  if (redis.status === 'ready') {
+    // Read and delete in one MULTI so two concurrent exchanges of the same
+    // code cannot both receive the session (GETDEL needs Redis 6.2+).
+    const [[getErr, value]] = await redis.multi().get(key).del(key).exec();
+    if (getErr) throw getErr;
+    raw = value;
+  } else {
+    raw = memoryCodes.get(code);
+    memoryCodes.delete(code);
+  }
+  
+  if (!raw) return res.status(400).json({ error: 'Code expired or already used' });
+  res.json(JSON.parse(raw));
+}

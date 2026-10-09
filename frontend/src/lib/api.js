@@ -1,0 +1,203 @@
+import { impersonationInfo, endImpersonation } from './tabSession.js';
+
+let _refreshing = null;
+
+// Every route App.jsx guards as signed-in only.
+const PROTECTED_PREFIXES = ['/dashboard', '/setup', '/resources'];
+
+// Where a dead session should land someone.
+//
+// Read at the moment the session dies, not at module load. It used to be
+// captured once into a module-level ENTRY_PATH, which is only correct while the
+// visitor stays on the page they first opened: land on `/`, navigate into
+// `/dashboard`, then have the session expire, and the stale entry path sent
+// them to the marketing page instead of the sign-in form — losing the thing
+// they were actually doing with no explanation.
+//
+// The distinction it was reaching for is still right: someone sitting on a
+// protected screen wants the sign-in form, while someone reading the public
+// site should not be thrown at a login page they never asked for.
+function redirectTargetForDeadSession() {
+  const here = window.location.pathname;
+  return PROTECTED_PREFIXES.some((p) => here.startsWith(p)) ? '/login' : '/';
+}
+
+function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  } catch {
+    return null;
+  }
+}
+
+const sessionExpired = () => {
+  const err = new Error('Your session has expired. Please sign in again.');
+  err.code = 'SESSION_EXPIRED';
+  return err;
+};
+
+async function refreshAccessToken() {
+  if (_refreshing) return _refreshing;
+
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    logout();
+    throw sessionExpired();
+  }
+
+  _refreshing = (async () => {
+    let res;
+    try {
+      res = await fetch('/api/v1/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+    } catch {
+      // The network failed, or the server is still waking up — the hosted
+      // service spins down when idle and the first request after that can time
+      // out. None of that says the session is invalid, so it must not end it:
+      // treating a cold start as a logout signed everyone out on the first
+      // visit of the day.
+      throw new Error('Could not reach the server. Check your connection and try again.');
+    }
+
+    // Only the server rejecting the token itself ends the session. A 5xx is
+    // the server's problem, not the user's credentials.
+    if (res.status === 401 || res.status === 403) {
+      // Another tab rotated the shared refresh token while this request was in
+      // flight. Its new tokens are already stored — use them.
+      const current = localStorage.getItem('refreshToken');
+      const access = localStorage.getItem('accessToken');
+      if (current && current !== refreshToken && access) return access;
+      logout();
+      throw sessionExpired();
+    }
+    if (!res.ok) throw new Error(`Could not refresh your session (${res.status}). Please try again.`);
+
+    const data = await res.json();
+    localStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+    // Keep the stored workspace in step with the one the new token is scoped
+    // to (they only differ if the user has left the session's workspace).
+    const user = getStoredUser();
+    if (user && data.workspace?.id && user.workspaceId !== data.workspace.id) {
+      localStorage.setItem('user', JSON.stringify({
+        ...user, workspaceId: data.workspace.id, workspaceName: data.workspace.name, role: data.role ?? user.role,
+      }));
+    }
+    return data.accessToken;
+  })().finally(() => { _refreshing = null; });
+
+  return _refreshing;
+}
+
+// In an impersonating tab this ends the impersonation only: the admin's own
+// session in localStorage is untouched and the tab falls back to it.
+export function clearStoredSession() {
+  if (impersonationInfo()) {
+    endImpersonation();
+    return;
+  }
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('impersonatorSession');
+}
+
+function logout() {
+  // An impersonation expired (it has no refresh token): back to the console.
+  if (impersonationInfo()) {
+    endImpersonation();
+    window.location.href = '/dashboard';
+    return;
+  }
+  clearStoredSession();
+  const target = redirectTargetForDeadSession();
+  // Assigning the current URL would reload the page for no reason — and on
+  // /login that is an endless refresh loop.
+  if (window.location.pathname !== target) window.location.href = target;
+}
+
+async function authedFetch(url, opts = {}) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    logout();
+    throw sessionExpired();
+  }
+
+  // For FormData bodies the browser MUST set Content-Type itself (it includes
+  // the multipart boundary). Forcing application/json breaks file uploads.
+  const isFormData = typeof FormData !== 'undefined' && opts.body instanceof FormData;
+  const headers = {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(opts.headers || {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  const res = await fetch(url, { ...opts, headers });
+
+  if (res.status === 401) {
+    // No blanket catch here on purpose: refreshAccessToken() already ends the
+    // session when the server rejects the token, and everything else it throws
+    // is transient. Swallowing all of it and logging out turned a momentary
+    // network blip into "you have been signed out".
+    const newToken = await refreshAccessToken();
+    headers.Authorization = `Bearer ${newToken}`;
+    const retry = await fetch(url, { ...opts, headers });
+    if (retry.status === 401) {
+      logout();
+      throw sessionExpired();
+    }
+    return retry;
+  }
+
+  return res;
+}
+
+// Always returns a Promise (never throws synchronously), so both
+// `wFetch(...).then().catch()` and try/await callers handle errors.
+export const wFetch = (path, opts = {}) => {
+  const user = getStoredUser();
+  if (!user?.workspaceId) {
+    return Promise.reject(new Error('Workspace not found'));
+  }
+  return authedFetch(`/api/v1/workspaces/${user.workspaceId}${path}`, opts);
+};
+
+export const adminFetch = (path, opts = {}) => {
+  return authedFetch(`/api/v1/admin${path}`, opts);
+};
+
+export const apiFetch = authedFetch;
+
+// Downloads a workspace-scoped file (invoice, CSV export) through the
+// authenticated fetch path. A plain <a href> can't be used because every API
+// route needs the Authorization header, so the response is pulled down as a
+// blob and handed to a synthetic link instead.
+export async function wDownload(path, fallbackName = 'download') {
+  const res = await wFetch(path);
+  if (!res.ok) {
+    let message = `Download failed (${res.status})`;
+    try { const data = await res.json(); if (data.error) message = data.error; } catch { /* not JSON */ }
+    throw new Error(message);
+  }
+
+  // Prefer the server's filename from Content-Disposition when it sent one.
+  const disposition = res.headers.get('Content-Disposition') || '';
+  const match = /filename="?([^"';]+)"?/i.exec(disposition);
+  const filename = match ? match[1] : fallbackName;
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  // Revoke on the next tick — revoking synchronously can cancel the download
+  // in some browsers before it has started reading the blob.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return filename;
+}

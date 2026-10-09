@@ -1,0 +1,204 @@
+import { prisma } from '../lib/prisma.js';
+import { matchIntent as scoreIntent, recordMatch } from './intent.service.js';
+import { sendAutomatedReply } from './outbound.service.js';
+import { notifyWorkspace } from './notification.service.js';
+import { realtime } from '../lib/realtimeBus.js';
+import { HANDOFF_REASONS } from './automationPause.service.js';
+
+// Running intent rules against a real inbound message.
+//
+// intent.service.js has always been able to score a message against a
+// workspace's rules — the Intent Matching screen creates them, lists them,
+// tests them and charts their accuracy. Nothing ever called it from the inbound
+// path: the only importer was its own controller. So intents could be created
+// and tuned, and routed absolutely nothing.
+//
+// This sits between the exact keyword triggers and the AI agent, which is where
+// the screen has always said it sits.
+
+// Below this, a match is a guess. The workspace's own threshold is used when
+// set; this is the floor for a rule with nothing configured.
+const DEFAULT_THRESHOLD = 0.6;
+
+/**
+ * @returns {Promise<null | { handled: boolean, replyText?: string, rule, confidence }>}
+ *   null when no rule matched above the threshold — the caller carries on to
+ *   its own fallbacks. `handled: true` means this layer has fully dealt with
+ *   the message and nothing else should reply.
+ */
+export async function routeByIntent({ workspaceId, conversationId, contact, waNumber, messageBody }) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { intentMatchThreshold: true, intentMatchingEnabled: true },
+  });
+  if (workspace?.intentMatchingEnabled === false) {
+    console.log(`[Intent] Intent matching is disabled for workspace ${workspaceId}`);
+    return null;
+  }
+
+  // Deliberately not behind the campaignAi plan feature (WF-IN-14). These are
+  // the workspace's own lexical rules — no model is called here — and a rule
+  // whose action is "run this workflow" is how many workspaces start their
+  // workflows; gating them turned every intent route off on Free. What does
+  // need campaignAi is the model: the LLM classifier (aiAgent.matchIntent) and
+  // the agent's answer to an 'ai' route, both gated where they run.
+
+  const rules = await prisma.intentRule.findMany({ where: { workspaceId, isActive: true } });
+  if (rules.length === 0) return null;
+
+  const threshold = workspace?.intentMatchThreshold ?? DEFAULT_THRESHOLD;
+
+  const best = scoreIntent(messageBody, rules);
+  if (!best || best.confidence < threshold) {
+    // Recorded either way: "what did my rules miss?" is the question the
+    // accuracy chart exists to answer, and it cannot answer it from hits alone.
+    if (best) {
+      console.log(`[Intent] Best match "${best.rule.name}" (${best.confidence.toFixed(2)}) below threshold (${threshold}) for: "${messageBody}"`);
+      recordMatch(workspaceId, {
+        intentRuleId: best.rule.id, outcome: 'below_threshold',
+        confidence: best.confidence, sample: messageBody,
+      }).catch((err) => console.warn('[Intent] Recording a below-threshold match failed:', err.message));
+    }
+    return null;
+  }
+
+  const { rule, confidence } = best;
+  console.log(`[Intent] Matched intent rule "${rule.name}" (${rule.id}) with confidence ${confidence.toFixed(2)} >= ${threshold}`);
+  recordMatch(workspaceId, {
+    intentRuleId: rule.id, outcome: 'matched', confidence, sample: messageBody,
+  }).catch((err) => console.warn('[Intent] Recording a match failed:', err.message));
+
+  switch (rule.actionType) {
+    // Hand the thread to a person and stop automating it.
+    case 'human':
+      await escalateToHuman({
+        workspaceId, conversationId, contact,
+        reason: `Matched the "${rule.name}" intent`,
+        reasonCode: `${HANDOFF_REASONS.INTENT_RULE}:${String(rule.name).slice(0, 60)}`,
+        team: rule.actionTarget || null,
+      });
+      return { handled: true, rule, confidence };
+
+    // Reply with the rule's own text.
+    case 'trigger': {
+      const trigger = rule.actionTarget
+        ? await prisma.automationTrigger.findFirst({
+            where: { id: rule.actionTarget, workspaceId, isActive: true },
+          })
+        : null;
+      // A rule pointing at a trigger that has since been deleted or switched
+      // off must not silently answer with nothing — fall through to the AI
+      // agent instead, which is the better of the two available outcomes.
+      if (!trigger?.responseTemplate) return null;
+      return { handled: false, replyText: trigger.responseTemplate, rule, confidence };
+    }
+
+    case 'workflow': {
+      if (!rule.actionTarget) return null;
+      console.log(`[Intent] Routing to workflow "${rule.actionTarget}" for workspace ${workspaceId}`);
+      const { startRunForWorkflowId } = await import('./workflowEngine.service.js');
+      const started = await startRunForWorkflowId(workspaceId, rule.actionTarget, {
+        conversationId, contactId: contact?.id || null, triggerMessage: messageBody,
+      }).catch((err) => {
+        console.error(`[Intent] Workflow ${rule.actionTarget} failed to start:`, err.message);
+        return null;
+      });
+      // The workflow owns the reply from here if it started; otherwise carry on.
+      return started ? { handled: true, rule, confidence, run: started } : null;
+    }
+
+    // 'ai' — let the agent answer, but say what it is answering about. The
+    // rule's actionTarget is guidance for the model, not a canned reply.
+    case 'ai':
+    default:
+      return {
+        handled: false,
+        rule,
+        confidence,
+        intentHint: rule.actionTarget || rule.name,
+      };
+  }
+}
+
+// ─── Human handoff ───────────────────────────────────────────────────────────
+//
+// `escalationRules` and `escalationThreshold` have been stored on Workspace,
+// edited on the AI Agent screen and scored in its readiness meter for a long
+// time, and nothing ever read them at runtime: the agent answered every message
+// itself and there was no path from automation to a person at all.
+
+// `reasonCode` is what the inbox shows as the reason automation is paused
+// (automationPause.service.js HANDOFF_REASONS).
+export async function escalateToHuman({
+  workspaceId, conversationId, contact, reason, reasonCode = HANDOFF_REASONS.CUSTOMER_ASKED_HUMAN, team = null,
+}) {
+  // OPEN and unassigned is what the inbox filters treat as "needs a human".
+  // Clearing any assignee is deliberate: a thread the AI was handling may have
+  // been auto-assigned, and escalation means it is up for grabs again.
+  await prisma.conversation.update({
+    where: { id: conversationId },
+    data: {
+      status: 'OPEN',
+      assignedToUserId: null,
+      // Stops the automation on this thread from here on. Without it the next
+      // inbound message ran the whole chain again and the bot talked over the
+      // person who had just been handed the conversation.
+      humanHandoffAt: new Date(),
+      handoffReason: String(reasonCode || HANDOFF_REASONS.CUSTOMER_ASKED_HUMAN).slice(0, 120),
+      ...(team ? { label: String(team).slice(0, 60) } : {}),
+    },
+  }).then(() => realtime.conversationUpdated(workspaceId, conversationId, 'escalated'))
+    .catch((err) => console.error('[Escalation] Could not flag the conversation:', err.message));
+
+  await notifyWorkspace(workspaceId, {
+    type: 'HANDOFF_REQUESTED',
+    title: `${contact?.name || contact?.phoneNumber || 'A customer'} needs a person`,
+    body: reason,
+    link: 'inbox',
+    meta: { conversationId, contactId: contact?.id, team },
+  }).catch((err) => console.warn(`[Escalation] Handoff notification failed for ${conversationId}:`, err.message));
+
+  console.log(`[Escalation] Conversation ${conversationId} handed to a human — ${reason}`);
+}
+
+// Does this message meet the workspace's own conditions for handing over?
+//
+// Deliberately lexical, like intent matching: an operator ticking "customer asks
+// for a human" needs to be able to predict what that does. The AI agent's own
+// uncertainty is handled separately, by escalationThreshold.
+const ESCALATION_PATTERNS = {
+  asksForHuman: /\b(human|agent|representative|real person|speak to (someone|a person)|talk to (someone|a person)|customer (care|service|support)|operator)\b/i,
+  refund: /\b(refund|money back|return it|cancel my order|chargeback|complaint|complain)\b/i,
+  negativeSentiment: /\b(terrible|awful|worst|useless|rubbish|angry|furious|disgusted|unacceptable|never again|scam|cheated|fraud)\b/i,
+  highIntent: /\b(buy now|place (an )?order|purchase|checkout|payment link|invoice me|how do i pay)\b/i,
+};
+
+const ESCALATION_LABELS = {
+  asksForHuman: 'The customer asked to speak to a person',
+  refund: 'The customer raised a refund or complaint',
+  negativeSentiment: 'The message reads as strongly negative',
+  highIntent: 'The customer is ready to buy',
+};
+
+/** @returns {null | { rule: string, reason: string, reasonCode: string }} */
+export function escalationMatch(messageBody, escalationRules) {
+  const rules = escalationRules && typeof escalationRules === 'object' ? escalationRules : {};
+  for (const [id, pattern] of Object.entries(ESCALATION_PATTERNS)) {
+    if (rules[id] === true && pattern.test(messageBody)) {
+      return { rule: id, reason: ESCALATION_LABELS[id], reasonCode: `${HANDOFF_REASONS.ESCALATION_RULE}:${id}` };
+    }
+  }
+  return null;
+}
+
+export function escalationReason(messageBody, escalationRules) {
+  return escalationMatch(messageBody, escalationRules)?.reason ?? null;
+}
+
+// The escalation rules belong to the AI agent ("when the agent steps back and
+// brings in a human"). They used to apply on any workspace that had ever saved
+// the AI Agent screen — which persisted them all switched on — with no agent
+// deployed, and ahead of the keyword triggers, so "this is useless" or
+// "refund" silently paused automation on the contact (WF-IN-3). They now apply
+// only while an agent is deployed.
+export const escalationRulesApply = (workspace) => workspace?.aiAgentEnabled === true;

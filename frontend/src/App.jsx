@@ -1,0 +1,400 @@
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import Landing from './pages/Landing.jsx';
+import Login from './pages/Login.jsx';
+import SiteAssistant from './components/SiteAssistant.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { FeedbackHost } from './components/Feedback.jsx';
+import { peekPendingOAuthRequest, clearPendingOAuthRequest } from './lib/oauthPending.js';
+import { clearStoredSession } from './lib/api.js';
+
+// Landing and Login are the two pages people arrive on, so they ship in the
+// entry chunk. Everything else — above all the dashboard and its views — is
+// fetched on first use, so a marketing visitor does not download the app.
+const Register = lazy(() => import('./pages/Register.jsx'));
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback.jsx'));
+const WorkspaceSetup = lazy(() => import('./pages/WorkspaceSetup.jsx'));
+const InviteAccept = lazy(() => import('./pages/InviteAccept.jsx'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
+const Legal = lazy(() => import('./pages/Legal.jsx'));
+const CampaignAI = lazy(() => import('./pages/CampaignAI.jsx'));
+const OAuthConsent = lazy(() => import('./pages/OAuthConsent.jsx'));
+
+const PageFallback = () => (
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#060B18' }}>
+    <div style={{ width: 24, height: 24, border: '2px solid var(--green)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+  </div>
+);
+
+// ─── Tiny history-based router ───────────────────────────────────────────────
+// Real URLs (/login, /register, /dashboard/campaigns, …) so browser
+// back/forward, page refresh and deep links all work. Legacy onNav('page')
+// calls are translated to paths for backwards compatibility.
+
+const LEGACY_PATHS = {
+  landing: '/',
+  login: '/login',
+  register: '/register',
+  dashboard: '/dashboard',
+  setup: '/setup',
+};
+
+export function navigate(path, { replace = false } = {}) {
+  if (window.location.pathname + window.location.search === path) return;
+
+  if (replace) {
+    window.history.replaceState({}, '', path);
+  } else {
+    window.history.pushState({}, '', path);
+  }
+
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+
+// Seconds-since-epoch `exp` out of a JWT, or null when it can't be read.
+// Not a security check — the server verifies the signature — just enough to
+// tell a live session from the remains of an old one without a network round trip.
+function tokenExpiry(token) {
+  try {
+    const payload = JSON.parse(
+      atob(
+        String(token)
+          .split('.')[1]
+          .replace(/-/g, '+')
+          .replace(/_/g, '/')
+      )
+    );
+
+    return typeof payload.exp === 'number'
+      ? payload.exp * 1000
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+const alive = (token) => {
+  if (!token) return false;
+
+  const exp = tokenExpiry(token);
+
+  // Unreadable expiry: assume it's usable and let the server be the judge.
+  return exp === null || exp > Date.now();
+};
+
+// A leftover token in localStorage is not a session. Checking it here is what
+// keeps a visitor with an old, dead login on the landing page: without it the
+// router sent them to /dashboard, the first API call 401'd, and the app bounced
+// them to a login screen they never asked for.
+//
+// Pure, so it can be called while rendering; the route-guard effect calls
+// dropDeadSession() to actually clear the leftovers.
+function isAuthed() {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken || !localStorage.getItem('user')) {
+    return false;
+  }
+
+  if (alive(accessToken)) {
+    return true;
+  }
+
+  // An expired access token is still a session while a refresh token can renew
+  // it. When neither can, the session is over — drop it so the visitor gets a
+  // clean landing page rather than a redirect loop.
+  return alive(localStorage.getItem('refreshToken'));
+}
+
+function dropDeadSession() {
+  if (localStorage.getItem('accessToken') && !isAuthed()) clearStoredSession();
+}
+
+// Users without a workspace (fresh signups) must create or join one before
+// they can use the dashboard. Super admins can access the dashboard directly.
+function isSuperAdmin() {
+  try {
+    return (
+      JSON.parse(
+        localStorage.getItem('user') || 'null'
+      )?.superAdmin === true
+    );
+  } catch {
+    return false;
+  }
+}
+
+function hasWorkspace() {
+  try {
+    return !!JSON.parse(
+      localStorage.getItem('user') || 'null'
+    )?.workspaceId;
+  } catch {
+    return false;
+  }
+}
+
+function canAccessDashboard() {
+  return hasWorkspace() || isSuperAdmin();
+}
+
+// Signing out from the UI. Shares one implementation with the API layer's
+// automatic logout so the two can't drift over which keys a session is made of.
+const clearSession = clearStoredSession;
+
+export default function App() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  // The query string is tracked separately from the pathname. Route matching
+  // below is all pathname equality, so the search must not be folded into
+  // `path` — but it still has to be state, because a navigation that changes
+  // only the query (.../payments?tab=invoices → .../payments) leaves the pathname
+  // identical, setPath is handed the value it already holds, React bails out
+  // of the re-render, and every page that reads `?tab=` keeps showing the old
+  // sub-tab while the address bar says otherwise.
+  const [search, setSearch] = useState(window.location.search);
+
+  useEffect(() => {
+    const onPop = () => {
+      setPath(window.location.pathname);
+      setSearch(window.location.search);
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant',
+      });
+    };
+
+    window.addEventListener('popstate', onPop);
+
+    return () => {
+      window.removeEventListener('popstate', onPop);
+    };
+  }, []);
+
+  // Legacy navigation API used by existing pages:
+  // onNav('login'|'dashboard'|…)
+  const nav = useCallback((p) => {
+    if (p === 'landing') {
+      clearSession();
+    }
+
+    navigate(
+      LEGACY_PATHS[p] || `/${p}`
+    );
+  }, []);
+
+  // Route guards
+  useEffect(() => {
+    dropDeadSession();
+
+    // Logged-in users land on the dashboard, matching the pre-router behaviour.
+    if (path === '/' && isAuthed()) {
+      navigate(canAccessDashboard() ? '/dashboard' : '/setup', { replace: true });
+      return;
+    }
+
+    const isResources =
+      path === '/resources' ||
+      path.startsWith('/resources/');
+
+    // Bring someone back to a half-finished authorisation.
+    //
+    // A visitor who arrived at /oauth/consent without an account is sent away to
+    // sign up, verify an emailed code and create a workspace — several screens,
+    // each of which ends by navigating somewhere of its own choosing. Rather
+    // than teach Login, Register and WorkspaceSetup each to carry the pending
+    // request, it is parked in sessionStorage and picked up here, at the one
+    // place they all eventually land. It expires on its own after 30 minutes,
+    // matching the signed blob's own lifetime, so a stale one cannot ambush
+    // someone days later.
+    if (path.startsWith('/dashboard') && isAuthed() && canAccessDashboard()) {
+      const pending = peekPendingOAuthRequest();
+      if (pending) {
+        // One shot. The URL carries it from here, so someone who then walks away
+        // from the consent screen is not bounced back to it on their next visit.
+        clearPendingOAuthRequest();
+        navigate(`/oauth/consent?req=${encodeURIComponent(pending)}`, { replace: true });
+        return;
+      }
+    }
+
+    // The consent page decides for itself what to do when there is no session —
+    // it may need to hand back to a popup opener rather than redirect — so it is
+    // deliberately exempt from the guards below.
+    if (path === '/oauth/consent') return;
+
+    if (
+      (path.startsWith('/dashboard') || isResources) &&
+      !isAuthed()
+    ) {
+      navigate('/login', { replace: true });
+    } else if (
+      (path.startsWith('/dashboard') || isResources) &&
+      !canAccessDashboard()
+    ) {
+      navigate('/setup', { replace: true });
+    } else if (
+      path === '/setup' &&
+      !isAuthed()
+    ) {
+      navigate('/login', { replace: true });
+    } else if (
+      path === '/setup' &&
+      canAccessDashboard()
+    ) {
+      navigate('/dashboard', { replace: true });
+    } else if (
+      (path === '/login' || path === '/register') &&
+      isAuthed()
+    ) {
+      navigate(
+        canAccessDashboard()
+          ? '/dashboard'
+          : '/setup',
+        { replace: true }
+      );
+    }
+  }, [path]);
+
+  const page = renderPage(
+    path,
+    nav,
+    search
+  );
+
+  const isCrmPath = (p) => {
+    if (!p || !p.startsWith('/dashboard')) return false;
+    const sub = p.replace(/^\/dashboard\/?/, '').split('/')[0] || '';
+    const CRM_SECTIONS = new Set([
+      'crm-overview',
+      'ai-chatbots',
+      'leads',
+      'deals',
+      'tasks',
+    ]);
+    return CRM_SECTIONS.has(sub);
+  };
+
+  // The website assistant rides above general screens, but is withheld from:
+  // - /auth/callback (redirect in progress)
+  // - /oauth/consent (security decision)
+  // - CRM tabs (work screens, kept free of the marketing assistant)
+  const bareScreen = path === '/auth/callback' || path === '/oauth/consent' || isCrmPath(path);
+  return (
+    <ErrorBoundary variant="page" resetKey={path}>
+      <Suspense fallback={<PageFallback />}>
+        {page}
+      </Suspense>
+      {!bareScreen && <SiteAssistant />}
+      <FeedbackHost />
+    </ErrorBoundary>
+  );
+}
+
+function renderPage(path, nav, search) {
+  if (path === '/auth/callback') {
+    return <AuthCallback />;
+  }
+
+  // Deliberately not covered by the route-guard effect above (only handles
+  // /dashboard, /setup, /login, /register) — this page must work whether or
+  // not the visitor is currently logged in, so it branches internally.
+  if (path === '/invite/accept') {
+    return <InviteAccept />;
+  }
+
+  // Policy pages are public by design: Meta's WhatsApp onboarding and the
+  // payment gateway both require these URLs to resolve for a signed-out
+  // visitor, so they sit outside every guard.
+  if (
+    path === '/legal' ||
+    path.startsWith('/legal/')
+  ) {
+    return <Legal routePath={path} />;
+  }
+
+  // Product pages are public and stay public for signed-in visitors too:
+  // the only redirect on this side of the guards is the landing page's,
+  // and a logged-in user following a link to a feature page wants to read
+  // the page, not be bounced to their dashboard.
+  if (path === '/product/campaign-ai') {
+    return <CampaignAI onNav={nav} />;
+  }
+
+  // Where another application sends a user to approve access. Renders for
+  // signed-out visitors too — it parks the request and sends them to sign up,
+  // then App's guard brings them back here afterwards.
+  if (path === '/oauth/consent') {
+    return <OAuthConsent search={search} />;
+  }
+
+  if (path === '/login') {
+    return <Login onNav={nav} mode="login" />;
+  }
+
+  if (path === '/register') {
+    return <Register onNav={nav} />;
+  }
+
+  // Must work whether or not the visitor is logged in, same as /invite/accept.
+  if (path === '/forgot-password') {
+    return <ForgotPassword />;
+  }
+
+  if (path === '/setup') {
+    if (
+      !isAuthed() ||
+      canAccessDashboard()
+    ) {
+      return null;
+    }
+
+    // Guard effect redirects when appropriate.
+    return <WorkspaceSetup onNav={nav} />;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DASHBOARD ROUTES
+  // ─────────────────────────────────────────────────────────────────────────
+  if (path.startsWith('/dashboard')) {
+    if (
+      !isAuthed() ||
+      !canAccessDashboard()
+    ) {
+      return null;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Authentication is rendered by Dashboard.jsx too, so it retains the
+    // same dashboard shell, sidebar state, and Templates-style module tabs.
+    // All existing dashboard routes continue using Dashboard.jsx exactly
+    // as before.
+    return (
+      <Dashboard
+        onNav={nav}
+        routePath={path}
+        routeSearch={search}
+      />
+    );
+  }
+
+  // Resource Center — a logged-in area rendered inside the Dashboard shell so
+  // the app sidebar stays put. Same guards as /dashboard.
+  if (path === '/resources' || path.startsWith('/resources/')) {
+    if (!isAuthed() || !canAccessDashboard()) return null; // guard effect redirects
+
+    return (
+      <Dashboard
+        onNav={nav}
+        routePath={path}
+        routeSearch={search}
+      />
+    );
+  }
+
+  // The guard effect sends a signed-in visitor on to the dashboard.
+  if (path === '/' && isAuthed()) return null;
+
+  return <Landing onNav={nav} />;
+}

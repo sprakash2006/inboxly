@@ -1,0 +1,112 @@
+import { Router } from 'express';
+import { authenticateApiKey } from '../middleware/authenticateApiKey.js';
+import { rateLimit, apiKeyIdentity, recipientIdentity } from '../middleware/rateLimit.js';
+import { requireScope } from '../lib/apiScopes.js';
+import * as templatesController from '../controllers/templates.controller.js';
+import * as campaignsController from '../controllers/campaigns.controller.js';
+import * as contactsController from '../controllers/contacts.controller.js';
+import * as settingsService from '../services/settings.service.js';
+import * as analyticsController from '../controllers/analytics.controller.js';
+import * as walletController from '../controllers/wallet.controller.js';
+import * as aiAgentController from '../controllers/aiAgent.controller.js';
+import * as automationController from '../controllers/automation.controller.js';
+import * as publicIdentityController from '../controllers/publicIdentity.controller.js';
+import { sendPublicMessage } from '../services/publicMessage.service.js';
+import { validate, templateSchemas, campaignSchemas, settingsSchemas, publicApiSchemas } from '../validators/index.js';
+
+const router = Router();
+
+// 1. Authenticate all public routes. The address-level limit in front bounds
+//    the key lookups one client can cause; the per-key limit after it is the
+//    real budget, whatever address the key is used from.
+router.use(rateLimit({ windowMs: 60_000, max: 600, keyPrefix: 'public-api-ip' }));
+router.use(authenticateApiKey);
+router.use(rateLimit({ windowMs: 60_000, max: 300, keyPrefix: 'public-api', by: apiKeyIdentity }));
+
+// Sends cost money and reach real people: a tighter per-key budget, and a cap
+// per recipient so one number cannot be flooded.
+const sendLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 60,
+  keyPrefix: 'public-send',
+  by: apiKeyIdentity,
+  subject: recipientIdentity('to'),
+  subjectMax: 10,
+});
+
+// 2. Inject workspaceId into req.params just before controller executes 
+//    to avoid Express wiping req.params when matching route paths.
+const injectWorkspace = (fn) => (req, res, next) => {
+  req.params.workspaceId = req.workspaceId;
+  return fn(req, res, next);
+};
+
+// --- Identity ---
+// Which workspace does this key belong to, and which numbers can it send from?
+// No scope required: a key should always be able to identify itself, and an
+// integration that cannot name the workspace it is acting on is one wrong paste
+// away from messaging another business's customers from their number.
+router.get('/me', publicIdentityController.me);
+
+// --- Messages ---
+router.post('/messages', requireScope('messages:send'), sendLimiter, validate({ body: publicApiSchemas.sendMessage }), async (req, res, next) => {
+  try {
+    const result = await sendPublicMessage(req.workspaceId, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// --- Templates ---
+router.get('/templates', requireScope('templates:read'), injectWorkspace(templatesController.list));
+router.post('/templates', requireScope('templates:write'), validate({ body: templateSchemas.create }), injectWorkspace(templatesController.create));
+router.get('/templates/:id', requireScope('templates:read'), injectWorkspace(templatesController.getOne));
+
+// --- Campaigns ---
+router.get('/campaigns', requireScope('campaigns:read'), injectWorkspace(campaignsController.list));
+router.post('/campaigns', requireScope('campaigns:write'), validate({ body: campaignSchemas.create }), injectWorkspace(campaignsController.create));
+router.get('/campaigns/:id', requireScope('campaigns:read'), injectWorkspace(campaignsController.getOne));
+router.post('/campaigns/:id/recipients', requireScope('campaigns:write'), validate({ body: campaignSchemas.addRecipients }), injectWorkspace(campaignsController.addRecipients));
+router.put('/campaigns/:id/recipients', requireScope('campaigns:write'), validate({ body: campaignSchemas.setRecipients }), injectWorkspace(campaignsController.setRecipients));
+router.post('/campaigns/:id/launch', requireScope('campaigns:write'), injectWorkspace(campaignsController.launch));
+
+// --- Contacts ---
+router.get('/contacts', requireScope('contacts:read'), injectWorkspace(contactsController.list));
+router.post('/contacts', requireScope('contacts:write'), injectWorkspace(contactsController.create));
+router.put('/contacts/:id', requireScope('contacts:write'), injectWorkspace(contactsController.update));
+
+// --- Analytics ---
+router.get('/analytics/summary', requireScope('analytics:read'), injectWorkspace(analyticsController.overview));
+
+// --- Wallet ---
+router.get('/wallet/balance', requireScope('wallet:read'), injectWorkspace(walletController.getWallet));
+
+// --- AI Agent ---
+router.get('/ai-agent/config', requireScope('ai-agent:read'), injectWorkspace(aiAgentController.getConfig));
+router.post('/ai-agent/query', requireScope('ai-agent:write'), injectWorkspace(aiAgentController.test));
+
+// --- Automations ---
+router.get('/automations', requireScope('automations:read'), injectWorkspace(automationController.list));
+
+// --- Webhooks ---
+// Register the workspace webhook URL (and optionally which events it gets).
+// Validated by the dashboard's own schema, and the service refuses any URL
+// that does not resolve to a public address.
+const publicWebhookBody = settingsSchemas.update
+  .pick({ webhookUrl: true, webhookEvents: true })
+  .refine((v) => v.webhookUrl !== undefined, { message: 'webhookUrl is required', path: ['webhookUrl'] });
+
+router.post('/webhooks', requireScope('webhooks:write'), validate({ body: publicWebhookBody }), async (req, res, next) => {
+  try {
+    const { webhookUrl, webhookEvents } = req.body;
+    const settings = await settingsService.updateSettings(req.workspaceId, { webhookUrl, webhookEvents });
+    // Same body the dashboard gets, including the signing secret the receiver
+    // needs to verify deliveries.
+    res.json(settings);
+  } catch (err) {
+    next(err);
+  }
+});
+
+export default router;

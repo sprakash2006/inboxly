@@ -1,0 +1,204 @@
+import { Router } from 'express';
+import authRoutes from './auth.routes.js';
+import oauthRoutes from './oauth.routes.js';
+import authenticationRoutes from '../authentication/authentication.routes.js';
+import publicRoutes from './public.routes.js';
+import whatsappRoutes from './whatsapp.routes.js';
+import templatesRoutes from './templates.routes.js';
+import campaignsRoutes from './campaigns.routes.js';
+import contactsRoutes from './contacts.routes.js';
+import clustersRoutes from './clusters.routes.js';
+import leadsRoutes from './leads.routes.js';
+import dealsRoutes from './deals.routes.js';
+import tasksRoutes from './tasks.routes.js';
+import activitiesRoutes from './activities.routes.js';
+import crmAnalyticsRoutes from './crm-analytics.routes.js';
+import conversationsRoutes from './conversations.routes.js';
+import analyticsRoutes from './analytics.routes.js';
+import automationRoutes from './automation.routes.js';
+import settingsRoutes from './settings.routes.js';
+import membersRoutes from './members.routes.js';
+import apiKeysRoutes from './apikeys.routes.js';
+import adminRoutes from './admin.routes.js';
+import webhookRoutes from './webhook.routes.js';
+import onboardingRoutes from './onboarding.routes.js';
+import aiRoutes from './ai.routes.js';
+import workflowRoutes from './workflow.routes.js';
+import instagramRoutes from './instagram.routes.js';
+import voiceRoutes from './voice.routes.js';
+import * as instagramController from '../controllers/instagram.controller.js';
+import segmentsRoutes from './segments.routes.js';
+import whatsappFormsRoutes from './whatsappForms.routes.js';
+import walletRoutes from './wallet.routes.js';
+import widgetsRoutes from './widgets.routes.js';
+import integrationsRoutes, {
+  oauthCallbackRouter,
+} from './integrations.routes.js';
+import supportRoutes from './support.routes.js';
+import workspacesRoutes from './workspaces.routes.js';
+import subscriptionRoutes from './subscription.routes.js';
+import aiAgentRoutes from './aiAgent.routes.js';
+import intentRoutes from './intent.routes.js';
+import invitationsRoutes, {
+  publicInvitationsRouter,
+} from './invitations.routes.js';
+import workspaceSwitchRoutes from './workspaceSwitch.routes.js';
+import usersRoutes from './users.routes.js';
+import notificationsRoutes from './notifications.routes.js';
+import optOutRoutes from './optout.routes.js';
+import assistantRoutes from './assistant.routes.js';
+import agentRoutes from './agent.routes.js';
+import aiAgentsRoutes from './aiAgents.routes.js';
+import { MESSAGE_CATEGORY_RATES } from '../lib/messagePricing.js';
+import { checkReadiness } from '../lib/readiness.js';
+import authenticationConfigRoutes from '../authentication/authentication-config.routes.js';
+import realtimeRoutes from './realtime.routes.js';
+const router = Router();
+
+
+router.get('/health', (req, res) =>
+  res.json({
+    status: 'ok',
+    ts: new Date().toISOString(),
+  })
+);
+
+// Readiness: boot finished and Postgres + Redis answer. Deploy health checks
+// point here; /health stays a cheap liveness probe.
+router.get('/health/ready', async (req, res) => {
+  const { ready, checks } = await checkReadiness();
+  res.status(ready ? 200 : 503).json({
+    status: ready ? 'ok' : 'unavailable',
+    checks,
+    ts: new Date().toISOString(),
+  });
+});
+
+// Published rate card, unauthenticated: the marketing site quotes campaign
+// costs from this, so it quotes the same per-category rates campaigns are
+// actually billed at.
+router.get('/pricing', (req, res) =>
+  res.json({
+    currency: 'INR',
+    rates: MESSAGE_CATEGORY_RATES,
+  })
+);
+
+// -----------------------------------------------------------------------------
+// Public / authentication routes
+// -----------------------------------------------------------------------------
+
+router.use('/auth', authRoutes);
+
+// Inboxly as an OAuth authorization server: another application sends a user
+// here to approve access, and receives a scoped ApiKey rather than the user
+// copying one out of Settings. Public — an authorization request arrives as a
+// browser navigation, and the token exchange authenticates with a client secret.
+router.use('/oauth', oauthRoutes);
+
+// WhatsApp Authentication OTP API.
+// Uses API-key authentication and authentication:send scope.
+router.use('/authentication', authenticationRoutes);
+
+router.use('/public', publicRoutes);
+
+router.use('/webhook', webhookRoutes);
+
+// Public, signature-verified webhooks: Instagram DMs/comments and Twilio voice.
+router.get(
+  '/webhook/instagram',
+  instagramController.verifyWebhook
+);
+
+router.post(
+  '/webhook/instagram',
+  instagramController.receiveWebhook
+);
+
+router.use('/voice', voiceRoutes);
+
+router.use('/admin', adminRoutes);
+
+router.use('/users', usersRoutes);
+
+// User-scoped, not workspace-scoped: an invitation notification reaches you
+// before you belong to the workspace that sent it.
+router.use('/notifications', notificationsRoutes);
+
+router.use('/integrations/oauth', oauthCallbackRouter);
+
+router.use('/invitations', publicInvitationsRouter);
+
+// -----------------------------------------------------------------------------
+// Workspace-scoped routes
+// -----------------------------------------------------------------------------
+
+const ws = Router({ mergeParams: true });
+
+ws.use('/whatsapp', whatsappRoutes);
+ws.use('/templates', templatesRoutes);
+ws.use('/campaigns', campaignsRoutes);
+ws.use('/contacts', contactsRoutes);
+ws.use('/clusters', clustersRoutes);
+ws.use('/leads', leadsRoutes);
+ws.use('/deals', dealsRoutes);
+ws.use('/tasks', tasksRoutes);
+ws.use('/activities', activitiesRoutes);
+ws.use('/crm-analytics', crmAnalyticsRoutes);
+// Old path of the autonomous agent; canonical path is /ai-agents/autonomous.
+ws.use('/agent', agentRoutes);
+ws.use('/conversations', conversationsRoutes);
+ws.use('/analytics', analyticsRoutes);
+ws.use('/automation', automationRoutes);
+ws.use('/settings', settingsRoutes);
+ws.use('/authentication', authenticationConfigRoutes);
+ws.use('/members', membersRoutes);
+ws.use('/api-keys', apiKeysRoutes);
+ws.use('/segments', segmentsRoutes);
+ws.use('/whatsapp-forms', whatsappFormsRoutes);
+ws.use('/workflows', workflowRoutes);
+ws.use('/instagram', instagramRoutes);
+ws.use('/wallet', walletRoutes);
+ws.use('/widgets', widgetsRoutes);
+ws.use('/opt-outs', optOutRoutes);
+
+// Friendlier alias for the Settings → Blocked Numbers screen.
+ws.use('/blocked-numbers', optOutRoutes);
+
+ws.use('/subscription', subscriptionRoutes);
+ws.use('/integrations', integrationsRoutes);
+ws.use('/support', supportRoutes);
+// AI Agents: one route family for the one AI Agents area —
+//   /ai-agents             the agent studio (personas, channels, guidelines, actions)
+//   /ai-agents/whatsapp    the live WhatsApp AI agent (config, knowledge, deploy, test)
+//   /ai-agents/autonomous  the autonomous CRM agent (switch, queue, suggestions)
+// The two sub-families are mounted before the studio so its /:id routes never
+// see them. /ai-agent and /agent stay as aliases for existing clients.
+ws.use('/ai-agents/whatsapp', aiAgentRoutes);
+ws.use('/ai-agents/autonomous', agentRoutes);
+ws.use('/ai-agents', aiAgentsRoutes);
+ws.use('/ai-agent', aiAgentRoutes);
+ws.use('/intents', intentRoutes);
+ws.use('/invitations', invitationsRoutes);
+ws.use('/switch', workspaceSwitchRoutes);
+// Server-sent events: inbox, campaign and template updates as they happen.
+ws.use('/realtime', realtimeRoutes);
+// AI drafting (templates, campaigns) and the workflow simulator.
+ws.use('/ai', aiRoutes);
+
+// -----------------------------------------------------------------------------
+// Website assistant
+// -----------------------------------------------------------------------------
+
+// Website assistant (public chatbot). Not workspace-scoped: it answers from
+// the site's own published content, which is the same for every visitor.
+router.use('/assistant', assistantRoutes);
+
+router.use('/onboarding', onboardingRoutes);
+
+// POST /workspaces (create) must not shadow the :workspaceId routes below.
+router.use('/workspaces', workspacesRoutes);
+
+router.use('/workspaces/:workspaceId', ws);
+
+export default router;

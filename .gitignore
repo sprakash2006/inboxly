@@ -1,0 +1,97 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.production
+backend/.env.vps
+# Backups and local overrides of env files hold real credentials just as the
+# originals do. backend/.env.bak was untracked but committable, and contained a
+# live connection string for a shared database — see OPEN-009.
+.env.bak
+*.env.bak
+backend/.env.*
+!backend/.env.example
+# Any other env variant anywhere (.env.test, .env.production, ...). A test
+# fixture backend/.env.test was committed once and is still in history.
+.env.*
+!.env.example
+
+# Build output
+frontend/dist/
+
+# Generated test artifacts — traces, screenshots and HTML reports are rebuilt
+# on every run and should never be version controlled.
+playwright-report/
+test-results/
+frontend/build/
+
+# Prisma
+# NOTE: migrations/ is intentionally committed — it's the reproducible source
+# of truth for the DB schema (needed to recreate tables on a fresh/restored DB).
+*.db
+*.db-journal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Scratch output from local script runs (migrations, startup, error dumps).
+# Machine-specific and regenerated on every run — nothing here belongs in the
+# repo. Matched at any depth so the root and backend/ copies are both covered.
+migration_status.txt
+init_status.txt
+server_errors.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Vite cache
+frontend/node_modules/.vite/
+
+# Claude internal
+.claude/
+
+# Local notes
+INTERAKT_COMPARISON.md
+
+# Vite writes these while resolving the config; never source
+vite.config.js.timestamp-*
+vite.config.*.timestamp-*
+git_output.txt
+
+# Ad-hoc probe scripts written while debugging; never part of the app.
+backend/*_tmp.mjs
+# Throwaway debug scripts and stray SQL. These are scratch work, not source —
+# they were committed once by a broad `git add -A` and removed again.
+backend/query*.js
+backend/migration.sql
+open-chrome-profile.mjs
+
+# Redis snapshots, QA exports and screenshots — runtime and review artefacts,
+# never source. backend/dump.rdb and the root PDF/screenshots were committed
+# once and removed.
+*.rdb
+/*.pdf
+/screenshots/
+/qa-output/
+# Merge scratch from combining the master and CRM branches (schema, validator
+# and service copies); backend/prisma/schema.prisma is the only schema.
+/schema_*.prisma
+/merge_prisma.py
+/val_*.js
+/cfs_*.js
+
+# Local-disk file storage (lib/storage, STORAGE_DRIVER=disk). Runtime data.
+backend/uploads/

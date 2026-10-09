@@ -1,0 +1,471 @@
+import { prisma } from '../lib/prisma.js';
+import { decrypt } from '../lib/encryption.js';
+import { sendWhatsAppMessage } from '../lib/meta.js';
+
+import {
+  createAuthenticationTransaction,
+  attachMetaMessageId,
+  invalidateAuthenticationTransaction,
+  verifyAuthenticationTransaction,
+} from './otp.service.js';
+
+import {
+  assertNotOptedOut,
+  normalizePhone,
+} from '../services/optout.service.js';
+import {
+  chargeAndSend,
+  recordOutboundMessage,
+} from '../services/meteredSend.service.js';
+
+const AUTHENTICATION_OTP_EXPIRATION_MINUTES = 10;
+
+/**
+ * Authentication OTPs are valid for ten minutes.
+ *
+ * This value controls the Inboxly verification transaction.
+ * The configured Meta Authentication template controls
+ * the expiry information displayed to the customer.
+ */
+function getExpirationMinutes() {
+  return AUTHENTICATION_OTP_EXPIRATION_MINUTES;
+}
+
+/**
+ * Verify that a template is an approved
+ * AUTHENTICATION / COPY_CODE template.
+ */
+export function isCopyCodeAuthenticationTemplate(template) {
+  if (
+    String(template?.category || '').toUpperCase() !==
+    'AUTHENTICATION'
+  ) {
+    return false;
+  }
+
+  const buttons = (template.components || []).find(
+    component =>
+      String(component?.type || '').toUpperCase() ===
+      'BUTTONS'
+  )?.buttons;
+
+  if (!Array.isArray(buttons) || buttons.length !== 1) {
+    return false;
+  }
+
+  const button = buttons[0] || {};
+
+  const type = String(button.type || '').toUpperCase();
+
+  if (type === 'OTP') {
+    return (
+      String(button.otp_type || '').toUpperCase() ===
+      'COPY_CODE'
+    );
+  }
+
+  return (
+    type === 'URL' &&
+    /otp_type=COPY_CODE/i.test(
+      String(button.url || '')
+    )
+  );
+}
+
+/**
+ * Resolve the Authentication configuration for a workspace.
+ *
+ * The workspace configuration determines which approved
+ * Authentication template and WhatsApp number are used.
+ *
+ * The API caller does NOT provide templateId or waNumberId.
+ */
+async function resolveAuthenticationConfiguration(
+  workspaceId
+) {
+  if (!workspaceId) {
+    const error = new Error('Workspace is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const config =
+    await prisma.authenticationConfig.findUnique({
+      where: {
+        workspaceId,
+      },
+    });
+
+  if (!config) {
+    const error = new Error(
+      'Authentication is not configured for this workspace.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (!config.enabled) {
+    const error = new Error(
+      'Authentication is disabled for this workspace.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (!config.templateId) {
+    const error = new Error(
+      'Authentication template is not configured.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (!config.waNumberId) {
+    const error = new Error(
+      'Authentication WhatsApp number is not configured.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  const template = await prisma.template.findFirst({
+    where: {
+      id: config.templateId,
+      workspaceId,
+      status: 'APPROVED',
+    },
+  });
+
+  if (!template) {
+    const error = new Error(
+      'The configured authentication template is not approved or no longer exists.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (
+    String(template.category || '').toUpperCase() !==
+    'AUTHENTICATION'
+  ) {
+    const error = new Error(
+      'The configured template is not an AUTHENTICATION template.'
+    );
+    error.status = 422;
+    throw error;
+  }
+
+  if (!isCopyCodeAuthenticationTemplate(template)) {
+    const error = new Error(
+      'Only approved COPY_CODE authentication templates are supported.'
+    );
+    error.status = 422;
+    throw error;
+  }
+
+  const waNumber = await prisma.waNumber.findFirst({
+    where: {
+      id: config.waNumberId,
+      workspaceId,
+    },
+  });
+
+  if (!waNumber) {
+    const error = new Error(
+      'The configured authentication WhatsApp number no longer exists.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  return {
+    config,
+    template,
+    waNumber,
+  };
+}
+
+/**
+ * Resolve the sender for an Authentication campaign: the template and number
+ * the campaign itself was built on, held to the same rules as the workspace
+ * configuration (same workspace, APPROVED, AUTHENTICATION, COPY_CODE).
+ *
+ * Internal only — the public controller never passes these ids.
+ */
+async function resolveCampaignAuthenticationSender(
+  workspaceId,
+  { templateId, waNumberId }
+) {
+  const [template, waNumber] = await Promise.all([
+    prisma.template.findFirst({
+      where: { id: templateId, workspaceId, status: 'APPROVED' },
+    }),
+    prisma.waNumber.findFirst({
+      where: { id: waNumberId, workspaceId },
+    }),
+  ]);
+
+  if (!template) {
+    const error = new Error(
+      'The campaign template is not approved or no longer exists.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (!isCopyCodeAuthenticationTemplate(template)) {
+    const error = new Error(
+      'Only approved COPY_CODE authentication templates are supported.'
+    );
+    error.status = 422;
+    throw error;
+  }
+
+  if (!waNumber) {
+    const error = new Error(
+      'The campaign WhatsApp number no longer exists.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (template.waNumberId && template.waNumberId !== waNumber.id) {
+    const error = new Error(
+      'The campaign template belongs to a different WhatsApp number.'
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  return { template, waNumber };
+}
+
+/**
+ * Build the Meta Authentication template payload.
+ *
+ * The generated OTP is used for the Authentication message.
+ */
+function buildAuthenticationPayload(template, otp) {
+  return {
+    name: template.name,
+    language: {
+      code: template.language || 'en',
+    },
+    components: [
+      {
+        type: 'body',
+        parameters: [
+          {
+            type: 'text',
+            text: String(otp),
+          },
+        ],
+      },
+      {
+        type: 'button',
+        sub_type: 'url',
+        index: '0',
+        parameters: [
+          {
+            type: 'text',
+            text: String(otp),
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * Generate and send a Inboxly Authentication OTP.
+ *
+ * Production Mode 1:
+ * - Inboxly generates the OTP.
+ * - Inboxly stores only the OTP hash.
+ * - Inboxly sends the OTP through the configured
+ *   Authentication template and WhatsApp number.
+ * - The raw OTP is NEVER returned to the API caller.
+ */
+export async function sendAuthenticationOtp(
+  workspaceId,
+  { to, campaignId = null, templateId = null, waNumberId = null }
+) {
+  if (!workspaceId) {
+    const error = new Error('Workspace is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!to || typeof to !== 'string') {
+    const error = new Error('Phone number is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const recipient = normalizePhone(to);
+
+  if (recipient.length < 8) {
+    const error = new Error(
+      '`to` must be a phone number in international format, e.g. +919876543210'
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  await assertNotOptedOut(
+    workspaceId,
+    recipient
+  );
+
+  // A campaign sends from its own template and number; everything else uses
+  // the workspace's Authentication configuration.
+  const {
+    template,
+    waNumber,
+  } = campaignId && templateId && waNumberId
+    ? await resolveCampaignAuthenticationSender(workspaceId, { templateId, waNumberId })
+    : await resolveAuthenticationConfiguration(workspaceId);
+
+  // `campaignId` is internal worker metadata only. Verify it belongs to this
+  // workspace and is an Authentication campaign before persisting the link.
+  // The public controller never supplies this value.
+  if (campaignId) {
+    const campaign = await prisma.campaign.findFirst({
+      where: {
+        id: campaignId,
+        workspaceId,
+        template: { category: { equals: 'AUTHENTICATION', mode: 'insensitive' } },
+      },
+      select: { id: true, templateId: true, waNumberId: true },
+    });
+    if (
+      !campaign ||
+      (templateId && campaign.templateId !== templateId) ||
+      (waNumberId && campaign.waNumberId !== waNumberId)
+    ) {
+      const error = new Error('Authentication campaign not found.');
+      error.status = 404;
+      throw error;
+    }
+  }
+
+  const generated =
+    await createAuthenticationTransaction({
+      workspaceId,
+      templateId: template.id,
+      waNumberId: waNumber.id,
+      campaignId,
+      phone: recipient,
+      expiresInMinutes:
+        getExpirationMinutes(),
+    });
+
+  const accessToken = decrypt(
+    waNumber.encryptedAccessToken
+  );
+
+  const send = () => sendWhatsAppMessage(
+    waNumber.metaPhoneNumberId,
+    accessToken,
+    recipient,
+    buildAuthenticationPayload(
+      template,
+      generated.code
+    )
+  );
+
+  try {
+    // A campaign recipient's credit is claimed by the campaign worker; every
+    // other OTP is charged here, at the AUTHENTICATION rate, and the credit is
+    // released if Meta refuses the send.
+    const result = campaignId
+      ? await send()
+      : (await chargeAndSend(workspaceId, {
+          reason: 'Authentication OTP',
+          messageCategory: template.category || 'AUTHENTICATION',
+          send,
+        })).result;
+    const metaMessageId = result?.messages?.[0]?.id || null;
+
+    // Meta accepted the message; inability to record its optional provider ID
+    // must not make an otherwise delivered code unusable.
+    await attachMetaMessageId(generated.transactionId, metaMessageId)
+      .catch(error => console.error('[Authentication] Failed to store Meta message ID:', error));
+
+    // The code itself is never stored in the thread.
+    if (!campaignId) {
+      await recordOutboundMessage(workspaceId, {
+        phone: recipient,
+        waNumberId: waNumber.id,
+        body: `[Authentication OTP: ${template.name}]`,
+        type: 'TEMPLATE',
+        metaMessageId,
+      });
+    }
+
+    return {
+      status: 'SENT',
+      phone: recipient,
+      templateName: template.name,
+      expiresAt: generated.expiresAt.toISOString(),
+      expiresIn: Math.max(0, Math.floor((generated.expiresAt.getTime() - Date.now()) / 1000)),
+      metaMessageId,
+      mode: 'CHATFLOW_GENERATED',
+    };
+  } catch (error) {
+    // A generated code which Meta did not accept must not remain verifiable.
+    await invalidateAuthenticationTransaction(generated.transactionId)
+      .catch(invalidationError => console.error('[Authentication] Failed to invalidate undelivered OTP:', invalidationError));
+    throw error;
+  }
+}
+
+/**
+ * Verify a Inboxly-generated Authentication OTP.
+ */
+export async function verifyAuthenticationOtp(
+  workspaceId,
+  phone,
+  code
+) {
+  if (!workspaceId) {
+    const error = new Error('Workspace is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!phone || typeof phone !== 'string') {
+    const error = new Error(
+      'Phone number is required.'
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  if (
+    code === undefined ||
+    code === null ||
+    String(code).trim() === ''
+  ) {
+    const error = new Error('OTP is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const recipient = normalizePhone(phone);
+  const normalizedCode = String(code).trim();
+
+  if (!/^\d{6}$/.test(normalizedCode)) {
+    const error = new Error(
+      'OTP must be exactly 6 digits.'
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  return verifyAuthenticationTransaction({
+    workspaceId,
+    phone: recipient,
+    code: normalizedCode,
+  });
+}

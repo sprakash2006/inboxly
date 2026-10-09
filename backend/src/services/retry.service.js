@@ -1,0 +1,367 @@
+import { prisma } from '../lib/prisma.js';
+import { campaignQueue } from '../queues/campaign.queue.js';
+import { retryJobId, legacyRetryJobId } from '../queues/jobIds.js';
+import { isRetryableFailure, calculateNextRetry, formatRetryEta, retryPolicySummary } from '../lib/retry.js';
+import { queueCampaignCompletedEmail } from './email.service.js';
+import { runFallbackForRecipient } from './fallback.service.js';
+import { notifyWorkspace, notifyWorkspaceGrouped } from './notification.service.js';
+import { markRecipientNotCharged } from './campaignBilling.service.js';
+
+// Recomputes a campaign's headline counters from its recipients.
+//
+// sent/delivered/read/failed/skipped are denormalised columns incremented from
+// four different files — the worker, the retry path, the status webhook and the
+// failure handler — with nothing reconciling them. Any increment lost to a
+// crash, or applied twice by a redelivery, left the campaign list and the
+// Analytics page quoting figures that disagreed with the recipients themselves.
+//
+// The campaign detail view already recomputed its own report from recipient
+// rows, which is why the two never matched. This makes the stored columns agree
+// with that same source of truth, once, when the campaign finishes.
+async function reconcileCampaignCounters(campaignId) {
+  const groups = await prisma.campaignRecipient.groupBy({
+    by: ['status'],
+    where: { campaignId },
+    _count: { _all: true },
+  });
+  const n = Object.fromEntries(groups.map((g) => [g.status, g._count._all]));
+
+  // DELIVERED and READ are states a send reached *through* SENT, so each counts
+  // toward every stage below it — the same rollup the detail view uses.
+  const read = n.READ ?? 0;
+  const delivered = (n.DELIVERED ?? 0) + read;
+  const sent = (n.SENT ?? 0) + delivered;
+
+  const totals = {
+    sent,
+    delivered,
+    read,
+    failed: n.FAILED ?? 0,
+    skipped: n.SKIPPED ?? 0,
+  };
+
+  const before = await prisma.campaign.findUnique({
+    where: { id: campaignId },
+    select: { sent: true, delivered: true, read: true, failed: true, skipped: true },
+  });
+  const drifted = before && Object.entries(totals).some(([k, v]) => before[k] !== v);
+  if (drifted) {
+    console.warn(`[Campaign] Counters for ${campaignId} drifted from the recipients — correcting`,
+      { stored: before, actual: totals });
+  }
+
+  await prisma.campaign.update({ where: { id: campaignId }, data: totals });
+  return totals;
+}
+
+// SENDING counts as outstanding: a retry job finishing while the main loop is
+// mid-send must not complete (and settle) the campaign underneath that send.
+export const OUTSTANDING_RECIPIENT_STATUSES = ['PENDING', 'SENDING', 'RETRYING'];
+
+export async function checkAndCompleteCampaign(campaignId) {
+  const pendingCount = await prisma.campaignRecipient.count({
+    where: {
+      campaignId,
+      status: { in: OUTSTANDING_RECIPIENT_STATUSES },
+    },
+  });
+
+  if (pendingCount === 0) {
+    const done = await prisma.campaign.updateMany({
+      where: { id: campaignId, status: 'RUNNING' },
+      data: { status: 'COMPLETED', completedAt: new Date() },
+    });
+    if (done.count > 0) {
+      console.log(`[CampaignWorker] All recipients finished. Campaign ${campaignId} completed.`);
+      // Before anything reads the totals — the completion email, the
+      // notification and the outgoing webhook all quote them.
+      await reconcileCampaignCounters(campaignId).catch((e) =>
+        console.error(`[Campaign] Could not reconcile counters for ${campaignId}:`, e.message));
+      const completed = await prisma.campaign.findUnique({ where: { id: campaignId } });
+      if (completed) {
+        // Anything paid for but never sent (a contact who replied STOP after
+        // launch, for instance) goes back to the wallet now that the
+        // campaign is finished and the final tally is known.
+        const { settleCampaignRefund } = await import('./campaigns.service.js');
+        await settleCampaignRefund(campaignId, 'Refund for unsent campaign messages').catch((e) =>
+          console.error(`[Campaign] Settlement failed for ${campaignId}:`, e.message));
+
+        queueCampaignCompletedEmail(completed).catch((err) => console.warn(`[CampaignRetry] Completion email could not be queued for ${campaignId}:`, err.message));
+        // The customer's own system is told too — the settings screen has
+        // offered a "campaign.completed" subscription all along while nothing
+        // ever dispatched one.
+        const { emitWebhook } = await import('./outgoingWebhook.service.js');
+        emitWebhook(completed.workspaceId, 'campaign.completed', {
+          campaignId: completed.id,
+          name: completed.name,
+          sent: completed.sent,
+          delivered: completed.delivered,
+          read: completed.read,
+          failed: completed.failed,
+          skipped: completed.skipped,
+          completedAt: completed.completedAt,
+        });
+        notifyWorkspace(completed.workspaceId, {
+          type: 'CAMPAIGN_COMPLETED',
+          title: `Campaign "${completed.name}" finished`,
+          body: `${completed.sent} sent · ${completed.delivered} delivered · ${completed.failed} failed${completed.skipped ? ` · ${completed.skipped} skipped (opted out)` : ''}`,
+          link: 'campaigns',
+          meta: { campaignId },
+        }).catch((err) => console.warn(`[CampaignRetry] Completion notification failed for ${campaignId}:`, err.message));
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+// One id per (recipient, attempt), built in queues/jobIds.js. Recovery
+// reconstructs it from the row, so it must stay derivable from data the
+// database already holds.
+export { retryJobId };
+
+// Queues one retry attempt, idempotently. The id is deterministic, so a job
+// that is still waiting or running makes this a no-op. A finished job with the
+// same id is removed first: BullMQ keeps completed jobs around, and an add()
+// for a retained id is silently dropped — which is what happened to a retry
+// that fired while its campaign was paused and has to run again on resume.
+export async function enqueueRetryJob({ campaignId, workspaceId, recipientId, attempt, delay = 0 }) {
+  const jobId = retryJobId(recipientId, attempt);
+  const existing = await campaignQueue.getJob(jobId).catch((err) => { console.warn(`[CampaignRetry] Job lookup failed for ${jobId}:`, err.message); return null; });
+  if (existing) {
+    const state = await existing.getState().catch(() => 'unknown');
+    if (state !== 'completed' && state !== 'failed') return { queued: false, jobId };
+    await existing.remove().catch((err) => console.error(`[CampaignRetry] Could not remove finished job ${jobId}; the re-queue may be dropped:`, err.message));
+  }
+  await campaignQueue.add(
+    'retry-recipient',
+    { type: 'retry', campaignId, workspaceId, recipientId, attempt },
+    { delay: Math.max(0, delay), jobId },
+  );
+  return { queued: true, jobId };
+}
+
+// A retry claim (IN_PROGRESS) older than this belongs to a job that died.
+export const STALE_RETRY_CLAIM_MS = 10 * 60_000;
+// Rows due within this window are checked each pass; a lost job further out
+// is found by a later pass, before it is due.
+const RETRY_LOOKAHEAD_MS = 15 * 60_000;
+const MAX_RETRIES_PER_SWEEP = 1000;
+
+// Re-queues retries whose jobs no longer exist.
+//
+// Retry delays run to 24 hours, but the queue holding them is Redis — and on
+// the deployment's Key Value plan Redis has no persistence, so every waiting
+// retry job dies with the process (or with a flush while it keeps running).
+// Nothing else notices: the recipient stays RETRYING forever, which also
+// blocks checkAndCompleteCampaign, so the campaign never completes and its
+// unsent messages are never refunded.
+//
+// Runs at boot and from the periodic campaign sweep, for RUNNING campaigns.
+// A PAUSED campaign's retries wait; resumeCampaign re-queues them by passing
+// its `campaignId`, which also lifts the look-ahead window.
+export async function recoverPendingRetries({ now = new Date(), campaignId = null } = {}) {
+  const scope = campaignId ? { campaignId } : { campaign: { status: 'RUNNING' } };
+
+  // A job that died mid-attempt left IN_PROGRESS behind, which the claim
+  // guard in the worker refuses forever. Only claims old enough that no live
+  // job can still hold them are handed back — this now runs while workers are
+  // sending, not just at boot.
+  await prisma.campaignRecipient.updateMany({
+    where: {
+      ...scope,
+      status: 'RETRYING',
+      retryStatus: 'IN_PROGRESS',
+      OR: [{ lastRetryAt: null }, { lastRetryAt: { lt: new Date(now.getTime() - STALE_RETRY_CLAIM_MS) } }],
+    },
+    data: { retryStatus: 'SCHEDULED' },
+  });
+
+  const waiting = await prisma.campaignRecipient.findMany({
+    where: {
+      ...scope,
+      status: 'RETRYING',
+      AND: [
+        { OR: [{ retryStatus: null }, { retryStatus: { not: 'IN_PROGRESS' } }] },
+        ...(campaignId ? [] : [{ OR: [{ nextRetryAt: null }, { nextRetryAt: { lt: new Date(now.getTime() + RETRY_LOOKAHEAD_MS) } }] }]),
+      ],
+    },
+    select: {
+      id: true, retryCount: true, nextRetryAt: true,
+      campaign: { select: { id: true, workspaceId: true } },
+    },
+    orderBy: { nextRetryAt: 'asc' },
+    take: MAX_RETRIES_PER_SWEEP,
+  });
+
+  let requeued = 0;
+  for (const r of waiting) {
+    // retryCount is the last attempt that actually ran, so the one still owed
+    // is the next number up — the same value handleRecipientFailure used when
+    // it queued the job, which is what makes the id line up.
+    const attempt = (r.retryCount || 0) + 1;
+
+    // Retries used to be queued under a colon id. One that survived in Redis
+    // would not dedupe against the new id and the attempt would run twice.
+    const legacy = await campaignQueue.getJob(legacyRetryJobId(r.id, attempt)).catch((err) => { console.warn(`[CampaignRetry] Legacy job lookup failed for ${r.id}:`, err.message); return null; });
+    if (legacy) await legacy.remove().catch((err) => console.error(`[CampaignRetry] Could not remove legacy retry job for ${r.id}; the attempt may run twice:`, err.message));
+
+    const result = await enqueueRetryJob({
+      campaignId: r.campaign.id,
+      workspaceId: r.campaign.workspaceId,
+      recipientId: r.id,
+      attempt,
+      delay: (r.nextRetryAt?.getTime() ?? 0) - now.getTime(),
+    }).catch((err) => { console.error(`[CampaignRetry] Re-queueing retry ${attempt} for recipient ${r.id} failed:`, err.message); return null; });
+    if (result?.queued) requeued += 1;
+  }
+
+  return requeued;
+}
+
+// "Retrying in 2h · 12 messages waiting" — one line in the bell per campaign
+// per attempt number, not one per recipient, kept current as the rest of the
+// wave lands on the same schedule.
+async function notifyRetryScheduled(campaign, { attempt, nextRetryAt, reason }) {
+  const waiting = await prisma.campaignRecipient.count({
+    where: { campaignId: campaign.id, status: 'RETRYING' },
+  });
+  const eta = formatRetryEta(nextRetryAt.getTime() - Date.now());
+  const { maxAttempts } = retryPolicySummary(campaign.retryConfig);
+
+  await notifyWorkspaceGrouped(campaign.workspaceId, {
+    key: `campaign-retry:${campaign.id}:${attempt}`,
+    type: 'CAMPAIGN_RETRY_SCHEDULED',
+    // The eta is this wave's; the count is every message the campaign still
+    // owes an attempt, which may span earlier waves — hence "waiting" rather
+    // than claiming they all go out at once.
+    title: `Retrying in ${eta} · ${waiting} message${waiting === 1 ? '' : 's'} waiting`,
+    body: `Campaign "${campaign.name}" · attempt ${attempt}${maxAttempts ? ` of ${maxAttempts}` : ''} at ${nextRetryAt.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} — ${reason}`,
+    link: 'campaigns',
+    meta: { campaignId: campaign.id, attempt, nextRetryAt: nextRetryAt.toISOString(), waiting },
+  });
+}
+
+// "3 messages delivered on retry" — the other half of the pair above, so a wave
+// that was announced as "retrying in 2h" is reported on when it succeeds.
+export async function notifyRetrySucceeded(campaign, recipient, attempt) {
+  const recovered = await prisma.campaignRecipient.count({
+    where: { campaignId: campaign.id, retryStatus: 'SUCCESS' },
+  });
+
+  await notifyWorkspaceGrouped(campaign.workspaceId, {
+    key: `campaign-retry-success:${campaign.id}`,
+    type: 'CAMPAIGN_RETRY_SUCCESS',
+    title: `Retry successful — ${recovered} message${recovered === 1 ? '' : 's'} recovered`,
+    body: `Campaign "${campaign.name}" · ${recipient.contact?.name || recipient.contact?.phoneNumber || 'a recipient'} was delivered on retry attempt ${attempt}.`,
+    link: 'campaigns',
+    meta: { campaignId: campaign.id, recipientId: recipient.id, attempt, recovered },
+  }).catch((err) => console.warn(`[CampaignRetry] Retry-success notification failed for ${campaign.id}:`, err.message));
+}
+
+export async function handleRecipientFailure(campaign, recipient, reason, metaCode = null) {
+  const textReason = String(reason || 'Unknown error');
+  const retryable = isRetryableFailure(textReason, metaCode);
+  const currentAttempts = recipient.retryCount || 0;
+
+  if (!retryable) {
+    console.log(`[CampaignRetry] Permanent failure for recipient ${recipient.id}: ${textReason}`);
+    await prisma.campaignRecipient.update({
+      where: { id: recipient.id },
+      data: {
+        status: 'FAILED',
+        failedAt: new Date(),
+        failReason: textReason,
+        lastFailureReason: textReason,
+        retryStatus: 'PERMANENT_FAILURE',
+        nextRetryAt: null,
+      },
+    });
+    // A recipient whose message never reached Meta owes nothing. This mark is
+    // what settlement refunds against, and it never overwrites a charge
+    // already claimed by a successful earlier attempt.
+    await markRecipientNotCharged(recipient.id);
+    await prisma.campaign.update({
+      where: { id: campaign.id },
+      data: { failed: { increment: 1 } },
+    });
+    await runFallbackForRecipient(campaign, recipient, recipient.contact || { id: recipient.contactId }).catch((e) =>
+      console.error(`[CampaignRetry] Fallback error for ${recipient.id}:`, e.message)
+    );
+    await checkAndCompleteCampaign(campaign.id);
+    return { retried: false, retryStatus: 'PERMANENT_FAILURE' };
+  }
+
+  const calculation = calculateNextRetry(campaign.retryConfig, currentAttempts);
+
+  if (!calculation.shouldRetry) {
+    let retryStatus = 'PERMANENT_FAILURE';
+    if (calculation.status === 'MAX_RETRIES') {
+      console.log(`[CampaignRetry] Maximum retries reached for recipient ${recipient.id}`);
+      retryStatus = 'MAX_RETRIES';
+    } else if (calculation.status === 'EXPIRED') {
+      console.log(`[CampaignRetry] Retry expired for recipient ${recipient.id} (past retry end date)`);
+      retryStatus = 'EXPIRED';
+    } else {
+      console.log(`[CampaignRetry] Retries disabled or not configured for campaign ${campaign.id}`);
+    }
+
+    await prisma.campaignRecipient.update({
+      where: { id: recipient.id },
+      data: {
+        status: 'FAILED',
+        failedAt: new Date(),
+        failReason: textReason,
+        lastFailureReason: textReason,
+        retryStatus,
+        nextRetryAt: null,
+      },
+    });
+    await markRecipientNotCharged(recipient.id);
+    await prisma.campaign.update({
+      where: { id: campaign.id },
+      data: { failed: { increment: 1 } },
+    });
+    await runFallbackForRecipient(campaign, recipient, recipient.contact || { id: recipient.contactId }).catch((e) =>
+      console.error(`[CampaignRetry] Fallback error for ${recipient.id}:`, e.message)
+    );
+    await checkAndCompleteCampaign(campaign.id);
+    return { retried: false, retryStatus };
+  }
+
+  // Schedule next retry! Do NOT increment campaign.failed because it is not permanently failed.
+  console.log(
+    `[CampaignRetry] Retry scheduled for recipient ${recipient.id} (attempt #${calculation.attempt}) at ${calculation.nextTime.toISOString()} [reason: ${textReason}]`
+  );
+
+  await prisma.campaignRecipient.update({
+    where: { id: recipient.id },
+    data: {
+      status: 'RETRYING',
+      retryStatus: 'SCHEDULED',
+      lastFailureReason: textReason,
+      nextRetryAt: calculation.nextTime,
+    },
+  });
+
+  // A deterministic id makes queueing idempotent, so the recovery sweep can
+  // re-queue every waiting retry without double-scheduling. If this add fails
+  // the row is RETRYING with no job, which that sweep also picks up.
+  await enqueueRetryJob({
+    campaignId: campaign.id,
+    workspaceId: campaign.workspaceId,
+    recipientId: recipient.id,
+    attempt: calculation.attempt,
+    delay: calculation.delayMs,
+  });
+
+  // Best-effort: the retry is already queued, and a notification that could not
+  // be written must never undo that.
+  await notifyRetryScheduled(campaign, {
+    attempt: calculation.attempt,
+    nextRetryAt: calculation.nextTime,
+    reason: textReason,
+  }).catch((e) => console.error(`[CampaignRetry] Retry notification failed for ${campaign.id}:`, e.message));
+
+  return { retried: true, nextRetryAt: calculation.nextTime, attempt: calculation.attempt };
+}

@@ -272,7 +272,7 @@ export default function PaymentsView({ initialTab } = {}) {
         name: 'Inboxly',
         description: 'Wallet recharge',
         prefill: { email: user.email, name: user.name },
-        theme: { color: '#35e8f2' },
+        theme: { color: '#0d9488' },
         handler: async (response) => {
           try {
             const verifyRes = await wFetch('/wallet/checkout/verify', {
@@ -341,7 +341,7 @@ export default function PaymentsView({ initialTab } = {}) {
         name: 'Inboxly',
         description: `${plan.name} plan`,
         prefill: { email: user.email, name: user.name },
-        theme: { color: '#35e8f2' },
+        theme: { color: '#0d9488' },
         handler: async (response) => {
           try {
             const verifyRes = await wFetch('/subscription/checkout/verify', {
@@ -461,7 +461,7 @@ export default function PaymentsView({ initialTab } = {}) {
         name: 'Inboxly',
         description: order.addon.title,
         prefill: { email: user.email, name: user.name },
-        theme: { color: '#35e8f2' },
+        theme: { color: '#0d9488' },
         handler: async (response) => {
           try {
             const verifyRes = await wFetch('/subscription/addons/checkout/verify', {
@@ -537,14 +537,14 @@ export default function PaymentsView({ initialTab } = {}) {
           too rather than only the warnings. */}
       <WalletStatusBanner />
       {/* Balance Card */}
-      <div style={{ ...card, padding: 24, background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ ...card, padding: 24, background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: 13, color: 'var(--t2)', marginBottom: 6 }}>Total Wallet Balance</p>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 36, fontWeight: 800, color: 'var(--t1)', letterSpacing: '-.02em' }}>
             ₹ {balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </h2>
         </div>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(53,232,242,0.1)', border: '1px solid var(--gbd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(13,148,136,0.1)', border: '1px solid var(--gbd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <I n="credit" s={24} c="var(--green)" />
         </div>
       </div>
@@ -558,7 +558,7 @@ export default function PaymentsView({ initialTab } = {}) {
             <div style={{ position: 'relative', flex: 1, maxWidth: 300 }}>
               <span style={{ position: 'absolute', left: 14, top: 11, fontSize: 14, fontWeight: 600, color: 'var(--t2)' }}>₹</span>
               <input ref={rechargeInputRef} type="number" value={rechargeAmt} onChange={e => setRechargeAmt(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px 10px 28px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px 14px 10px 28px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
             </div>
 
             <Btn onClick={handleRecharge} disabled={rechargeStatus === 'processing'} style={{ padding: '11px 24px', boxShadow: 'var(--glow)' }}>
@@ -570,14 +570,14 @@ export default function PaymentsView({ initialTab } = {}) {
           <div style={{ display: 'flex', gap: 8 }}>
             {[1000, 2000, 5000].map(val => (
               <button key={val} onClick={() => setRechargeAmt(val.toString())}
-                style={{ padding: '8px 16px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}
+                style={{ padding: '8px 16px', borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = 'var(--t1)'; e.currentTarget.style.borderColor = 'var(--t3)'; }}
                 onMouseLeave={e => { e.currentTarget.style.color = 'var(--t2)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
                 + ₹{val.toLocaleString()}
               </button>
             ))}
           </div>
-          {rechargeError && <p style={{ fontSize: 12, color: '#f87171', marginTop: 4 }}>{rechargeError}</p>}
+          {rechargeError && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{rechargeError}</p>}
           <p style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>
             Payments run through Razorpay. Your balance is credited only after the payment signature is verified server-side,
             and the wallet updates everywhere immediately — no reload needed.
@@ -604,12 +604,12 @@ export default function PaymentsView({ initialTab } = {}) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--bd)', borderRadius: 8, overflow: 'hidden' }}>
           {walletTxns.map((item, idx, arr) => (
-            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: idx < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: 'rgba(255,255,255,0.01)' }}>
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: idx < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: 'rgba(15,23,42,0.01)' }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                   <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--t1)' }}>{item.reason}</p>
                   {item.category && (
-                    <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 5, letterSpacing: '.04em', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
+                    <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 5, letterSpacing: '.04em', background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
                       {item.category}
                     </span>
                   )}
@@ -620,7 +620,7 @@ export default function PaymentsView({ initialTab } = {}) {
                 </p>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: item.type === 'CREDIT' ? 'var(--green)' : '#f87171' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: item.type === 'CREDIT' ? 'var(--green)' : '#dc2626' }}>
                   {item.type === 'CREDIT' ? '+' : '-'} ₹ {Number(item.amount).toFixed(2)}
                 </span>
                 {/* Previous → new balance, so the ledger reads as a running total. */}
@@ -641,7 +641,7 @@ export default function PaymentsView({ initialTab } = {}) {
       return <div style={{ color: 'var(--t2)', padding: 24, display: 'flex', justifyContent: 'center' }}>Loading insights...</div>;
     }
     if (insightsError) {
-      return <div style={{ color: '#f87171', padding: 24, display: 'flex', justifyContent: 'center' }}>Error loading insights: {insightsError}</div>;
+      return <div style={{ color: '#dc2626', padding: 24, display: 'flex', justifyContent: 'center' }}>Error loading insights: {insightsError}</div>;
     }
 
     const { totals = {}, chartData = [] } = insights || {};
@@ -655,9 +655,9 @@ export default function PaymentsView({ initialTab } = {}) {
         <div className="rgrid-5" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
           {[
             { label: 'Total Paid Messages', val: totals.totalPaidMessages || 0, color: 'var(--green)' },
-            { label: 'Utility', val: totals.utility || 0, color: '#c4ff46' },
-            { label: 'Marketing', val: totals.marketing || 0, color: '#f59e0b' },
-            { label: 'Marketing Lite', val: totals.marketingLite || 0, color: '#9d6bff' },
+            { label: 'Utility', val: totals.utility || 0, color: '#4d7c0f' },
+            { label: 'Marketing', val: totals.marketing || 0, color: '#d97706' },
+            { label: 'Marketing Lite', val: totals.marketingLite || 0, color: '#7c3aed' },
             { label: 'Auth Messages', val: totals.authMessages || 0, color: '#f43f5e' }
           ].map((m, idx) => (
             <div key={idx} style={{ ...card, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -678,7 +678,7 @@ export default function PaymentsView({ initialTab } = {}) {
               return (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: 10 }}>
                   {bar.val > 0 && <span style={{ fontSize: 10, color: 'var(--t2)', fontWeight: 600 }}>{bar.val}</span>}
-                  <div style={{ width: 36, height: `${pctHeight || 4}px`, background: bar.val > 0 ? 'var(--green)' : 'rgba(255,255,255,0.03)', borderRadius: '4px 4px 0 0', transition: 'height 0.3s ease' }} />
+                  <div style={{ width: 36, height: `${pctHeight || 4}px`, background: bar.val > 0 ? 'var(--green)' : 'rgba(15,23,42,0.03)', borderRadius: '4px 4px 0 0', transition: 'height 0.3s ease' }} />
                   <span style={{ fontSize: 10, color: 'var(--t3)', marginTop: 4 }}>{bar.date}</span>
                 </div>
               );
@@ -699,31 +699,31 @@ export default function PaymentsView({ initialTab } = {}) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Legal Business Name</label>
           <input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g. Acme Corp" disabled={!isAdmin}
-            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
+            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Business Email</label>
           <input value={bizEmail} onChange={e => setBizEmail(e.target.value)} placeholder="e.g. billing@acme.com" disabled={!isAdmin}
-            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
+            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
         </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Business Address</label>
         <textarea value={bizAddress} onChange={e => setBizAddress(e.target.value)} placeholder="Full business address..." rows={3} disabled={!isAdmin}
-          style={{ width: '100%', padding: '10px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', resize: 'vertical', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
+          style={{ width: '100%', padding: '10px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', resize: 'vertical', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
       </div>
 
       <div className="rgrid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>GST / Tax Details</label>
           <input value={gstNum} onChange={e => setGstNum(e.target.value)} placeholder="e.g. 29AAAAA0000A1Z5" disabled={!isAdmin}
-            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
+            style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', opacity: isAdmin ? 1 : 0.6, cursor: isAdmin ? 'text' : 'not-allowed' }} />
         </div>
       </div>
 
       {billingError && (
-        <p style={{ fontSize: 12.5, color: '#f87171' }}>{billingError}</p>
+        <p style={{ fontSize: 12.5, color: '#dc2626' }}>{billingError}</p>
       )}
 
       {isAdmin && <div style={{ display: 'flex', gap: 8, borderTop: '1px solid var(--bd)', paddingTop: 16 }}>
@@ -754,7 +754,7 @@ export default function PaymentsView({ initialTab } = {}) {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <span style={{ fontSize: 13, color: 'var(--t2)' }}>Current Plan</span>
-                <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: isActive ? 'var(--gbg)' : 'rgba(239,68,68,0.1)', border: `1px solid ${isActive ? 'var(--gbd)' : 'rgba(239,68,68,0.2)'}`, color: isActive ? 'var(--green)' : '#f87171' }}>
+                <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: isActive ? 'var(--gbg)' : 'rgba(239,68,68,0.1)', border: `1px solid ${isActive ? 'var(--gbd)' : 'rgba(239,68,68,0.2)'}`, color: isActive ? 'var(--green)' : '#dc2626' }}>
                   {subscription?.status || '—'}
                 </span>
               </div>
@@ -774,8 +774,8 @@ export default function PaymentsView({ initialTab } = {}) {
 
           {(subscription?.status === 'PAST_DUE' || subscription?.status === 'EXPIRED') && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
-              <I n="alertt" s={14} c="#f87171" />
-              <span style={{ fontSize: 12, color: '#f87171', flex: 1, minWidth: 200 }}>
+              <I n="alertt" s={14} c="#dc2626" />
+              <span style={{ fontSize: 12, color: '#dc2626', flex: 1, minWidth: 200 }}>
                 {subscription.status === 'PAST_DUE'
                   ? 'Your last renewal could not be charged to the wallet. Top up and renew within the grace period to keep the workspace running.'
                   : 'Your subscription has expired and the workspace is locked. Top up the wallet and renew to restore access.'}
@@ -790,13 +790,13 @@ export default function PaymentsView({ initialTab } = {}) {
 
           {subscription?.pendingPlan && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-              <I n="alertc" s={14} c="#fbbf24" />
-              <span style={{ fontSize: 12, color: '#fbbf24', flex: 1 }}>
+              <I n="alertc" s={14} c="#b45309" />
+              <span style={{ fontSize: 12, color: '#b45309', flex: 1 }}>
                 Switching to <strong>{subscription.pendingPlan.name}</strong> at the start of your next billing cycle.
               </span>
               {isAdmin && (
                 <button type="button" disabled={planActionBusy} onClick={() => scheduleChange({ planId: null }, 'Scheduled plan change removed.')}
-                  style={{ background: 'none', border: 'none', color: '#fbbf24', fontSize: 12, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
+                  style={{ background: 'none', border: 'none', color: '#b45309', fontSize: 12, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
                   Keep current plan
                 </button>
               )}
@@ -829,8 +829,8 @@ export default function PaymentsView({ initialTab } = {}) {
                 {messagesUsed.toLocaleString()} / {unlimited ? 'Unlimited' : messageQuota.toLocaleString()}
               </span>
             </div>
-            <div style={{ height: 8, borderRadius: 6, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${unlimited ? 4 : usagePct}%`, borderRadius: 6, background: usagePct > 90 ? '#f87171' : usagePct > 70 ? '#fbbf24' : 'var(--green)', transition: 'width .4s' }} />
+            <div style={{ height: 8, borderRadius: 6, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${unlimited ? 4 : usagePct}%`, borderRadius: 6, background: usagePct > 90 ? '#dc2626' : usagePct > 70 ? '#b45309' : 'var(--green)', transition: 'width .4s' }} />
             </div>
             {!unlimited && usagePct >= 100 && (
               <p style={{ fontSize: 11, color: 'var(--t3)', marginTop: 6 }}>
@@ -851,8 +851,8 @@ export default function PaymentsView({ initialTab } = {}) {
           </div>
         )}
         {checkoutError && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 13 }}>
-            <I n="alertt" s={14} c="#f87171" /> {checkoutError}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#dc2626', fontSize: 13 }}>
+            <I n="alertt" s={14} c="#dc2626" /> {checkoutError}
           </div>
         )}
 
@@ -860,7 +860,7 @@ export default function PaymentsView({ initialTab } = {}) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
             <h4 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--t1)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Available Plans</h4>
-            <div style={{ display: 'flex', padding: 3, borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)' }}>
+            <div style={{ display: 'flex', padding: 3, borderRadius: 9, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)' }}>
               {[['monthly', 'Monthly'], ['quarterly', 'Quarterly']].map(([id, label]) => (
                 <button key={id} onClick={() => setBillingCycle(id)}
                   style={{ padding: '6px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
@@ -966,8 +966,8 @@ export default function PaymentsView({ initialTab } = {}) {
           )}
           {addonError && (
             <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.2)' }}>
-              <I n="alertt" s={14} c="#f87171" />
-              <span style={{ fontSize:12.5, color:'#f87171' }}>{addonError}</span>
+              <I n="alertt" s={14} c="#dc2626" />
+              <span style={{ fontSize:12.5, color:'#dc2626' }}>{addonError}</span>
             </div>
           )}
 
@@ -1018,7 +1018,7 @@ export default function PaymentsView({ initialTab } = {}) {
                           </Btn>
                           {addon.status === 'ACTIVE' && (
                             <Btn variant="outline" disabled={busy} onClick={() => cancelAddon(addon)}
-                              style={{ flex: 1, borderColor: '#f8717144', color: '#f87171' }}>
+                              style={{ flex: 1, borderColor: '#f8717144', color: '#dc2626' }}>
                               Cancel
                             </Btn>
                           )}
@@ -1042,11 +1042,11 @@ export default function PaymentsView({ initialTab } = {}) {
   const renderInvoices = () => (
     <div style={{ ...card, overflowX: 'auto' }}>
       {(invoiceError || invoiceListError) && (
-        <p style={{ margin: 0, padding: '10px 20px', fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.06)' }}>{invoiceError || invoiceListError}</p>
+        <p style={{ margin: 0, padding: '10px 20px', fontSize: 12, color: '#dc2626', background: 'rgba(239,68,68,0.06)' }}>{invoiceError || invoiceListError}</p>
       )}
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 575 }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(255,255,255,0.01)' }}>
+          <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(15,23,42,0.01)' }}>
             {['Date', 'Description', 'Amount', 'Status', 'Invoice'].map(h => (
               <th key={h} style={{ padding: '14px 20px', fontSize: 11, fontWeight: 600, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
             ))}
@@ -1104,10 +1104,10 @@ export default function PaymentsView({ initialTab } = {}) {
   );
 
   return (
-    <div className="subnav-shell" style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden', background: '#060B18' }}>
+    <div className="subnav-shell" style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden', background: 'var(--bg)' }}>
       
       {/* Subtab Left Sidebar */}
-      <div className="subnav-rail" style={{ width: 232, background: 'rgba(255, 255, 255, 0.01)', borderRight: '1px solid var(--bd)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <div className="subnav-rail" style={{ width: 232, background: 'rgba(15,23,42,0.01)', borderRight: '1px solid var(--bd)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <MobileNavButton />
         <div className="subnav-rail-title" style={{ padding: '24px 20px 14px 20px' }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: 17, color: 'var(--t1)', letterSpacing: '-.02em' }}>Payments</h2>
@@ -1119,8 +1119,8 @@ export default function PaymentsView({ initialTab } = {}) {
             const on = activeSubTab === tab.id;
             return (
               <div key={tab.id} onClick={() => setActiveSubTab(tab.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, cursor: 'pointer', transition: 'all 0.15s', background: on ? 'rgba(53,232,242,0.1)' : 'transparent' }}
-                onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, cursor: 'pointer', transition: 'all 0.15s', background: on ? 'rgba(13,148,136,0.1)' : 'transparent' }}
+                onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(15,23,42,0.03)'; }}
                 onMouseLeave={e => { if (!on) e.currentTarget.style.background = 'transparent'; }}>
                 <I n={tab.icon} s={16} c={on ? 'var(--green)' : 'var(--t2)'} />
                 <span style={{ fontSize: 13, fontWeight: on ? 600 : 500, color: on ? 'var(--t1)' : 'var(--t2)' }}>{tab.label}</span>

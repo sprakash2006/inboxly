@@ -95,7 +95,7 @@ export default function AiAgentsView({ initialTab }) {
                 onClick={() => select(sec.id === 'studio' ? 'agents' : sec.id)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', cursor: 'pointer', whiteSpace: 'nowrap',
-                  background: on ? 'rgba(53,232,242,0.1)' : 'transparent', border: 'none', borderRadius: '8px 8px 0 0',
+                  background: on ? 'rgba(13,148,136,0.1)' : 'transparent', border: 'none', borderRadius: '8px 8px 0 0',
                   borderBottom: on ? '2px solid var(--green)' : '2px solid transparent',
                   color: on ? 'var(--green)' : 'var(--t2)', fontFamily: "'Manrope',sans-serif", fontSize: 13, fontWeight: on ? 700 : 500,
                 }}>
@@ -469,9 +469,9 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                 fontWeight: 700,
                 padding: '2px 8px',
                 borderRadius: 12,
-                background: 'rgba(53, 232, 242, 0.12)',
-                color: 'var(--accent, #35e8f2)',
-                border: '1px solid rgba(53, 232, 242, 0.25)',
+                background: 'rgba(13,148,136,0.12)',
+                color: 'var(--accent, #0d9488)',
+                border: '1px solid rgba(13,148,136,0.25)',
               }}
             >
               Multi-Agent Hub
@@ -490,7 +490,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
               padding: '7px 14px',
               borderRadius: 8,
               border: '1px solid var(--bd)',
-              background: 'rgba(255,255,255,0.03)',
+              background: 'rgba(15,23,42,0.03)',
               color: 'var(--t1)',
               fontSize: 12.5,
               fontWeight: 600,
@@ -500,7 +500,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
               gap: 6,
             }}
           >
-            <I n="spark" s={14} c="var(--accent, #35e8f2)" /> WhatsApp AI Agent settings
+            <I n="spark" s={14} c="var(--accent, #0d9488)" /> WhatsApp AI Agent settings
           </button>
 
           {canEdit && (
@@ -519,7 +519,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
           justifyContent: 'space-between',
           padding: '10px 24px',
           borderBottom: '1px solid var(--bd)',
-          background: 'rgba(255,255,255,0.01)',
+          background: 'rgba(15,23,42,0.01)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto' }}>
@@ -542,7 +542,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                   fontSize: 12.5,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: isSel ? 'var(--accent, #35e8f2)' : 'rgba(255,255,255,0.03)',
+                  background: isSel ? 'var(--accent, #0d9488)' : 'rgba(15,23,42,0.03)',
                   color: isSel ? '#060A10' : 'var(--t2)',
                   transition: 'all 0.15s ease',
                   display: 'flex',
@@ -559,7 +559,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                       fontWeight: 700,
                       padding: '1px 6px',
                       borderRadius: 10,
-                      background: isSel ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.08)',
+                      background: isSel ? 'rgba(15,23,42,0.2)' : 'rgba(15,23,42,0.08)',
                       color: isSel ? '#060A10' : 'var(--t3)',
                     }}
                   >
@@ -608,7 +608,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                     transition: 'border-color 0.15s ease, transform 0.15s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(53, 232, 242, 0.4)';
+                    e.currentTarget.style.borderColor = 'rgba(13,148,136,0.4)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
@@ -629,7 +629,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                           borderRadius: 6,
                           background: 'rgba(245, 158, 11, 0.12)',
                           border: '1px solid rgba(245, 158, 11, 0.3)',
-                          color: '#fbbf24',
+                          color: '#b45309',
                         }}
                       >
                         {agent.role || 'AGENT'}
@@ -657,9 +657,9 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                               fontWeight: 600,
                               padding: '2px 6px',
                               borderRadius: 4,
-                              background: 'rgba(255,255,255,0.04)',
+                              background: 'rgba(15,23,42,0.04)',
                               color: 'var(--t3)',
-                              border: '1px solid rgba(255,255,255,0.06)',
+                              border: '1px solid rgba(15,23,42,0.06)',
                             }}
                           >
                             ⚡ {act.replace('crm.', '')}
@@ -684,7 +684,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                     {canEdit && (
                       <button
                         onClick={() => openEditModal(agent)}
-                        style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', padding: 0 }}
+                        style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: 0 }}
                       >
                         Modify
                       </button>
@@ -692,7 +692,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                     {canTest && (
                       <button
                         onClick={() => openReviewModal(agent)}
-                        style={{ background: 'none', border: 'none', color: 'var(--accent, #35e8f2)', cursor: 'pointer', padding: 0 }}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent, #0d9488)', cursor: 'pointer', padding: 0 }}
                       >
                         AI Review
                       </button>
@@ -700,7 +700,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                     {canEdit && (
                       <button
                         onClick={() => handleDeleteAgent(agent)}
-                        style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}
+                        style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}
                       >
                         Delete
                       </button>
@@ -724,7 +724,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
             <p style={{ margin: 0, fontSize: 13, color: 'var(--t2)' }}>
               These FAQs and sources are what the website widget assistant answers from. The WhatsApp AI agent does not read them —
               it answers from the knowledge on its own settings page.{' '}
-              <button onClick={openWhatsAppAgentSettings} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #35e8f2)', cursor: 'pointer', fontSize: 13 }}>
+              <button onClick={openWhatsAppAgentSettings} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #0d9488)', cursor: 'pointer', fontSize: 13 }}>
                 Edit WhatsApp agent knowledge
               </button>
             </p>
@@ -759,7 +759,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
               <div key={item.id} style={{ padding: '14px 18px', background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--t1)' }}>{item.title}</span>
-                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(53, 232, 242, 0.1)', color: 'var(--accent, #35e8f2)' }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(13,148,136,0.1)', color: 'var(--accent, #0d9488)' }}>
                     {item.type || 'DOCUMENT'}
                   </span>
                 </div>
@@ -791,8 +791,8 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                       fontWeight: 800,
                       padding: '2px 8px',
                       borderRadius: 6,
-                      background: g.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(53, 232, 242, 0.12)',
-                      color: g.severity === 'CRITICAL' ? '#f87171' : 'var(--accent, #35e8f2)',
+                      background: g.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(13,148,136,0.12)',
+                      color: g.severity === 'CRITICAL' ? '#dc2626' : 'var(--accent, #0d9488)',
                     }}
                   >
                     {g.severity || 'MEDIUM'}
@@ -820,8 +820,8 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
             {actions.map((act) => (
               <div key={act.id} style={{ background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 10, padding: '16px 18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(53, 232, 242, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <I n="zap" s={14} c="var(--accent, #35e8f2)" />
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(13,148,136,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <I n="zap" s={14} c="var(--accent, #0d9488)" />
                   </div>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--t1)' }}>{act.name}</span>
                 </div>
@@ -845,7 +845,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
           </div>
 
           {channelsError && (
-            <div style={{ padding: '10px 14px', marginBottom: 14, borderRadius: 8, fontSize: 12.5, background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171' }}>
+            <div style={{ padding: '10px 14px', marginBottom: 14, borderRadius: 8, fontSize: 12.5, background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#dc2626' }}>
               {channelsError}
             </div>
           )}
@@ -857,20 +857,20 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
             {channels.map((ch) => (
               <div key={ch.channelKey || ch.channel} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 10, flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(15,23,42,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <I n={ch.icon} s={16} />
                   </div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)' }}>{ch.channel}</div>
                     <div style={{ fontSize: 12, color: 'var(--t3)', marginTop: 2 }}>
-                      Live agent: <strong style={{ color: 'var(--accent, #35e8f2)' }}>{ch.liveAgentName || 'Not named yet'}</strong>
+                      Live agent: <strong style={{ color: 'var(--accent, #0d9488)' }}>{ch.liveAgentName || 'Not named yet'}</strong>
                       {ch.assignedAgent && <span style={{ marginLeft: 8 }}>· applied from "{ch.assignedAgent}"</span>}
                       <span style={{ marginLeft: 8 }}>· {ch.connectedNumbers} number{ch.connectedNumbers === 1 ? '' : 's'} connected</span>
                     </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 11.5, fontWeight: 600, color: ch.live ? '#22c55e' : ch.connectedNumbers === 0 ? '#fbbf24' : 'var(--t3)' }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: ch.live ? '#16a34a' : ch.connectedNumbers === 0 ? '#b45309' : 'var(--t3)' }}>
                     ● {ch.status}
                   </span>
                   {canTest && <button
@@ -878,9 +878,9 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                     style={{
                       padding: '5px 12px',
                       borderRadius: 6,
-                      background: 'rgba(53, 232, 242, 0.1)',
-                      border: '1px solid rgba(53, 232, 242, 0.3)',
-                      color: 'var(--accent, #35e8f2)',
+                      background: 'rgba(13,148,136,0.1)',
+                      border: '1px solid rgba(13,148,136,0.3)',
+                      color: 'var(--accent, #0d9488)',
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -889,7 +889,7 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                       gap: 5,
                     }}
                   >
-                    <I n="play" s={12} c="var(--accent, #35e8f2)" /> Test Bot
+                    <I n="play" s={12} c="var(--accent, #0d9488)" /> Test Bot
                   </button>}
                   {canEdit && (
                     <Btn outline size="sm" onClick={() => handleOpenConfigure(ch)}>
@@ -969,8 +969,8 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
                   style={{
                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     maxWidth: '85%',
-                    background: msg.role === 'user' ? 'var(--accent, #35e8f2)' : msg.role === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'var(--surf)',
-                    color: msg.role === 'user' ? '#060A10' : msg.role === 'error' ? '#f87171' : 'var(--t1)',
+                    background: msg.role === 'user' ? 'var(--accent, #0d9488)' : msg.role === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'var(--surf)',
+                    color: msg.role === 'user' ? '#060A10' : msg.role === 'error' ? '#dc2626' : 'var(--t1)',
                     border: msg.role === 'user' ? 'none' : msg.role === 'error' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid var(--bd)',
                     borderRadius: 10,
                     padding: '8px 12px',
@@ -1023,22 +1023,22 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
           width={580}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--bd)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(15,23,42,0.03)', borderRadius: 8, border: '1px solid var(--bd)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 30, height: 30, borderRadius: 6, background: 'rgba(53, 232, 242, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <I n={configuringChannel.icon || 'phone'} s={16} c="var(--accent, #35e8f2)" />
+                <div style={{ width: 30, height: 30, borderRadius: 6, background: 'rgba(13,148,136,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <I n={configuringChannel.icon || 'phone'} s={16} c="var(--accent, #0d9488)" />
                 </div>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--t1)' }}>{configuringChannel.channel}</div>
                   <div style={{ fontSize: 11, color: 'var(--t3)' }}>{configuringChannel.status}</div>
                 </div>
               </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: channelForm.enabled ? '#34d399' : 'var(--t3)' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: channelForm.enabled ? '#059669' : 'var(--t3)' }}>
                 <input
                   type="checkbox"
                   checked={channelForm.enabled}
                   onChange={(e) => setChannelForm({ ...channelForm, enabled: e.target.checked })}
-                  style={{ accentColor: 'var(--accent, #35e8f2)', width: 16, height: 16 }}
+                  style={{ accentColor: 'var(--accent, #0d9488)', width: 16, height: 16 }}
                 />
                 {channelForm.enabled ? 'Deployed' : 'Not deployed'}
               </label>
@@ -1073,13 +1073,13 @@ function AgentStudio({ initialTab, onTabChange, onOpenWhatsApp }) {
 
             <div style={{ fontSize: 12, color: 'var(--t2)' }}>
               Escalation rules, languages, knowledge and guardrails:{' '}
-              <button onClick={openWhatsAppAgentSettings} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #35e8f2)', cursor: 'pointer', fontSize: 12 }}>
+              <button onClick={openWhatsAppAgentSettings} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #0d9488)', cursor: 'pointer', fontSize: 12 }}>
                 open WhatsApp AI Agent settings
               </button>
             </div>
 
             {channelMsg && (
-              <div style={{ padding: '8px 12px', background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', borderRadius: 6, fontSize: 12 }}>
+              <div style={{ padding: '8px 12px', background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#059669', borderRadius: 6, fontSize: 12 }}>
                 {channelMsg}
               </div>
             )}

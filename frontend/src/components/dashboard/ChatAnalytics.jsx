@@ -142,7 +142,7 @@ export default function ChatAnalytics({ workspaceId }) {
           <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: 16, color: 'var(--t1)', letterSpacing: '-.02em' }}>Chat Analysis</h1>
           <p style={{ fontSize: 11.5, color: 'var(--t2)', marginTop: 1 }}>Chat performance, campaigns, contacts, and agent activity</p>
         </div>
-        <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 9, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)' }}>
+        <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 9, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)' }}>
           {dayOptions.map((option) => {
             const active = days === option;
             return (
@@ -176,7 +176,7 @@ export default function ChatAnalytics({ workspaceId }) {
         )}
 
         {!loading && error && (
-          <div style={{ ...card, padding: 18, color: '#f87171', fontSize: 13 }}>{error}</div>
+          <div style={{ ...card, padding: 18, color: '#dc2626', fontSize: 13 }}>{error}</div>
         )}
 
         {!loading && !error && data && (
@@ -184,14 +184,14 @@ export default function ChatAnalytics({ workspaceId }) {
             {/* Stat cards — bot and manual are surfaced as separate cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 12 }}>
               <StatCard icon="send" color="var(--green)" label="Messages sent (outbound)" value={fmt(messages.sent)} sub="From Message.direction" />
-              <StatCard icon="msg" color="#9d6bff" label="Messages received" value={fmt(messages.received)} sub="Inbound messages" />
-              <StatCard icon="bot" color="#c4ff46" label="Sent by Bot / Automation" value={fmt(messages.bot)} sub="Outbound, senderUserId is null" />
+              <StatCard icon="msg" color="#7c3aed" label="Messages received" value={fmt(messages.received)} sub="Inbound messages" />
+              <StatCard icon="bot" color="#4d7c0f" label="Sent by Bot / Automation" value={fmt(messages.bot)} sub="Outbound, senderUserId is null" />
               <StatCard icon="user" color="var(--green)" label="Sent Manually" value={fmt(messages.manual)} sub="Outbound, senderUserId set" />
-              <StatCard icon="users" color="#c4ff46" label="Open conversations" value={fmt(conversations.open)} sub={`${fmt(conversations.pending)} pending · ${fmt(conversations.resolved)} resolved`} />
-              <StatCard icon="bell" color="#fbbf24" label="Avg unread (open)" value={Number(conversations.averageUnreadOpen || 0).toFixed(1)} sub="Per open conversation" />
-              <StatCard icon="checkc" color="#9d6bff" label="Campaign read rate" value={pct(campaigns.readRate)} sub={`${fmt(campaigns.read)} of ${fmt(campaigns.sent)} read`} />
-              <StatCard icon="alertc" color="#f87171" label="Campaign failed rate" value={pct(campaigns.failedRate)} sub={`${fmt(campaigns.failed)} failed`} />
-              <StatCard icon="ban" color="#F472B6" label="Opt-out rate" value={pct(contacts.optOutRate)} sub={`${fmt(contacts.optedOut)} of ${fmt(contacts.total)} contacts`} />
+              <StatCard icon="users" color="#4d7c0f" label="Open conversations" value={fmt(conversations.open)} sub={`${fmt(conversations.pending)} pending · ${fmt(conversations.resolved)} resolved`} />
+              <StatCard icon="bell" color="#b45309" label="Avg unread (open)" value={Number(conversations.averageUnreadOpen || 0).toFixed(1)} sub="Per open conversation" />
+              <StatCard icon="checkc" color="#7c3aed" label="Campaign read rate" value={pct(campaigns.readRate)} sub={`${fmt(campaigns.read)} of ${fmt(campaigns.sent)} read`} />
+              <StatCard icon="alertc" color="#dc2626" label="Campaign failed rate" value={pct(campaigns.failedRate)} sub={`${fmt(campaigns.failed)} failed`} />
+              <StatCard icon="ban" color="#db2777" label="Opt-out rate" value={pct(contacts.optOutRate)} sub={`${fmt(contacts.optedOut)} of ${fmt(contacts.total)} contacts`} />
             </div>
 
             {/* Daily volume chart */}
@@ -200,17 +200,17 @@ export default function ChatAnalytics({ workspaceId }) {
               <div style={{ height: 300 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 8, right: 10, left: -18, bottom: 0 }}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
+                    <CartesianGrid stroke="rgba(15,23,42,0.07)" vertical={false} />
                     <XAxis dataKey="label" tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={days > 30 ? 18 : 8} />
                     <YAxis tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip
-                      cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                      contentStyle={{ background: '#080d18', border: '1px solid var(--bd)', borderRadius: 8, color: 'var(--t1)' }}
+                      cursor={{ fill: 'rgba(15,23,42,0.04)' }}
+                      contentStyle={{ background:'#ffffff', border: '1px solid var(--bd)', borderRadius: 8, color: 'var(--t1)' }}
                       labelStyle={{ color: 'var(--t2)' }}
                     />
                     <Legend wrapperStyle={{ fontSize: 12, color: 'var(--t2)' }} />
                     <Bar dataKey="sent" name="Sent (outbound)" fill="var(--green)" radius={[5, 5, 0, 0]} />
-                    <Bar dataKey="received" name="Received (inbound)" fill="#9d6bff" radius={[5, 5, 0, 0]} />
+                    <Bar dataKey="received" name="Received (inbound)" fill="#7c3aed" radius={[5, 5, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -226,7 +226,7 @@ export default function ChatAnalytics({ workspaceId }) {
                   ['Read', campaigns.read],
                   ['Failed', campaigns.failed],
                 ].map(([label, value]) => (
-                  <div key={label} style={{ padding: 12, borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.025)' }}>
+                  <div key={label} style={{ padding: 12, borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.025)' }}>
                     <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 4 }}>{label}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--t1)' }}>{fmt(value)}</div>
                   </div>
@@ -252,7 +252,7 @@ export default function ChatAnalytics({ workspaceId }) {
                         <span style={{ fontSize: 12, color: 'var(--t2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.label}</span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--t1)' }}>{fmt(row.count)}</span>
                       </div>
-                      <div style={{ height: 4, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                      <div style={{ height: 4, borderRadius: 4, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${(row.count / maxLabelCount) * 100}%`, borderRadius: 4, background: 'var(--green)', transition: 'width .4s' }} />
                       </div>
                     </div>
@@ -279,7 +279,7 @@ export default function ChatAnalytics({ workspaceId }) {
                             </div>
                           </td>
                           <td style={{ padding: '13px 20px', textAlign: 'right' }}>
-                            <span style={{ padding: '4px 10px', borderRadius: 6, background: 'rgba(196,255,70,.1)', border: '1px solid rgba(196,255,70,.25)', color: '#d8ff8a', fontSize: 12, fontWeight: 700 }}>
+                            <span style={{ padding: '4px 10px', borderRadius: 6, background: 'rgba(101,163,13,.1)', border: '1px solid rgba(101,163,13,.25)', color: '#4d7c0f', fontSize: 12, fontWeight: 700 }}>
                               {fmt(agent.messageCount)}
                             </span>
                           </td>
@@ -318,8 +318,8 @@ export default function ChatAnalytics({ workspaceId }) {
                             {fmt(t.count)} · {t.share}%
                           </span>
                         </div>
-                        <div style={{ height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                          <div style={{ width: `${t.width}%`, height: '100%', borderRadius: 6, background: 'linear-gradient(90deg, var(--cyan), rgba(157,107,255,0.85))' }} />
+                        <div style={{ height: 6, borderRadius: 6, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+                          <div style={{ width: `${t.width}%`, height: '100%', borderRadius: 6, background: 'linear-gradient(90deg, var(--cyan), rgba(124,58,237,0.85))' }} />
                         </div>
                       </div>
                     ))}
@@ -343,14 +343,14 @@ export default function ChatAnalytics({ workspaceId }) {
                   <>
                     <div style={{ display: 'flex', height: 10, borderRadius: 10, overflow: 'hidden', marginBottom: 14 }}>
                       <div style={{ width: `${insights.sentiment.positive.pct}%`, background: 'var(--success)' }} />
-                      <div style={{ width: `${insights.sentiment.neutral.pct}%`, background: 'rgba(255,255,255,0.16)' }} />
-                      <div style={{ width: `${insights.sentiment.negative.pct}%`, background: '#f87171' }} />
+                      <div style={{ width: `${insights.sentiment.neutral.pct}%`, background: 'rgba(15,23,42,0.16)' }} />
+                      <div style={{ width: `${insights.sentiment.negative.pct}%`, background: '#dc2626' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {[
                         ['Positive', insights.sentiment.positive, 'var(--success)'],
-                        ['Neutral', insights.sentiment.neutral, 'rgba(255,255,255,0.4)'],
-                        ['Negative', insights.sentiment.negative, '#f87171'],
+                        ['Neutral', insights.sentiment.neutral, 'rgba(15,23,42,0.4)'],
+                        ['Negative', insights.sentiment.negative, '#dc2626'],
                       ].map(([label, value, colour]) => (
                         <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                           <span style={{ width: 8, height: 8, borderRadius: '50%', background: colour, flexShrink: 0 }} />
@@ -389,7 +389,7 @@ export default function ChatAnalytics({ workspaceId }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {insights.gaps.map((gap) => (
                     <div key={gap.question} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '11px 13px', borderRadius: 9, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                      <I n="alertt" s={15} c="#fbbf24" />
+                      <I n="alertt" s={15} c="#b45309" />
                       <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: 'var(--t1)', lineHeight: 1.5 }}>{gap.question}</span>
                       <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--t3)', flexShrink: 0 }}>{gap.count}×</span>
                       <button

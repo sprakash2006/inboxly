@@ -63,8 +63,8 @@ const isSecretKey = (key) => /KEY|TOKEN|SECRET|PASSWORD/.test(key);
 // answerable without reading server logs.
 const SOURCE_TONE = {
   database:    { label: 'Database', fg: 'var(--green)', bg: 'var(--gbg)', bd: 'var(--gbd)' },
-  environment: { label: 'Env',      fg: '#9d6bff', bg: 'rgba(157,107,255,.08)', bd: 'rgba(157,107,255,.25)' },
-  unset:       { label: 'Not set',  fg: 'var(--t3)', bg: 'rgba(255,255,255,.03)', bd: 'var(--bd)' },
+  environment: { label: 'Env',      fg: '#7c3aed', bg: 'rgba(124,58,237,.08)', bd: 'rgba(124,58,237,.25)' },
+  unset:       { label: 'Not set',  fg: 'var(--t3)', bg: 'rgba(15,23,42,.03)', bd: 'var(--bd)' },
 };
 
 export default function ApiManagementTab() {
@@ -144,7 +144,7 @@ export default function ApiManagementTab() {
           <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 7px', borderRadius: 20, letterSpacing: '.06em', textTransform: 'uppercase', color: tone.fg, background: tone.bg, border: '1px solid ' + tone.bd }}>
             {tone.label}
           </span>
-          {edited && <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24' }}>edited</span>}
+          {edited && <span style={{ fontSize: 10, fontWeight: 600, color: '#b45309' }}>edited</span>}
         </div>
         <input
           id={'set-' + key}
@@ -156,7 +156,7 @@ export default function ApiManagementTab() {
           onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
           style={{
             width: '100%', padding: '10px 12px', borderRadius: 8,
-            background: 'rgba(255,255,255,0.04)',
+            background: 'rgba(15,23,42,0.04)',
             border: '1px solid ' + (edited ? 'var(--gbd)' : 'var(--bd)'),
             color: edited || !secret ? 'var(--t1)' : 'var(--t2)',
             fontSize: 13, outline: 'none', boxSizing: 'border-box',
@@ -187,7 +187,7 @@ export default function ApiManagementTab() {
         </div>
       )}
       {err && (
-        <div style={{ padding: '11px 15px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12.5 }}>
+        <div style={{ padding: '11px 15px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12.5 }}>
           {err}
         </div>
       )}

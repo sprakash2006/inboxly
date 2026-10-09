@@ -59,9 +59,9 @@ const fmtDateTime = (d) => d ? new Date(d).toLocaleString('en-IN', { day: 'numer
 const Badge = ({ label, tone = 'green' }) => {
   const tones = {
     green:  { bg: 'var(--gbg)', bd: 'var(--gbd)', c: 'var(--green)' },
-    purple: { bg: 'rgba(196,255,70,.1)', bd: 'rgba(196,255,70,.25)', c: '#d8ff8a' },
-    red:    { bg: 'rgba(239,68,68,.08)', bd: 'rgba(239,68,68,.22)', c: '#f87171' },
-    gray:   { bg: 'rgba(255,255,255,0.04)', bd: 'var(--bd)', c: 'var(--t2)' },
+    purple: { bg: 'rgba(101,163,13,.1)', bd: 'rgba(101,163,13,.25)', c: '#4d7c0f' },
+    red:    { bg: 'rgba(239,68,68,.08)', bd: 'rgba(239,68,68,.22)', c: '#dc2626' },
+    gray:   { bg: 'rgba(15,23,42,0.04)', bd: 'var(--bd)', c: 'var(--t2)' },
   };
   const v = tones[tone] || tones.gray;
   return (
@@ -86,20 +86,20 @@ const Field = ({ label, error, children }) => (
   <div>
     <label style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</label>
     {children}
-    {error && <p style={{ fontSize: 11, color: '#f87171', marginTop: 5 }}>{error}</p>}
+    {error && <p style={{ fontSize: 11, color: '#dc2626', marginTop: 5 }}>{error}</p>}
   </div>
 );
 
 const FInput = ({ value, onChange, placeholder, disabled = false, type = 'text', error = false, style: ex = {} }) => (
   <input type={type} value={value ?? ''} onChange={onChange} placeholder={placeholder} disabled={disabled}
-    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: `1px solid ${error ? '#f87171' : 'var(--bd)'}`, color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'text', ...ex }}
-    onFocus={e => e.target.style.borderColor = error ? '#f87171' : 'var(--gbd)'}
-    onBlur={e => e.target.style.borderColor = error ? '#f87171' : 'var(--bd)'} />
+    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: `1px solid ${error ? '#dc2626' : 'var(--bd)'}`, color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'text', ...ex }}
+    onFocus={e => e.target.style.borderColor = error ? '#dc2626' : 'var(--gbd)'}
+    onBlur={e => e.target.style.borderColor = error ? '#dc2626' : 'var(--bd)'} />
 );
 
 const FSelect = ({ value, onChange, children, disabled = false }) => (
   <select value={value ?? ''} onChange={onChange} disabled={disabled}
-    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box', colorScheme: 'dark', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box', colorScheme: 'dark', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
     {children}
   </select>
 );
@@ -113,7 +113,7 @@ const StaticField = ({ label, value }) => (
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────
 const Skel = ({ w = '100%', h = 14, r = 6, style: ex = {} }) => (
-  <div style={{ width: w, height: h, borderRadius: r, background: 'rgba(255,255,255,0.06)', animation: 'pulse 1.5s ease-in-out infinite', ...ex }} />
+  <div style={{ width: w, height: h, borderRadius: r, background: 'rgba(15,23,42,0.06)', animation: 'pulse 1.5s ease-in-out infinite', ...ex }} />
 );
 
 const ProfileSkeleton = () => (
@@ -147,12 +147,12 @@ const ToastStack = ({ toasts }) => (
     {toasts.map(t => (
       <div key={t.id} style={{
         minWidth: 260, maxWidth: 360, padding: '12px 16px', borderRadius: 10,
-        background: t.type === 'error' ? 'rgba(30,10,10,0.96)' : 'rgba(8,20,14,0.96)',
+        background: t.type === 'error' ? '#fef2f2' : '#f0fdf4',
         border: `1px solid ${t.type === 'error' ? 'rgba(239,68,68,.35)' : 'var(--gbd)'}`,
-        boxShadow: '0 16px 40px rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', gap: 10,
+        boxShadow: '0 16px 40px rgba(15,23,42,0.135)', display: 'flex', alignItems: 'center', gap: 10,
         animation: 'cfToastIn .18s ease-out', fontSize: 13, color: 'var(--t1)',
       }}>
-        <I n={t.type === 'error' ? 'alertc' : 'checkc'} s={15} c={t.type === 'error' ? '#f87171' : 'var(--green)'} />
+        <I n={t.type === 'error' ? 'alertc' : 'checkc'} s={15} c={t.type === 'error' ? '#dc2626' : 'var(--green)'} />
         <span style={{ flex: 1 }}>{t.text}</span>
       </div>
     ))}
@@ -198,11 +198,11 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Change Password</p>
-          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={11} c="var(--t2)" />
           </button>
         </div>
@@ -210,7 +210,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
           <Field label="Current Password"><FInput type="password" value={current} onChange={e => setCurrent(e.target.value)} placeholder="••••••••" /></Field>
           <Field label="New Password"><FInput type="password" value={next} onChange={e => setNext(e.target.value)} placeholder="At least 8 characters" /></Field>
           <Field label="Confirm New Password"><FInput type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Re-enter new password" /></Field>
-          {err && <p style={{ fontSize: 12, color: '#f87171' }}>{err}</p>}
+          {err && <p style={{ fontSize: 12, color: '#dc2626' }}>{err}</p>}
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <Btn variant="ghost" size="sm" onClick={onClose} disabled={saving}>Cancel</Btn>
@@ -276,11 +276,11 @@ const DeleteAccountModal = ({ onClose }) => {
   const blocked = preview && !preview.canDelete;
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 470, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid rgba(239,68,68,0.35)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: '#f87171' }}>Delete Account</p>
-          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: '#dc2626' }}>Delete Account</p>
+          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={11} c="var(--t2)" />
           </button>
         </div>
@@ -296,7 +296,7 @@ const DeleteAccountModal = ({ onClose }) => {
 
               {preview.workspacesToDelete?.length > 0 && (
                 <div style={{ padding: '11px 13px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: '#f87171', marginBottom: 5 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 5 }}>
                     {preview.workspacesToDelete.length} workspace{preview.workspacesToDelete.length > 1 ? 's' : ''} will also be deleted
                   </p>
                   <p style={{ fontSize: 11.5, color: 'var(--t2)', lineHeight: 1.55 }}>
@@ -313,7 +313,7 @@ const DeleteAccountModal = ({ onClose }) => {
 
               {blocked && (
                 <div style={{ padding: '11px 13px', borderRadius: 8, background: 'rgba(245,158,11,0.09)', border: '1px solid rgba(245,158,11,0.25)' }}>
-                  <p style={{ fontSize: 12, color: '#fbbf24', lineHeight: 1.55 }}>
+                  <p style={{ fontSize: 12, color: '#b45309', lineHeight: 1.55 }}>
                     You are the only admin of {preview.blockedBy.map(w => `"${w.name}"`).join(', ')}. Promote another member to admin there before deleting your account.
                   </p>
                 </div>
@@ -338,7 +338,7 @@ const DeleteAccountModal = ({ onClose }) => {
             </>
           )}
 
-          {err && <p style={{ fontSize: 12, color: '#f87171' }}>{err}</p>}
+          {err && <p style={{ fontSize: 12, color: '#dc2626' }}>{err}</p>}
         </div>
 
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
@@ -395,16 +395,16 @@ const ManageSessionsModal = ({ onClose, onChanged }) => {
   const others = (sessions || []).filter(s => !s.isCurrent).length;
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 480, maxHeight: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Active Sessions</p>
-          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={11} c="var(--t2)" />
           </button>
         </div>
         <div style={{ padding: 16, overflowY: 'auto', flex: 1 }}>
-          {err && <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12, marginBottom: 12 }}>{err}</div>}
+          {err && <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12, marginBottom: 12 }}>{err}</div>}
           {!sessions ? (
             <div style={{ textAlign: 'center', padding: 24, color: 'var(--t2)', fontSize: 13 }}>Loading sessions…</div>
           ) : sessions.length === 0 ? (
@@ -412,7 +412,7 @@ const ManageSessionsModal = ({ onClose, onChanged }) => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {sessions.map(s => (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 14px', borderRadius: 9, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--bd)' }}>
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 14px', borderRadius: 9, background: 'rgba(15,23,42,0.02)', border: '1px solid var(--bd)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                     <I n="monitor" s={15} c="var(--t2)" />
                     <div style={{ minWidth: 0 }}>
@@ -429,7 +429,7 @@ const ManageSessionsModal = ({ onClose, onChanged }) => {
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <Btn variant="ghost" size="sm" onClick={onClose}>Close</Btn>
           <Btn size="sm" variant="outline" onClick={revokeOthers} disabled={revoking || others === 0}
-            style={{ borderColor: 'rgba(239,68,68,.35)', color: '#f87171' }}>
+            style={{ borderColor: 'rgba(239,68,68,.35)', color: '#dc2626' }}>
             {revoking ? 'Signing out…' : `Sign out of ${others || 'other'} other session${others === 1 ? '' : 's'}`}
           </Btn>
         </div>
@@ -574,7 +574,7 @@ export default function ProfileView() {
         {loading && <ProfileSkeleton />}
 
         {!loading && loadError && (
-          <div style={{ padding: '14px 18px', borderRadius: 10, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13 }}>
+          <div style={{ padding: '14px 18px', borderRadius: 10, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13 }}>
             {loadError}
           </div>
         )}
@@ -647,18 +647,18 @@ export default function ProfileView() {
                         </Field>
                         <Field label="Time Zone">
                           <FSelect value={form.timezone} onChange={e => setForm(f => ({ ...f, timezone: e.target.value }))}>
-                            <option value="" style={{ background: '#0a0b0e' }}>Select time zone</option>
-                            {ALL_TIMEZONES.map(tz => <option key={tz} value={tz} style={{ background: '#0a0b0e' }}>{tz}</option>)}
+                            <option value="" style={{ background:'#ffffff' }}>Select time zone</option>
+                            {ALL_TIMEZONES.map(tz => <option key={tz} value={tz} style={{ background:'#ffffff' }}>{tz}</option>)}
                           </FSelect>
                         </Field>
                         <Field label="Language">
                           <FSelect value={form.language} onChange={e => setForm(f => ({ ...f, language: e.target.value }))}>
-                            <option value="" style={{ background: '#0a0b0e' }}>Select language</option>
-                            {LANGUAGES.map(([code, label]) => <option key={code} value={code} style={{ background: '#0a0b0e' }}>{label}</option>)}
+                            <option value="" style={{ background:'#ffffff' }}>Select language</option>
+                            {LANGUAGES.map(([code, label]) => <option key={code} value={code} style={{ background:'#ffffff' }}>{label}</option>)}
                           </FSelect>
                         </Field>
                       </div>
-                      {saveError && <p style={{ fontSize: 12, color: '#f87171' }}>{saveError}</p>}
+                      {saveError && <p style={{ fontSize: 12, color: '#dc2626' }}>{saveError}</p>}
                       <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                         <Btn variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>Cancel</Btn>
                         <Btn size="sm" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Changes'}</Btn>
@@ -707,14 +707,14 @@ export default function ProfileView() {
 
                 <div style={{ ...card, padding: 20, border: '1px solid rgba(239,68,68,0.28)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 12 }}>
-                    <I n="alertt" s={15} c="#f87171" />
-                    <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, color: '#f87171' }}>Danger Zone</p>
+                    <I n="alertt" s={15} c="#dc2626" />
+                    <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, color: '#dc2626' }}>Danger Zone</p>
                   </div>
                   <p style={{ fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.6, marginBottom: 14 }}>
                     Permanently delete your account and personal data. Any workspace where you are the only member is deleted with it. This cannot be undone.
                   </p>
                   <Btn size="sm" variant="outline" onClick={() => setShowDeleteModal(true)}
-                    style={{ borderColor: 'rgba(239,68,68,0.4)', color: '#f87171' }}>
+                    style={{ borderColor: 'rgba(239,68,68,0.4)', color: '#dc2626' }}>
                     Delete Account
                   </Btn>
                 </div>

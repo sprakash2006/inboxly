@@ -7,12 +7,12 @@ import { Avatar } from '../components/Avatar.jsx';
 
 const card = { background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', boxShadow:'var(--card-shadow)' };
 
-const barColor = r => r > 97 ? 'var(--green)' : r >= 93 ? '#fbbf24' : '#f87171';
+const barColor = r => r > 97 ? 'var(--green)' : r >= 93 ? '#b45309' : '#dc2626';
 
 const KpiCard = ({ icon, iconColor, label, value, suffix = '' }) => (
   <div style={{ ...card, padding:'20px' }}>
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14, flexWrap: 'wrap', rowGap: 10 }}>
-      <div style={{ width:36, height:36, borderRadius:9, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ width:36, height:36, borderRadius:9, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <I n={icon} s={16} c={iconColor} />
       </div>
     </div>
@@ -202,7 +202,7 @@ export default function AnalyticsView() {
             return (
               <button key={value} onClick={() => setRange(value)}
                 style={{ fontSize:12.5, fontWeight:600, padding:'7px 13px', borderRadius:8, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                         background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                         background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                          border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
                          color: on ? 'var(--green)' : 'var(--t2)' }}>{label}</button>
             );
@@ -228,9 +228,9 @@ export default function AnalyticsView() {
         <div className="rgrid-4" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
           {kpi ? <>
             <KpiCard icon="msg"   iconColor="var(--green)"  label="Messages Sent"  value={(kpi.messagesSent ?? 0).toLocaleString()} />
-            <KpiCard icon="chart" iconColor="#9d6bff"       label="Delivery Rate"  value={kpi.deliveryRate ?? 0} suffix="%" />
-            <KpiCard icon="ban"   iconColor="#f87171"       label="Opt-out Rate"   value={kpi.optOutRate   ?? 0} suffix="%" />
-            <KpiCard icon="users" iconColor="#c4ff46"       label="Total Contacts" value={(kpi.totalContacts ?? 0).toLocaleString()} />
+            <KpiCard icon="chart" iconColor="#7c3aed"       label="Delivery Rate"  value={kpi.deliveryRate ?? 0} suffix="%" />
+            <KpiCard icon="ban"   iconColor="#dc2626"       label="Opt-out Rate"   value={kpi.optOutRate   ?? 0} suffix="%" />
+            <KpiCard icon="users" iconColor="#4d7c0f"       label="Total Contacts" value={(kpi.totalContacts ?? 0).toLocaleString()} />
           </> : (
             <div style={{ gridColumn:'1/-1', textAlign:'center', padding:'20px', color:'var(--t2)', fontSize:13 }}>No overview data yet.</div>
           )}
@@ -257,9 +257,9 @@ export default function AnalyticsView() {
                         {stage.value.toLocaleString('en-IN')} · {stage.pct}%
                       </span>
                     </div>
-                    <div style={{ height:9, borderRadius:9, background:'rgba(255,255,255,0.06)', overflow:'hidden' }}>
+                    <div style={{ height:9, borderRadius:9, background:'rgba(15,23,42,0.06)', overflow:'hidden' }}>
                       <div style={{ width:`${Math.max(stage.pct, stage.value > 0 ? 1.5 : 0)}%`, height:'100%', borderRadius:9,
-                        background: ['linear-gradient(90deg,#35e8f2,#2bc4cd)','linear-gradient(90deg,#35e8f2,#6bb8f0)','linear-gradient(90deg,#9d6bff,#b98aff)','linear-gradient(90deg,#c4ff46,#a8e63a)','linear-gradient(90deg,#25d366,#1fb356)'][i] }} />
+                        background: ['linear-gradient(90deg,#14b8a6,#2bc4cd)','linear-gradient(90deg,#14b8a6,#6bb8f0)','linear-gradient(90deg,#8b5cf6,#b98aff)','linear-gradient(90deg,#a3e635,#a8e63a)','linear-gradient(90deg,#25d366,#1fb356)'][i] }} />
                     </div>
                     <p style={{ fontSize:10.5, color:'var(--t3)', marginTop:4 }}>{stage.note}</p>
                   </div>
@@ -290,14 +290,14 @@ export default function AnalyticsView() {
                   <div style={{ width:`${perf.resolution.byAi.pct}%`, background:'var(--lime)' }} />
                   <div style={{ width:`${perf.resolution.byHuman.pct}%`, background:'var(--violet)' }} />
                   <div style={{ width:`${perf.resolution.noReply?.pct ?? 0}%`, background:'rgba(248,113,113,0.55)' }} />
-                  <div style={{ width:`${perf.resolution.open.pct}%`, background:'rgba(255,255,255,0.18)' }} />
+                  <div style={{ width:`${perf.resolution.open.pct}%`, background:'rgba(15,23,42,0.18)' }} />
                 </div>
                 <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
                   {[
                     ['Answered by automation only', perf.resolution.byAi, 'var(--lime)'],
                     ['Handled by a teammate', perf.resolution.byHuman, 'var(--violet)'],
                     ['Closed with no reply', perf.resolution.noReply ?? { count: 0 }, 'rgba(248,113,113,0.8)'],
-                    ['Still open', perf.resolution.open, 'rgba(255,255,255,0.45)'],
+                    ['Still open', perf.resolution.open, 'rgba(15,23,42,0.45)'],
                   ].map(([label, value, colour]) => (
                     <div key={label} style={{ display:'flex', alignItems:'center', gap:9 }}>
                       <span style={{ width:8, height:8, borderRadius:'50%', background:colour, flexShrink:0 }} />
@@ -320,7 +320,7 @@ export default function AnalyticsView() {
               {topics.slice(0, 6).map(t => (
                 <div key={t.name} style={{ display:'flex', alignItems:'center', gap:12 }}>
                   <span style={{ flex:'0 0 40%', fontSize:12.5, color:'var(--t1)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.name}</span>
-                  <span style={{ flex:1, height:6, borderRadius:6, background:'rgba(255,255,255,0.06)', overflow:'hidden' }}>
+                  <span style={{ flex:1, height:6, borderRadius:6, background:'rgba(15,23,42,0.06)', overflow:'hidden' }}>
                     <span style={{ display:'block', width:`${t.width}%`, height:'100%', borderRadius:6, background:'var(--cyan)' }} />
                   </span>
                   <span style={{ fontFamily:'var(--mono)', fontSize:11.5, color:'var(--t2)', flexShrink:0, minWidth:52, textAlign:'right' }}>
@@ -378,15 +378,15 @@ export default function AnalyticsView() {
             </div>
           </div>
           <div className="rgrid-3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>Active users</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:28, color:'var(--t1)' }}>{agents.length}</div>
             </div>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>Chats handled</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:28, color:'var(--t1)' }}>{agents.reduce((sum, agent) => sum + (agent.chatsHandled ?? 0), 0)}</div>
             </div>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>Top performer</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:18, color:'var(--t1)' }}>{agents.length ? agents.reduce((best, agent) => (agent.chatsHandled ?? 0) > (best.chatsHandled ?? 0) ? agent : best, agents[0]).name : 'No data'}</div>
             </div>
@@ -402,17 +402,17 @@ export default function AnalyticsView() {
             </div>
           </div>
           <div className="rgrid-3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>Your chats</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:28, color:'var(--t1)' }}>{currentAgent ? (currentAgent.chatsHandled ?? 0) : '0'}</div>
             </div>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>Your rank</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:18, color:'var(--t1)' }}>
                 {currentAgent ? `${agents.filter(a => (a.chatsHandled ?? 0) > (currentAgent.chatsHandled ?? 0)).length + 1}/${agents.length}` : 'N/A'}
               </div>
             </div>
-            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+            <div style={{ padding:'18px', borderRadius:'16px', background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
               <div style={{ fontSize:11, color:'var(--t2)', marginBottom:6, textTransform:'uppercase', letterSpacing:'.08em' }}>{currentUser ? `${currentUser.name}` : 'User'}</div>
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:18, color:'var(--t1)' }}>{currentAgent ? currentAgent.chatsHandled ?? 0 : 'No data'}</div>
             </div>
@@ -456,7 +456,7 @@ export default function AnalyticsView() {
 
           {/* legend */}
           <div style={{ display:'flex', gap:20, marginTop:16, paddingTop:14, borderTop:'1px solid var(--bd)', flexWrap:'wrap' }}>
-            {[['var(--green)','> 97% Excellent'],['#fbbf24','93–97% Warning'],['#f87171','< 93% Critical']].map(([c,l]) => (
+            {[['var(--green)','> 97% Excellent'],['#b45309','93–97% Warning'],['#dc2626','< 93% Critical']].map(([c,l]) => (
               <div key={l} style={{ display:'flex', alignItems:'center', gap:6 }}>
                 <div style={{ width:10, height:10, borderRadius:3, background:c, flexShrink:0 }} />
                 <span style={{ fontSize:11, color:'var(--t2)' }}>{l}</span>
@@ -479,7 +479,7 @@ export default function AnalyticsView() {
                       <span style={{ fontSize:13, fontWeight:600, color:'var(--t1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'60%' }}>{c.name}</span>
                       <span style={{ fontSize:12, color:'var(--t2)', flexShrink:0 }}>{pct}% delivered</span>
                     </div>
-                    <div style={{ height:5, borderRadius:4, background:'rgba(255,255,255,0.06)', overflow:'hidden' }}>
+                    <div style={{ height:5, borderRadius:4, background:'rgba(15,23,42,0.06)', overflow:'hidden' }}>
                       <div style={{ height:'100%', width:`${pct}%`, borderRadius:4, background:'var(--green)', transition:'width .4s' }} />
                     </div>
                   </div>
@@ -514,7 +514,7 @@ export default function AnalyticsView() {
                       </div>
                     </td>
                     <td style={{ padding:'11px 16px' }}>
-                      <span style={{ padding:'3px 10px', borderRadius:6, fontSize:12, fontWeight:700, background:'rgba(196,255,70,.1)', border:'1px solid rgba(196,255,70,.25)', color:'#d8ff8a' }}>{a.chatsHandled}</span>
+                      <span style={{ padding:'3px 10px', borderRadius:6, fontSize:12, fontWeight:700, background:'rgba(101,163,13,.1)', border:'1px solid rgba(101,163,13,.25)', color:'#4d7c0f' }}>{a.chatsHandled}</span>
                     </td>
                   </tr>
                 ))}

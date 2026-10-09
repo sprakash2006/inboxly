@@ -1,66 +1,57 @@
 :root {
-  /* ── Inboxly palette ──────────────────────────────────────────────────
-     Token *names* are unchanged from the previous theme so the ~2,800
-     existing var() call sites across the app re-skin themselves. Only the
-     values moved. --green keeps its name but now carries the Inboxly accent
-     (cyan); --accent is the preferred alias for new code. */
-  --bg:   #0a0b0e;
-  /* Every card is built from `background: var(--surf)`, so the sheen that
-     turns a flat panel into a pane of glass is applied here, once, rather
-     than edited into fourteen page files. It is a paint, not a colour — use
-     --surf-solid anywhere a colour is required (an SVG stroke, say). */
-  --surf: linear-gradient(158deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012)), #0c0d11;
-  --surf-solid: #0c0d11;
-  --surf2:#0d0f13;
-  --surf3:#14161c;
-  --bd:  rgba(255,255,255,0.07);
-  --bdm: rgba(255,255,255,0.10);
-  --bds: rgba(255,255,255,0.16);
-  --t1:  #eef0f3;
-  --t2:  #8b909b;
-  /* Inboxly specifies #565c66 here, which measures 2.9:1 on a panel — below
-     the 4.5:1 WCAG AA asks for, and --t3 is used for 330 labels most of which
-     are set at 10-12px. Lifted within the same hue to 4.9:1. This is the one
-     deliberate deviation from the mockups' literal values; the previous theme
-     carried an identical note about the identical bug. */
-  --t3:  #7a808c;
-  --t3-faint: #565c66;   /* exact mockup shade — decorative/large text only */
+  /* ── Inboxly light palette ────────────────────────────────────────────
+     Token names are shared by ~4,300 var() call sites, so the whole app
+     re-skins from here. Neutrals are a cool slate scale; the brand colour is
+     teal, chosen because it works both ways: dark ink on a teal fill is
+     5.6:1 and teal text on white is 3.7:1 (labels, icons, links).
+     --green keeps its legacy name and carries the accent role. */
+  color-scheme: light;
+  --bg:   #f4f6fa;           /* app canvas: a cool off-white, never pure white */
+  /* Cards are white on the canvas; depth comes from border + soft shadow. It
+     is a paint, not only a colour — use --surf-solid where a colour is
+     required (an SVG stroke, say). */
+  --surf: #ffffff;
+  --surf-solid: #ffffff;
+  --surf2:#f8fafc;           /* inset areas: inputs, table heads, rails */
+  --surf3:#eef2f7;           /* pressed / selected */
+  --bd:  rgba(15,23,42,0.08);
+  --bdm: rgba(15,23,42,0.12);
+  --bds: rgba(15,23,42,0.20);
+  --t1:  #0f172a;            /* headings and body: 17.9:1 on white */
+  --t2:  #475569;            /* secondary text: 7.6:1 */
+  --t3:  #64748b;            /* labels and meta: 4.8:1, passes AA at small sizes */
+  --t3-faint: #94a3b8;       /* decorative / large text only */
 
-  /* Accent. Inboxly leads with cyan, with violet and lime as the secondary
-     and tertiary voices. */
-  --cyan:  #35e8f2;
-  --violet:#9d6bff;
-  --lime:  #c4ff46;
-  --accent:#35e8f2;
-  --green: #35e8f2;          /* legacy name, accent role */
-  --wa-green:#25d366;        /* WhatsApp brand mark — stays green */
-  /* Status green. The accent is cyan now, so a "Completed"/"Delivered" badge
-     painted with --green would have lost the green-good/amber-warn/red-fail
-     convention that the badge sits inside. Inboxly keeps a green in its own
-     palette for exactly this; status badges use it, accents do not. */
-  --success:#25d366;
-  --sbg: rgba(37,211,102,0.08);
-  --sbd: rgba(37,211,102,0.22);
-  --gbg: rgba(53,232,242,0.08);
-  --gbd: rgba(53,232,242,0.20);
-  --glow:0 0 56px rgba(53,232,242,0.18);
-  /* Gradients. The design set leans on exactly two: a lime→cyan wash for
-     primary calls to action (its single most repeated treatment), and a
-     violet→cyan wash for identity marks — avatars, workspace badges. Both are
-     painted on dark ink rather than white, which is what keeps them legible. */
-  --grad-cta: linear-gradient(135deg, #c4ff46, #35e8f2);
-  --grad-cta-hot: linear-gradient(135deg, #d4ff6e, #5cf0f8);
-  --grad-identity: linear-gradient(135deg, #9d6bff, #35e8f2);
+  /* Accent. Teal leads; indigo-violet and lime are secondary voices. */
+  --cyan:  #0891b2;
+  --violet:#7c3aed;
+  --lime:  #65a30d;
+  --accent:#0d9488;
+  --green: #0d9488;          /* legacy name, accent role */
+  --wa-green:#25d366;        /* WhatsApp brand mark — stays WhatsApp green */
+  /* Status green, kept apart from the accent so delivered / completed badges
+     keep the green-good / amber-warn / red-fail convention. */
+  --success:#16a34a;
+  --sbg: rgba(22,163,74,0.08);
+  --sbd: rgba(22,163,74,0.24);
+  --gbg: rgba(13,148,136,0.08);
+  --gbd: rgba(13,148,136,0.26);
+  --glow:0 8px 28px rgba(13,148,136,0.18);
+  /* Gradients: an aqua wash for primary calls to action and a violet→cyan
+     wash for identity marks (avatars, workspace badges). Both are bright
+     enough to carry dark ink, which is how every button already draws text. */
+  --grad-cta: linear-gradient(135deg, #2dd4bf, #22d3ee);
+  --grad-cta-hot: linear-gradient(135deg, #5eead4, #67e8f9);
+  --grad-identity: linear-gradient(135deg, #a78bfa, #22d3ee);
   --grad-wa: linear-gradient(135deg, #25d366, #0f9d58);
   --ink: #06110f;                /* text/icons that sit on a gradient */
-  --card-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 30px rgba(0,0,0,0.45);
+  --card-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 6px 20px rgba(15,23,42,0.05);
   --r:9px; --rl:12px; --rxl:18px;
 
-  /* Frosted surfaces. Same palette as the solid cards above — this is the
-     same material seen through glass, not a second theme. */
-  --glass:    linear-gradient(158deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
-  --glass-bd: rgba(255,255,255,0.10);
-  --glass-sh: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 50px rgba(0,0,0,0.50);
+  /* Frosted surfaces for the landing page and sign-in screens. */
+  --glass:    rgba(255,255,255,0.78);
+  --glass-bd: rgba(15,23,42,0.08);
+  --glass-sh: 0 1px 2px rgba(15,23,42,0.04), 0 16px 40px rgba(15,23,42,0.08);
   --blur:     blur(18px) saturate(150%);
   /* Numbers, ticks, payloads and eyebrows. A machine voice next to the two
      human ones (Space Grotesk, Manrope), so data reads as data. */
@@ -77,18 +68,6 @@ body {
   overflow-x: hidden;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  opacity: 0.022;
-  pointer-events: none;
-  z-index: 9999;
-}
-
 h1,h2,h3,h4,h5 { font-family:'Space Grotesk',sans-serif; letter-spacing:-0.02em; line-height:1.1; }
 
 /* Links. The app styles anchors individually and never wanted the browser's
@@ -98,10 +77,10 @@ h1,h2,h3,h4,h5 { font-family:'Space Grotesk',sans-serif; letter-spacing:-0.02em;
    in below, where an underline is the right affordance for a body-text link. */
 a { color: inherit; text-decoration: none; }
 
-::selection { background:rgba(53,232,242,0.28); color:#fff; }
+::selection { background:rgba(13,148,136,0.18); color:var(--t1); }
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.10); border-radius:6px; }
+::-webkit-scrollbar-thumb { background:rgba(15,23,42,0.14); border-radius:6px; }
 
 /* ── Motion system ─────────────────────────────────────────────────────────
    Durations and easings live here so the product moves at one speed rather
@@ -180,7 +159,7 @@ a { color: inherit; text-decoration: none; }
 .cfp-scroll::-webkit-scrollbar { width:7px; }
 .cfp-scroll::-webkit-scrollbar-track { background:transparent; }
 .cfp-scroll::-webkit-scrollbar-thumb { background:var(--bdm); border-radius:6px; }
-.cfp-scroll:hover::-webkit-scrollbar-thumb { background:rgba(255,255,255,.22); }
+.cfp-scroll:hover::-webkit-scrollbar-thumb { background:rgba(15,23,42,.24); }
 
 /* ── Glass ───────────────────────────────────────────────────────────────
    Shared by the landing page and the sign-in screens so both read as the
@@ -204,12 +183,12 @@ a { color: inherit; text-decoration: none; }
 .glass-lit::after {
   content: '';
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: radial-gradient(340px circle at var(--mx,50%) var(--my,0%), rgba(255,255,255,.07), transparent 62%);
+  background: radial-gradient(340px circle at var(--mx,50%) var(--my,0%), rgba(13,148,136,.06), transparent 62%);
   opacity: 0; transition: opacity .35s ease;
 }
 .glass-lit:hover::after { opacity: 1; }
 .glass-lift { transition: transform .3s cubic-bezier(.2,.7,.3,1), border-color .3s ease; }
-.glass-lift:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.18); }
+.glass-lift:hover { transform: translateY(-3px); border-color: rgba(13,148,136,.28); }
 
 /* Enters once, on scroll. Stagger comes from an inline transition-delay. */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s cubic-bezier(.2,.7,.3,1), transform .6s cubic-bezier(.2,.7,.3,1); }
@@ -244,7 +223,7 @@ textarea:focus {
   /* !important because several screens set a focus border inline via onFocus;
      one focus treatment beats six slightly different ones. */
   border-color: var(--gbd) !important;
-  box-shadow: 0 0 0 3px rgba(53,232,242,0.12);
+  box-shadow: 0 0 0 3px rgba(13,148,136,0.14);
 }
 input::placeholder, textarea::placeholder { color: var(--t3); }
 
@@ -257,7 +236,7 @@ button:not(:disabled):active { transform: translateY(1px); }
 
 /* Rows in every list view respond to the pointer. */
 tbody tr { transition: background .14s ease; }
-tbody tr:hover { background: rgba(255,255,255,0.022); }
+tbody tr:hover { background: rgba(15,23,42,0.025); }
 
 /* Keyboard users get the same affordances as mouse users. */
 :where(a, button, [tabindex]):focus-visible {
@@ -310,11 +289,11 @@ tbody tr:hover { background: rgba(255,255,255,0.022); }
    so they get real prose measure and rhythm rather than the dense UI scale
    everything else uses. Element selectors inside .legal-body, because the
    copy is rendered from an HTML string and carries no classes. */
-.legal-body p  { font-size:14.5px; line-height:1.75; color:#c2c7d0; margin:0 0 14px; }
+.legal-body p  { font-size:14.5px; line-height:1.75; color:#334155; margin:0 0 14px; }
 .legal-body h3 { font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; color:var(--t1); margin:30px 0 12px; }
 .legal-body h4 { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; color:var(--t1); margin:20px 0 8px; }
 .legal-body ul { margin:0 0 14px; padding-left:20px; }
-.legal-body li { font-size:14.5px; line-height:1.7; color:#c2c7d0; margin-bottom:7px; }
+.legal-body li { font-size:14.5px; line-height:1.7; color:#334155; margin-bottom:7px; }
 .legal-body strong { color:var(--t1); font-weight:700; }
 .legal-body a { color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
 

@@ -39,7 +39,7 @@ export function promptDialog(message, { title = 'Are you sure?', label = '', pla
 }
 
 const TONES = {
-  error:   { bd: 'rgba(239,68,68,0.45)',  fg: '#fca5a5' },
+  error:   { bd: 'rgba(239,68,68,0.45)',  fg: '#dc2626' },
   success: { bd: 'var(--gbd)',            fg: 'var(--green)' },
   info:    { bd: 'var(--bd)',             fg: 'var(--t1)' },
 };
@@ -76,7 +76,7 @@ export function FeedbackHost() {
         {toasts.map((t) => {
           const tone = TONES[t.tone] || TONES.info;
           return (
-            <div key={t.id} style={{ pointerEvents: 'auto', padding: '11px 14px', borderRadius: 10, background: 'var(--surf-solid, #0b1220)', border: `1px solid ${tone.bd}`, color: tone.fg, fontSize: 13, lineHeight: 1.45, boxShadow: '0 12px 32px rgba(0,0,0,0.45)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div key={t.id} style={{ pointerEvents: 'auto', padding: '11px 14px', borderRadius: 10, background: 'var(--surf-solid, #0b1220)', border: `1px solid ${tone.bd}`, color: tone.fg, fontSize: 13, lineHeight: 1.45, boxShadow: '0 12px 32px rgba(15,23,42,0.135)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <span style={{ flex: 1 }}>{t.message}</span>
               <button type="button" aria-label="Dismiss" onClick={() => setToasts((all) => all.filter((x) => x.id !== t.id))}
                 style={{ background: 'none', border: 'none', color: 'var(--t3)', cursor: 'pointer', fontSize: 15, lineHeight: 1, padding: 0 }}>×</button>

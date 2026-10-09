@@ -75,20 +75,20 @@ const TemplatePreviewModal = ({ template, onClose }) => {
   const isImageHeader = headerComp?.format === 'IMAGE';
 
   return (
-    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={template.name} style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
-      <div onClick={e => e.stopPropagation()} tabIndex={-1} style={{ ...card, ...(isAuth ? { border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(53,232,242,0.10)' } : {}), width:'100%', maxWidth:480, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={template.name} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+      <div onClick={e => e.stopPropagation()} tabIndex={-1} style={{ ...card, ...(isAuth ? { border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(13,148,136,0.10)' } : {}), width:'100%', maxWidth:480, display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div>
             <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--t1)' }}>{template.name}</p>
             <p style={{ fontSize:11.5, color:'var(--t2)', marginTop:2 }}>{template.category} · {template.language} · <StatusBadge s={statusLabel(template.status)} /></p>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
         <div style={{ padding:20 }}>
           <div style={{ background:'#ECE5DD', borderRadius:10, padding:14, minHeight:60 }}>
-            <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', maxWidth:'88%', boxShadow:'0 1px 3px rgba(0,0,0,0.1)', display:'inline-block' }}>
+            <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', maxWidth:'88%', boxShadow:'0 1px 3px rgba(15,23,42,0.04)', display:'inline-block' }}>
               {isImageHeader && (
                 <div style={{ marginBottom: 8, borderRadius: 6, overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: (headerPreview && headerPreview !== 'placeholder') ? 'auto' : 120 }}>
                   {headerPreview === 'placeholder' ? (

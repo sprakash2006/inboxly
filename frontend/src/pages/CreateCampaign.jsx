@@ -65,9 +65,9 @@ const SMART_SCHEDULE = [
 ];
 
 const CAT_STYLE = {
-  MARKETING:      { bg: 'rgba(196,255,70,.12)', bd: 'rgba(196,255,70,.3)',  c: '#d8ff8a' },
-  UTILITY:        { bg: 'rgba(14,165,233,.12)',  bd: 'rgba(14,165,233,.3)',   c: '#9d6bff' },
-  AUTHENTICATION: { bg: 'rgba(245,158,11,.12)',  bd: 'rgba(245,158,11,.3)',   c: '#fbbf24' },
+  MARKETING:      { bg: 'rgba(101,163,13,.12)', bd: 'rgba(101,163,13,.3)',  c: '#4d7c0f' },
+  UTILITY:        { bg: 'rgba(14,165,233,.12)',  bd: 'rgba(14,165,233,.3)',   c: '#7c3aed' },
+  AUTHENTICATION: { bg: 'rgba(245,158,11,.12)',  bd: 'rgba(245,158,11,.3)',   c: '#b45309' },
 };
 
 // ─── shared small components ───────────────────────────────────
@@ -84,7 +84,7 @@ const StatusBadge = ({ s }) => {
   const cfg = {
     Approved: { bg: 'var(--gbg)', bd: 'var(--gbd)', c: 'var(--green)' },
     Active:   { bg: 'var(--gbg)', bd: 'var(--gbd)', c: 'var(--green)' },
-    Pending:  { bg: 'rgba(245,158,11,.1)', bd: 'rgba(245,158,11,.25)', c: '#fbbf24' },
+    Pending:  { bg: 'rgba(245,158,11,.1)', bd: 'rgba(245,158,11,.25)', c: '#b45309' },
   };
   const v = cfg[s] || cfg.Pending;
   return (
@@ -95,13 +95,13 @@ const StatusBadge = ({ s }) => {
 };
 
 const Toggle = ({ on, onToggle }) => (
-  <div onClick={onToggle} style={{ width: '42px', height: '23px', borderRadius: '20px', background: on ? 'var(--green)' : 'rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'background .2s', position: 'relative', border: `1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink: 0 }}>
-    <div style={{ position: 'absolute', top: '2px', left: on ? '21px' : '2px', width: '17px', height: '17px', borderRadius: '50%', background: 'white', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,0.4)' }} />
+  <div onClick={onToggle} style={{ width: '42px', height: '23px', borderRadius: '20px', background: on ? 'var(--green)' : 'rgba(15,23,42,0.1)', cursor: 'pointer', transition: 'background .2s', position: 'relative', border: `1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink: 0 }}>
+    <div style={{ position: 'absolute', top: '2px', left: on ? '21px' : '2px', width: '17px', height: '17px', borderRadius: '50%', background: 'white', transition: 'left .2s', boxShadow: '0 1px 4px rgba(15,23,42,0.12)' }} />
   </div>
 );
 
 const TypeBtn = ({ label, sub, selected, onClick, disabled = false }) => (
-  <div onClick={disabled ? undefined : onClick} style={{ padding: '13px 16px', borderRadius: '10px', border: `1.5px solid ${selected ? 'var(--green)' : 'var(--bd)'}`, background: selected ? 'var(--gbg)' : 'rgba(255,255,255,0.02)', cursor: disabled ? 'not-allowed' : 'pointer', transition: 'all .15s', flex: 1, opacity: disabled ? 0.5 : 1 }}>
+  <div onClick={disabled ? undefined : onClick} style={{ padding: '13px 16px', borderRadius: '10px', border: `1.5px solid ${selected ? 'var(--green)' : 'var(--bd)'}`, background: selected ? 'var(--gbg)' : 'rgba(15,23,42,0.02)', cursor: disabled ? 'not-allowed' : 'pointer', transition: 'all .15s', flex: 1, opacity: disabled ? 0.5 : 1 }}>
   <div style={{ fontWeight: 600, fontSize: '13px', color: selected ? 'var(--green)' : 'var(--t1)', marginBottom: sub ? '3px' : 0 }}>{label}</div>
     {sub && <div style={{ fontSize: '11px', color: 'var(--t2)' }}>{sub}</div>}
   </div>
@@ -114,7 +114,7 @@ const Chev = ({ open }) => (
 );
 
 const InfoAlert = ({ children }) => (
-  <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(14,165,233,.06)', border: '1px solid rgba(14,165,233,.18)', color: '#9d6bff', fontSize: '12px', lineHeight: 1.55, display: 'flex', gap: '9px', alignItems: 'flex-start' }}>
+  <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(14,165,233,.06)', border: '1px solid rgba(14,165,233,.18)', color: '#7c3aed', fontSize: '12px', lineHeight: 1.55, display: 'flex', gap: '9px', alignItems: 'flex-start' }}>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
@@ -123,7 +123,7 @@ const InfoAlert = ({ children }) => (
 );
 
 const ArrowBtn = ({ dir, onClick, disabled }) => (
-  <button onClick={onClick} disabled={disabled} style={{ width: '26px', height: '26px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: disabled ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.35 : 1, color: 'var(--t2)' }}>
+  <button onClick={onClick} disabled={disabled} style={{ width: '26px', height: '26px', borderRadius: '6px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: disabled ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.35 : 1, color: 'var(--t2)' }}>
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       {dir === 'up' ? <polyline points="18,15 12,9 6,15" /> : <polyline points="6,9 12,15 18,9" />}
     </svg>
@@ -137,7 +137,7 @@ const SLabel = ({ children }) => (
 // ─── accordion wrapper ─────────────────────────────────────────
 const StepHeader = ({ n, title, done, open, locked, onToggle }) => (
   <div onClick={locked ? undefined : onToggle} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '15px 20px', cursor: locked ? 'not-allowed' : 'pointer', userSelect: 'none', opacity: locked ? 0.45 : 1 }}>
-    <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, background: done ? 'var(--green)' : open ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${done ? 'var(--green)' : open ? 'var(--bdm)' : 'var(--bd)'}`, color: done ? '#08090c' : 'var(--t2)', transition: 'all .2s' }}>
+    <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, background: done ? 'var(--green)' : open ? 'rgba(15,23,42,0.07)' : 'rgba(15,23,42,0.03)', border: `1.5px solid ${done ? 'var(--green)' : open ? 'var(--bdm)' : 'var(--bd)'}`, color: done ? '#08090c' : 'var(--t2)', transition: 'all .2s' }}>
       {done ? <I n="check" s={13} c="#08090c" w={2.5} /> : n}
     </div>
     <div style={{ flex: 1 }}>
@@ -177,7 +177,7 @@ const Step1 = ({ campaignType, setCampaignType, numbers, selectedNumberId, setSe
           const sel = selectedNumberId === n.id;
           return (
             <div key={n.id} onClick={() => setSelectedNumberId(n.id)}
-              style={{ padding: '14px', borderRadius: '10px', border: `1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--gbg)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all .15s' }}>
+              style={{ padding: '14px', borderRadius: '10px', border: `1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--gbg)' : 'rgba(15,23,42,0.02)', cursor: 'pointer', transition: 'all .15s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', rowGap: 10 }}>
                 <StatusBadge s={n.status === 'ACTIVE' ? 'Active' : (n.status ?? 'Active')} />
                 {sel && (
@@ -225,10 +225,10 @@ const GoalStep = ({ goal, setGoal, onNext }) => (
           <button key={g.id} type="button" onClick={() => setGoal(on ? null : g.id)}
             style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 16px', borderRadius: 13, cursor: 'pointer', textAlign: 'left',
                      fontFamily: "'Manrope',sans-serif",
-                     background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.02)',
+                     background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.02)',
                      border: `1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, transition: 'all .15s' }}>
             <span style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                           background: on ? 'rgba(53,232,242,0.14)' : 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)' }}>
+                           background: on ? 'rgba(13,148,136,0.14)' : 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)' }}>
               <I n={g.icon} s={15} c={on ? 'var(--green)' : 'var(--t2)'} />
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
@@ -261,9 +261,9 @@ const GoalStep = ({ goal, setGoal, onNext }) => (
 const ReviewPanel = ({ checks, canLaunch, onLaunch, launching }) => {
   const warnings = checks.filter(c => !c.ok).length;
   return (
-    <div style={{ border: '1px solid var(--bd)', borderRadius: 12, overflow: 'hidden', background: 'rgba(255,255,255,0.02)' }}>
+    <div style={{ border: '1px solid var(--bd)', borderRadius: 12, overflow: 'hidden', background: 'rgba(15,23,42,0.02)' }}>
       <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <I n={warnings === 0 ? 'checkc' : 'alertt'} s={16} c={warnings === 0 ? 'var(--success)' : '#fbbf24'} />
+        <I n={warnings === 0 ? 'checkc' : 'alertt'} s={16} c={warnings === 0 ? 'var(--success)' : '#b45309'} />
         <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, color: 'var(--t1)' }}>Pre-launch checks</span>
         <span style={{ fontSize: 12, color: 'var(--t2)' }}>
           {warnings === 0 ? 'Everything checks out.' : `${warnings} thing${warnings === 1 ? '' : 's'} worth a look.`}
@@ -275,9 +275,9 @@ const ReviewPanel = ({ checks, canLaunch, onLaunch, launching }) => {
           <div key={check.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: '10px 12px', borderRadius: 9,
             background: check.ok ? 'var(--sbg)' : 'rgba(245,158,11,0.06)',
             border: `1px solid ${check.ok ? 'var(--sbd)' : 'rgba(245,158,11,0.25)'}` }}>
-            <I n={check.ok ? 'checkc' : 'alertt'} s={15} c={check.ok ? 'var(--success)' : '#fbbf24'} />
+            <I n={check.ok ? 'checkc' : 'alertt'} s={15} c={check.ok ? 'var(--success)' : '#b45309'} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: check.ok ? 'var(--t1)' : '#fbbf24' }}>{check.title}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: check.ok ? 'var(--t1)' : '#b45309' }}>{check.title}</div>
               <div style={{ fontSize: 11.5, color: 'var(--t3)', marginTop: 2, lineHeight: 1.5 }}>{check.detail}</div>
             </div>
           </div>
@@ -309,7 +309,7 @@ const Step2 = ({ templates, selectedTemplateId, setSelectedTemplateId, templateB
             return (
               <div key={t.id}
                 onClick={() => { setSelectedTemplateId(t.id); setTemplateBody(body); }}
-                style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'border-color .15s' }}
+                style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)', cursor: 'pointer', transition: 'border-color .15s' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--bdm)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--bd)'}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '7px', flexWrap: 'wrap', rowGap: 10 }}>
@@ -338,7 +338,7 @@ const Step2 = ({ templates, selectedTemplateId, setSelectedTemplateId, templateB
           <div>
             <SLabel>Template Body</SLabel>
             <textarea value={templateBody} onChange={e => setTemplateBody(e.target.value)}
-              style={{ width: '100%', minHeight: '110px', padding: '10px 13px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', resize: 'vertical', lineHeight: 1.55, boxSizing: 'border-box', transition: 'border-color .15s' }}
+              style={{ width: '100%', minHeight: '110px', padding: '10px 13px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', resize: 'vertical', lineHeight: 1.55, boxSizing: 'border-box', transition: 'border-color .15s' }}
               onFocus={e => e.target.style.borderColor = 'var(--gbd)'}
               onBlur={e => e.target.style.borderColor = 'var(--bd)'} />
             <p style={{ fontSize: '11px', color: 'var(--t3)', marginTop: '5px' }}>Use &#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125; for variable placeholders</p>
@@ -540,14 +540,14 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
           <div key={t.id} onClick={t.disabled ? undefined : () => setAudienceMethod(t.id)}
             style={{ padding: '7px 14px', borderRadius: '8px', border: `1px solid ${audienceMethod === t.id ? 'var(--green)' : 'var(--bd)'}`, background: audienceMethod === t.id ? 'var(--gbg)' : 'transparent', cursor: t.disabled ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 500, color: audienceMethod === t.id ? 'var(--green)' : t.disabled ? 'var(--t3)' : 'var(--t2)', transition: 'all .15s', opacity: t.disabled ? 0.45 : 1, display: 'flex', alignItems: 'center', gap: '6px' }}>
             {t.label}
-            {t.disabled && <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'var(--t3)' }}>Soon</span>}
+            {t.disabled && <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '4px', background: 'rgba(15,23,42,0.05)', color: 'var(--t3)' }}>Soon</span>}
           </div>
         ))}
       </div>
 
       {audienceMethod === 'list' && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', marginBottom: '10px' }}>
             <I n="search" s={13} c="var(--t2)" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search contacts…"
               style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif" }} />
@@ -557,9 +557,9 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
               const sel = selectedContactIds.has(c.id);
               return (
                 <div key={c.id} onClick={() => toggleContact(c.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '9px 12px', borderRadius: '8px', cursor: 'pointer', background: sel ? 'rgba(53,232,242,0.05)' : 'transparent', transition: 'background .12s' }}
-                  onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                  onMouseLeave={e => { if (!sel) e.currentTarget.style.background = sel ? 'rgba(53,232,242,0.05)' : 'transparent'; }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '9px 12px', borderRadius: '8px', cursor: 'pointer', background: sel ? 'rgba(13,148,136,0.05)' : 'transparent', transition: 'background .12s' }}
+                  onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'rgba(15,23,42,0.03)'; }}
+                  onMouseLeave={e => { if (!sel) e.currentTarget.style.background = sel ? 'rgba(13,148,136,0.05)' : 'transparent'; }}>
                   <div style={{ width: '16px', height: '16px', borderRadius: '4px', border: `1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--green)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}>
                     {sel && <I n="check" s={9} c="#08090c" w={3} />}
                   </div>
@@ -576,9 +576,9 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
             <input value={manualName} onChange={e => setManualName(e.target.value)} placeholder="Name (optional)"
-              style={{ flex: 1, padding: '9px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
+              style={{ flex: 1, padding: '9px 12px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
             <input value={manualPhone} onChange={e => setManualPhone(e.target.value.replace(/[^0-9+\s]/g, ''))} placeholder="+91 98765 43210"
-              style={{ flex: 1, padding: '9px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none' }}
+              style={{ flex: 1, padding: '9px 12px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none' }}
               onKeyDown={e => e.key === 'Enter' && addManual()} />
             <Btn size="sm" onClick={addManual} disabled={!manualPhone.trim()}>Add Contact</Btn>
           </div>
@@ -600,7 +600,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
             </Btn>
           </div>
           {csvErr && (
-            <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{csvErr}</div>
+            <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{csvErr}</div>
           )}
           {csvResult && (
             <div style={{ padding:'10px 13px', borderRadius:8, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)', fontSize:13, fontWeight:600 }}>
@@ -616,10 +616,10 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
             style={{
               border:`2px dashed ${csvDragging ? 'var(--green)' : 'var(--bd)'}`,
               borderRadius:12, padding:'30px 18px', textAlign:'center', cursor:'pointer',
-              transition:'all .2s', background: csvDragging ? 'var(--gbg)' : 'rgba(255,255,255,0.01)',
+              transition:'all .2s', background: csvDragging ? 'var(--gbg)' : 'rgba(15,23,42,0.01)',
             }}>
             <div style={{ display:'flex', justifyContent:'center', marginBottom:10 }}>
-              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="17,8 12,3 7,8"/>
@@ -642,43 +642,43 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
             )}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:8, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9d6bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <span style={{ fontSize:12, color:'#b9a3ff', lineHeight:1.5 }}>
-              Phone numbers must include country code (e.g. <code style={{ fontFamily:'monospace', color:'#b9a3ff' }}>+919876543210</code>). Tags column is comma-separated.
+            <span style={{ fontSize:12, color:'#6d28d9', lineHeight:1.5 }}>
+              Phone numbers must include country code (e.g. <code style={{ fontFamily:'monospace', color:'#6d28d9' }}>+919876543210</code>). Tags column is comma-separated.
             </span>
           </div>
           <div style={{ padding:'14px 16px', borderRadius:8, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9d6bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              <span style={{ fontSize:13, fontWeight:600, color:'#b9a3ff' }}>Instructions for uploading CSV</span>
+              <span style={{ fontSize:13, fontWeight:600, color:'#6d28d9' }}>Instructions for uploading CSV</span>
             </div>
-            <ul style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#b9a3ff', lineHeight: 1.5 }}>
+            <ul style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#6d28d9', lineHeight: 1.5 }}>
               <li>Upload a CSV file to bulk import contacts.</li>
               <li>
                 Required columns:
                 <ul style={{ listStyleType: 'none', paddingLeft: 16, marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>phoneNumber</code> (required)</li>
-                  <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>name</code> (optional)</li>
-                  <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>email</code> (optional)</li>
-                  <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>tags</code> (optional)</li>
+                  <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>phoneNumber</code> (required)</li>
+                  <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>name</code> (optional)</li>
+                  <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>email</code> (optional)</li>
+                  <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>tags</code> (optional)</li>
                 </ul>
               </li>
               <li>
                 Phone numbers must include country code.
                 <div style={{ marginTop: 4 }}>
                   Example:<br />
-                  <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>+919876543210</code>
+                  <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>+919876543210</code>
                 </div>
               </li>
               <li>
                 Tags must be comma-separated.
                 <div style={{ marginTop: 4 }}>
                   Example:<br />
-                  <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>vip,customer</code>
+                  <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>vip,customer</code>
                 </div>
               </li>
               <li>Duplicate phone numbers in the CSV will be skipped.</li>
@@ -744,7 +744,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
             <div style={{ fontSize: 12, color: 'var(--t2)' }}>Loading segment contacts...</div>
           )}
           {segmentError && (
-            <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12 }}>{segmentError}</div>
+            <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12 }}>{segmentError}</div>
           )}
           {selectedSegmentId && !segmentLoading && (
             <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--green)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -780,16 +780,16 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
   const costRows = estimate ? [
     ['Total Contacts',      estimate.totalContacts.toLocaleString(), null],
     ['Valid Contacts',      estimate.validContacts.toLocaleString(), 'var(--green)'],
-    ['Duplicate Contacts',  estimate.duplicateContacts.toLocaleString(), estimate.duplicateContacts > 0 ? '#fbbf24' : null],
-    ['Blocked (Opted Out)', estimate.blockedContacts.toLocaleString(), estimate.blockedContacts > 0 ? '#f87171' : null],
-    ['Invalid Numbers',     estimate.invalidContacts.toLocaleString(), estimate.invalidContacts > 0 ? '#f87171' : null],
+    ['Duplicate Contacts',  estimate.duplicateContacts.toLocaleString(), estimate.duplicateContacts > 0 ? '#b45309' : null],
+    ['Blocked (Opted Out)', estimate.blockedContacts.toLocaleString(), estimate.blockedContacts > 0 ? '#dc2626' : null],
+    ['Invalid Numbers',     estimate.invalidContacts.toLocaleString(), estimate.invalidContacts > 0 ? '#dc2626' : null],
     ['Cost Per Message',    inr(estimate.costPerMessage), null],
     ...(estimate.quotaCoveredMessages > 0
       ? [['Covered by Plan Quota', `${estimate.quotaCoveredMessages.toLocaleString()} message${estimate.quotaCoveredMessages === 1 ? '' : 's'}`, 'var(--green)']]
       : []),
     ['Total Campaign Cost', inr(estimate.totalCost), 'var(--t1)'],
     ['Wallet Balance',      inr(estimate.walletBalance), null],
-    ['Balance After Campaign', inr(estimate.remainingBalance), estimate.sufficientBalance ? 'var(--green)' : '#f87171'],
+    ['Balance After Campaign', inr(estimate.remainingBalance), estimate.sufficientBalance ? 'var(--green)' : '#dc2626'],
   ] : [];
 
   return (
@@ -805,13 +805,13 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
         <div>
           <SLabel>Date &amp; Time</SLabel>
           <input type="datetime-local" value={scheduledAt || ''} min={minDate} onChange={e => setScheduledAt(e.target.value)}
-            style={{ padding: '9px 13px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }} />
+            style={{ padding: '9px 13px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }} />
         </div>
       )}
       <div style={{ ...card, padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', rowGap: 10 }}>
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '14px', color: 'var(--t1)' }}>Campaign Summary</span>
-          <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 700, background: ready ? 'var(--gbg)' : 'rgba(245,158,11,.1)', border: `1px solid ${ready ? 'var(--gbd)' : 'rgba(245,158,11,.25)'}`, color: ready ? 'var(--green)' : '#fbbf24' }}>
+          <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 700, background: ready ? 'var(--gbg)' : 'rgba(245,158,11,.1)', border: `1px solid ${ready ? 'var(--gbd)' : 'rgba(245,158,11,.25)'}`, color: ready ? 'var(--green)' : '#b45309' }}>
             {ready ? 'Ready' : 'Incomplete'}
           </span>
         </div>
@@ -842,7 +842,7 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
         </div>
 
         {estimateError ? (
-          <p style={{ fontSize: 12.5, color: '#f87171' }}>{estimateError}</p>
+          <p style={{ fontSize: 12.5, color: '#dc2626' }}>{estimateError}</p>
         ) : !estimate ? (
           <p style={{ fontSize: 12.5, color: 'var(--t3)' }}>Select your audience to see the campaign cost.</p>
         ) : (
@@ -857,7 +857,7 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
             </div>
 
             {estimate.blockedContacts > 0 && (
-              <p style={{ marginTop: 12, fontSize: 11.5, color: '#fbbf24', lineHeight: 1.5 }}>
+              <p style={{ marginTop: 12, fontSize: 11.5, color: '#b45309', lineHeight: 1.5 }}>
                 {estimate.blockedContacts} contact{estimate.blockedContacts === 1 ? ' has' : 's have'} opted out and will be skipped —
                 you are not charged for them, and the campaign continues for everyone else.
               </p>
@@ -865,8 +865,8 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
 
             {!estimate.sufficientBalance && (
               <div style={{ marginTop: 14, padding: '11px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)' }}>
-                <p style={{ fontSize: 12.5, color: '#f87171', fontWeight: 600 }}>Insufficient Wallet Balance. Please recharge your wallet.</p>
-                <p style={{ fontSize: 11.5, color: '#f8c6c6', marginTop: 4 }}>
+                <p style={{ fontSize: 12.5, color: '#dc2626', fontWeight: 600 }}>Insufficient Wallet Balance. Please recharge your wallet.</p>
+                <p style={{ fontSize: 11.5, color: '#b91c1c', marginTop: 4 }}>
                   This campaign needs {inr(estimate.totalCost)} but your wallet holds {inr(estimate.walletBalance)}.
                   Add at least {inr(estimate.totalCost - estimate.walletBalance)} to continue.
                 </p>
@@ -878,7 +878,7 @@ const Step4 = ({ scheduleType, setScheduleType, scheduledAt, setScheduledAt, sum
             )}
 
             {estimate.validContacts === 0 && (
-              <p style={{ marginTop: 12, fontSize: 12.5, color: '#f87171' }}>
+              <p style={{ marginTop: 12, fontSize: 12.5, color: '#dc2626' }}>
                 There is nobody left to send to — every selected contact is a duplicate, invalid, or has opted out.
               </p>
             )}
@@ -930,7 +930,7 @@ const StepAiAgent = ({ enabled, setEnabled, agents, agentId, setAgentId, ctaLabe
             Customers who tap the CTA start a chat with your agent, which already knows what this campaign said.
           </p>
           {planLocked && (
-            <p style={{ fontSize: '12px', color: '#fbbf24', lineHeight: 1.55, marginTop: 4 }}>
+            <p style={{ fontSize: '12px', color: '#b45309', lineHeight: 1.55, marginTop: 4 }}>
               The Campaign AI Agent is not included in your plan. Upgrade from Payments to attach one.
             </p>
           )}
@@ -941,7 +941,7 @@ const StepAiAgent = ({ enabled, setEnabled, agents, agentId, setAgentId, ctaLabe
         <>
           {deployed.length === 0 ? (
             <div style={{ padding: '13px 16px', borderRadius: 8, background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)' }}>
-              <p style={{ fontSize: 12.5, color: '#fbbf24', lineHeight: 1.55 }}>
+              <p style={{ fontSize: 12.5, color: '#b45309', lineHeight: 1.55 }}>
                 No deployed AI agent yet. Add a system prompt and knowledge base under
                 Automation → WhatsApp AI Agent, then deploy it.
               </p>
@@ -973,7 +973,7 @@ const StepAiAgent = ({ enabled, setEnabled, agents, agentId, setAgentId, ctaLabe
             </div>
             <input value={ctaLabel} onChange={e => setCtaLabel(e.target.value.slice(0, CTA_MAX))}
               placeholder="Or type your own label"
-              style={{ width: '100%', maxWidth: 380, padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
+              style={{ width: '100%', maxWidth: 380, padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
             <p style={{ fontSize: '11px', color: 'var(--t3)', marginTop: 5 }}>
               {custom ? 'Custom label · ' : ''}{ctaLabel.length}/{CTA_MAX} characters — WhatsApp's button limit.
             </p>
@@ -983,7 +983,7 @@ const StepAiAgent = ({ enabled, setEnabled, agents, agentId, setAgentId, ctaLabe
               Meta rejects buttons it never reviewed, so one cannot be bolted on
               at send time. Better said here than discovered after launch. */}
           {quickReplies.length === 0 ? (
-            <div style={{ padding: '11px 14px', borderRadius: 8, background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)', fontSize: 12.5, color: '#fbbf24', lineHeight: 1.55 }}>
+            <div style={{ padding: '11px 14px', borderRadius: 8, background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)', fontSize: 12.5, color: '#b45309', lineHeight: 1.55 }}>
               This template has no quick-reply button, so WhatsApp can't render a tappable CTA. The agent
               still starts when a customer replies “{ctaLabel || 'Ask Anything'}”. For a real button, add a
               quick-reply button to the template and let Meta approve it.
@@ -991,7 +991,7 @@ const StepAiAgent = ({ enabled, setEnabled, agents, agentId, setAgentId, ctaLabe
           ) : matching ? (
             <InfoAlert>Customers tap <strong>{matching}</strong> on this template to start the chat.</InfoAlert>
           ) : (
-            <div style={{ padding: '11px 14px', borderRadius: 8, background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)', fontSize: 12.5, color: '#fbbf24', lineHeight: 1.55 }}>
+            <div style={{ padding: '11px 14px', borderRadius: 8, background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)', fontSize: 12.5, color: '#b45309', lineHeight: 1.55 }}>
               This template's quick-reply button reads “{quickReplies[0]}” — that is the button customers see,
               and tapping it starts the agent. Match the CTA label to it, or leave it: typing
               “{ctaLabel}” works too.
@@ -1021,7 +1021,7 @@ const TpPicker = ({ label, h, m, ap, onH, onM, onAp }) => (
         { v: m, fn: onM, opts: ['00', '15', '30', '45'], w: 58 },
         { v: ap, fn: onAp, opts: ['AM', 'PM'], w: 58 }].map((s, i) => (
         <select key={i} value={s.v} onChange={e => s.fn(e.target.value)}
-          style={{ width: `${s.w}px`, padding: '6px 6px', borderRadius: '7px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '12px', fontFamily: "'Manrope',sans-serif", outline: 'none' }}>
+          style={{ width: `${s.w}px`, padding: '6px 6px', borderRadius: '7px', background: 'rgba(15,23,42,0.06)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '12px', fontFamily: "'Manrope',sans-serif", outline: 'none' }}>
           {s.opts.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
       ))}
@@ -1082,7 +1082,7 @@ const StepRetries = ({ initial = null, onRetryToggle, onSaved, onCommit }) => {
           <div>
             <SLabel>Retry End Date</SLabel>
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
-              style={{ padding: '9px 13px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }} />
+              style={{ padding: '9px 13px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }} />
           </div>
           <div>
             <SLabel>Retry Pattern</SLabel>
@@ -1167,15 +1167,15 @@ const StepFallback = ({ retriesActive, onSaved }) => {
     setSaved(true); setTimeout(() => setSaved(false), 1800);
   };
 
-  const fieldStyle = { width: '100%', padding: '9px 12px', borderRadius: 7, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box' };
+  const fieldStyle = { width: '100%', padding: '9px 12px', borderRadius: 7, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box' };
 
   const ChannelCard = ({ id, label, icon, enabled, setEnabled, supported, children }) => (
-    <div style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${enabled ? 'var(--green)' : 'var(--bd)'}`, background: 'rgba(255,255,255,0.01)', opacity: supported ? 1 : 0.45 }}>
+    <div style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${enabled ? 'var(--green)' : 'var(--bd)'}`, background: 'rgba(15,23,42,0.01)', opacity: supported ? 1 : 0.45 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: enabled ? '14px' : 0, flexWrap: 'wrap', rowGap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <I n={icon} s={16} c={enabled ? 'var(--green)' : 'var(--t2)'} />
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t1)' }}>{label}</span>
-          {!supported && <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>Not Configured</span>}
+          {!supported && <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>Not Configured</span>}
         </div>
         {supported && <Toggle on={enabled} onToggle={() => setEnabled(!enabled)} />}
       </div>
@@ -1186,12 +1186,12 @@ const StepFallback = ({ retriesActive, onSaved }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {planLocked && (
-        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: '12.5px', lineHeight: 1.5 }}>
+        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)', color: '#d97706', fontSize: '12.5px', lineHeight: 1.5 }}>
           SMS and email fallback are not included in your plan. Upgrade from Payments to use them.
         </div>
       )}
       {retriesActive && (
-        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', color: '#f87171', fontSize: '12.5px', lineHeight: 1.5 }}>
+        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', color: '#dc2626', fontSize: '12.5px', lineHeight: 1.5 }}>
           Fallback channels cannot be enabled when Retries are active. Turn off Retries to configure Fallbacks.
         </div>
       )}
@@ -1223,7 +1223,7 @@ const StepFallback = ({ retriesActive, onSaved }) => {
               </div>
             </div>
             {smsBlocked && (
-              <div style={{ fontSize: '11.5px', color: '#f87171', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '11.5px', color: '#dc2626', lineHeight: 1.5 }}>
                 Enter the sender ID, both 19-digit DLT ids and the registered text to use SMS fallback.
               </div>
             )}
@@ -1311,7 +1311,7 @@ const PhonePreview = ({ template, templateBody, ctaLabel = '' }) => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ width: '250px', borderRadius: '28px', border: '8px solid #2d3748', background: '#e2e8f0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', position: 'relative' }}>
+      <div style={{ width: '250px', borderRadius: '28px', border: '8px solid #2d3748', background: '#e2e8f0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(15,23,42,0.15)', position: 'relative' }}>
         {/* Notch */}
         <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100px', height: '14px', background: '#2d3748', borderRadius: '0 0 10px 10px', zIndex: 5 }} />
         {/* Status Bar */}
@@ -1324,19 +1324,19 @@ const PhonePreview = ({ template, templateBody, ctaLabel = '' }) => {
         </div>
         {/* WA Header */}
         <div style={{ background: '#075E54', padding: '6px 12px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(15,23,42,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="white" /></svg>
           </div>
           <div>
             <p style={{ fontSize: '12px', fontWeight: 700, color: 'white', lineHeight: 1.1 }}>{businessName}</p>
-            <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.65)' }}>Business Account</p>
+            <p style={{ fontSize: '9px', color: 'rgba(15,23,42,0.65)' }}>Business Account</p>
           </div>
         </div>
         {/* Chat area */}
         <div style={{ background: '#ECE5DD', minHeight: '220px', padding: '10px 8px', borderRadius: '0 0 22px 22px', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' opacity='0.04'%3E%3Cpath d='M0 0L40 0L40 40L0 40Z' fill='%23000'/%3E%3C/svg%3E\")" }}>
           {(templateBody || isImageHeader) ? (
             <div style={{ maxWidth: '88%', display: 'inline-block' }}>
-              <div style={{ background: 'white', borderRadius: '0 8px 8px 8px', padding: '8px 10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ background: 'white', borderRadius: '0 8px 8px 8px', padding: '8px 10px', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
                 {isImageHeader && (
                   <div style={{ marginBottom: 8, borderRadius: 6, overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: (headerPreview && headerPreview !== 'placeholder') ? 'auto' : 120 }}>
                     {headerPreview === 'placeholder' ? (
@@ -1362,7 +1362,7 @@ const PhonePreview = ({ template, templateBody, ctaLabel = '' }) => {
               {/* The AI Agent CTA, drawn the way WhatsApp renders a quick-reply
                   button: attached under the bubble, full width, its own tile. */}
               {ctaLabel.trim() && (
-                <div style={{ marginTop: '2px', background: 'white', borderRadius: '8px', padding: '7px 8px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                <div style={{ marginTop: '2px', background: 'white', borderRadius: '8px', padding: '7px 8px', textAlign: 'center', boxShadow: '0 1px 3px rgba(15,23,42,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#00A5F4" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                   </svg>
@@ -1372,7 +1372,7 @@ const PhonePreview = ({ template, templateBody, ctaLabel = '' }) => {
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '180px' }}>
-              <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '14px 18px' }}>
+              <div style={{ textAlign: 'center', background: 'rgba(15,23,42,0.05)', borderRadius: '12px', padding: '14px 18px' }}>
                 <p style={{ fontSize: '11px', color: '#777', fontFamily: 'system-ui, sans-serif', lineHeight: 1.4 }}>Select a template<br/>to preview</p>
               </div>
             </div>
@@ -1392,7 +1392,7 @@ const StepRail = ({ steps, current }) => (
     {steps.map((s, i) => (
       <span key={s.n} style={{
         flex: 1, height: 3, borderRadius: 3,
-        background: s.done ? 'var(--accent)' : i === current ? 'rgba(53,232,242,0.45)' : 'rgba(255,255,255,0.12)',
+        background: s.done ? 'var(--accent)' : i === current ? 'rgba(13,148,136,0.45)' : 'rgba(15,23,42,0.12)',
         transition: 'background .2s ease',
       }} />
     ))}
@@ -1407,26 +1407,26 @@ const TopBar = ({ campaignName, setCampaignName, canLaunch, onSaveDraft, onGoLiv
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
       </button>
       <input value={campaignName} onChange={e => setCampaignName(e.target.value)} placeholder="New campaign"
-        style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 14, fontFamily: "'Manrope',sans-serif", fontWeight: 600, outline: 'none' }} />
+        style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 14, fontFamily: "'Manrope',sans-serif", fontWeight: 600, outline: 'none' }} />
       <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--accent)', flexShrink: 0, whiteSpace: 'nowrap' }}>{stepLabel}</span>
     </div>
   ) : (
   <div style={{ height: '58px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', padding: '0 24px', gap: '12px', flexShrink: 0, background: 'var(--surf)' }}>
     <button onClick={onBack}
       style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: '13px', fontFamily: "'Manrope',sans-serif", cursor: 'pointer', transition: 'all .15s', fontWeight: 500 }}
-      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,23,42,0.04)'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
       Campaigns
     </button>
     <div style={{ width: '1px', height: '24px', background: 'var(--bd)' }} />
     {editing && (
-      <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)', textTransform: 'uppercase' }}>
+      <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)', textTransform: 'uppercase' }}>
         Editing draft
       </span>
     )}
     <input value={campaignName} onChange={e => setCampaignName(e.target.value)} placeholder="Enter Campaign Name"
-      style={{ width: '280px', padding: '8px 13px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '14px', fontFamily: "'Manrope',sans-serif", fontWeight: 500, outline: 'none', transition: 'border-color .15s' }}
+      style={{ width: '280px', padding: '8px 13px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: '14px', fontFamily: "'Manrope',sans-serif", fontWeight: 500, outline: 'none', transition: 'border-color .15s' }}
       onFocus={e => e.target.style.borderColor = 'var(--gbd)'}
       onBlur={e => e.target.style.borderColor = 'var(--bd)'} />
     <div style={{ flex: 1 }} />
@@ -1919,7 +1919,7 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
         </div>
       ) : draftError ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: 24 }}>
-          <p style={{ fontSize: 13, color: '#f87171', textAlign: 'center', maxWidth: 420, lineHeight: 1.6 }}>{draftError}</p>
+          <p style={{ fontSize: 13, color: '#dc2626', textAlign: 'center', maxWidth: 420, lineHeight: 1.6 }}>{draftError}</p>
           <Btn variant="outline" onClick={onBack}>Back to Campaigns</Btn>
         </div>
       ) : (
@@ -1932,7 +1932,7 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
           <WalletStatusBanner hideWhenHealthy style={{ marginBottom: 4 }} />
           {launchError && (
             <div style={{ padding: '11px 15px', borderRadius: 9, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-              <p style={{ fontSize: 12.5, color: '#f87171', lineHeight: 1.5 }}>{launchError}</p>
+              <p style={{ fontSize: 12.5, color: '#dc2626', lineHeight: 1.5 }}>{launchError}</p>
               <button onClick={() => setLaunchError('')} aria-label="Dismiss"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--t2)', fontSize: 16, lineHeight: 1, flexShrink: 0 }}>×</button>
             </div>
@@ -2008,7 +2008,7 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
         {/* ── phone preview ──
             On a phone there is no room for a second column, so the preview
             moves under the steps and the whole thing becomes one scroll. */}
-        <div style={{ width: mobile ? '100%' : '296px', borderLeft: mobile ? 'none' : '1px solid var(--bd)', borderTop: mobile ? '1px solid var(--bd)' : 'none', padding: mobile ? '18px 14px 28px' : '20px 18px', overflowY: mobile ? 'visible' : 'auto', flexShrink: 0, background: 'rgba(5,8,20,0.5)' }}>
+        <div style={{ width: mobile ? '100%' : '296px', borderLeft: mobile ? 'none' : '1px solid var(--bd)', borderTop: mobile ? '1px solid var(--bd)' : 'none', padding: mobile ? '18px 14px 28px' : '20px 18px', overflowY: mobile ? 'visible' : 'auto', flexShrink: 0, background: 'var(--surf2)' }}>
           <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '13px', color: 'var(--t1)', marginBottom: '16px' }}>Message Preview</p>
           <PhonePreview template={selectedTemplate} templateBody={templateBody} ctaLabel={aiAgentEnabled ? aiCtaLabel : ''} />
         </div>
@@ -2019,7 +2019,7 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
           on a phone they would be off the top of a nine-step scroll, so they
           pin to the bottom where the design set puts the primary action. */}
       {mobile && !loadingDraft && !draftError && (
-        <div style={{ flexShrink: 0, display: 'flex', gap: 10, padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid var(--bd)', background: 'rgba(6,9,19,0.94)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
+        <div style={{ flexShrink: 0, display: 'flex', gap: 10, padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid var(--bd)', background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
           <Btn variant="outline" onClick={handleSaveDraft} disabled={savingDraft} style={{ flex: 1, justifyContent: 'center' }}>
             {savingDraft ? 'Saving…' : 'Save draft'}
           </Btn>

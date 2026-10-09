@@ -1,3 +1,4 @@
+import { Logo } from '../components/Logo.jsx';
 import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { can, canManage, canBill, isReadOnly, canOpenSection, roleLabel, ROLE_LABELS } from '../lib/permissions.js';
 import { aiAgentsHref } from '../lib/aiAgentsApi.js';
@@ -138,7 +139,7 @@ const ProfileMenu = () => {
         <div style={{
           position:'absolute', top:'calc(100% + 8px)', right:0,
           width:280, background:'var(--surf)', border:'1px solid var(--bd)',
-          borderRadius:12, boxShadow:'0 16px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3)',
+          borderRadius:12, boxShadow:'0 16px 40px rgba(15,23,42,0.135), 0 2px 6px rgba(15,23,42,0.09)',
           zIndex:200, animation:'fadeIn .12s ease-out',
           // This menu grows with its contents — the workspace switcher adds a row
           // per workspace on top of six fixed items. With `overflow:hidden` and no
@@ -149,7 +150,7 @@ const ProfileMenu = () => {
           maxHeight:'calc(100vh - 96px)', overflowY:'auto', overflowX:'hidden',
         }}>
           {/* Header — identity */}
-          <div style={{ padding:'16px 18px', display:'flex', alignItems:'center', gap:12, borderBottom:'1px solid var(--bd)', background:'linear-gradient(135deg, rgba(53,232,242,0.06), transparent)' }}>
+          <div style={{ padding:'16px 18px', display:'flex', alignItems:'center', gap:12, borderBottom:'1px solid var(--bd)', background:'linear-gradient(135deg, rgba(13,148,136,0.06), transparent)' }}>
             <Avatar variant="gradient" name={name} size={44} showRing />
             <div style={{ flex:1, minWidth:0 }}>
               <p style={{ fontSize:14, fontWeight:700, color:'var(--t1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:2 }}>{name}</p>
@@ -161,11 +162,11 @@ const ProfileMenu = () => {
           <div style={{ padding:'12px 18px', display:'flex', flexWrap:'wrap', gap:6, borderBottom:'1px solid var(--bd)' }}>
             <span style={{
               padding:'3px 10px', borderRadius:12, fontSize:11, fontWeight:700,
-              background: isAdmin ? 'var(--gbg)' : 'rgba(196,255,70,.1)',
-              border: `1px solid ${isAdmin ? 'var(--gbd)' : 'rgba(196,255,70,.25)'}`,
-              color: isAdmin ? 'var(--green)' : '#d8ff8a',
+              background: isAdmin ? 'var(--gbg)' : 'rgba(101,163,13,.1)',
+              border: `1px solid ${isAdmin ? 'var(--gbd)' : 'rgba(101,163,13,.25)'}`,
+              color: isAdmin ? 'var(--green)' : '#4d7c0f',
             }}>{isSuperAdmin ? 'Super Admin' : (ROLE_LABELS[user?.role] || 'Member')}</span>
-            <span style={{ padding:'3px 10px', borderRadius:12, fontSize:11, fontWeight:600, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:180 }}>
+            <span style={{ padding:'3px 10px', borderRadius:12, fontSize:11, fontWeight:600, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:180 }}>
               {wsName}
             </span>
           </div>
@@ -181,11 +182,11 @@ const ProfileMenu = () => {
                     style={{
                       width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
                       padding:'8px 12px', borderRadius:8, cursor: current ? 'default' : 'pointer',
-                      background: current ? 'rgba(53,232,242,0.06)' : 'transparent', border:'none', textAlign:'left',
+                      background: current ? 'rgba(13,148,136,0.06)' : 'transparent', border:'none', textAlign:'left',
                       fontFamily:"'Manrope',sans-serif", fontSize:12.5, fontWeight:600, color:'var(--t1)',
                       transition:'background .12s', opacity: switching ? 0.6 : 1,
                     }}
-                    onMouseEnter={e => { if (!current) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                    onMouseEnter={e => { if (!current) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
                     onMouseLeave={e => { if (!current) e.currentTarget.style.background = 'transparent'; }}>
                     <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{w.name}</span>
                     {current && <I n="checkc" s={13} c="var(--green)" />}
@@ -226,14 +227,14 @@ const MenuItem = ({ icon, label, onClick, danger = false }) => (
       background:'transparent', border:'none', textAlign:'left',
       fontFamily:"'Manrope',sans-serif",
       fontSize:13, fontWeight:500,
-      color: danger ? '#f87171' : 'var(--t1)',
+      color: danger ? '#dc2626' : 'var(--t1)',
       transition:'background .12s',
     }}
-    onMouseEnter={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)'; }}
+    onMouseEnter={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.08)' : 'rgba(15,23,42,0.04)'; }}
     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-    onFocus={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)'; }}
+    onFocus={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.08)' : 'rgba(15,23,42,0.04)'; }}
     onBlur={e => { e.currentTarget.style.background = 'transparent'; }}>
-    <I n={icon} s={14} c={danger ? '#f87171' : 'var(--t2)'} />
+    <I n={icon} s={14} c={danger ? '#dc2626' : 'var(--t2)'} />
     {label}
   </button>
 );
@@ -316,7 +317,7 @@ const DashHeader = ({ title, subtitle, searchPlaceholder, onSearch, searchKey })
     <div style={{ height: '58px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', padding: mobile ? '0 14px' : '0 28px', gap: mobile ? '10px' : '16px', flexShrink: 0, background: 'var(--surf)' }}>
       {mobile && (
         <button onClick={openMobileNav} aria-label="Open navigation"
-          style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--t1)' }}>
+          style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 9, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--t1)' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16" />
           </svg>
@@ -362,7 +363,7 @@ const HeaderSearch = ({ placeholder, onSearch }) => {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', width: '200px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '7px 12px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', width: '200px' }}>
       <I n="search" s={13} c="var(--t2)" />
       <input value={q} onChange={e => change(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && q.trim()) go(); }}
@@ -478,7 +479,7 @@ const NotificationsBell = () => {
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={toggle} aria-label={unread > 0 ? `Notifications (${unread} unread)` : 'Notifications'}
         aria-expanded={open} aria-haspopup="true"
-        style={{ position: 'relative', width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+        style={{ position: 'relative', width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
         <I n="bell" s={15} c="var(--t2)" />
         {unread > 0 && (
           <div style={{ position: 'absolute', top: -5, right: -5, minWidth: 17, height: 17, padding: '0 4px', borderRadius: 9, background: 'var(--green)', border: '1.5px solid var(--surf-solid)', color: '#08090c', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -487,7 +488,7 @@ const NotificationsBell = () => {
         )}
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 330, maxHeight: 420, background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 12, boxShadow: '0 16px 40px rgba(0,0,0,0.45)', zIndex: 200, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 330, maxHeight: 420, background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 12, boxShadow: '0 16px 40px rgba(15,23,42,0.135)', zIndex: 200, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--bd)', fontSize: 12, fontWeight: 700, color: 'var(--t1)', flexShrink: 0 }}>Notifications</div>
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {loading ? (
@@ -496,9 +497,9 @@ const NotificationsBell = () => {
               <div style={{ padding: '24px 16px', fontSize: 12, color: 'var(--t3)', textAlign: 'center' }}>You're all caught up.</div>
             ) : items.map(n => (
               <div key={n.id} onClick={() => openTarget(n)}
-                style={{ padding: '11px 16px', borderBottom: '1px solid var(--bd)', display: 'flex', gap: 10, alignItems: 'flex-start', cursor: n.link ? 'pointer' : 'default', background: n.read ? 'transparent' : 'rgba(53,232,242,0.05)', transition: 'background .12s' }}
-                onMouseEnter={e => { if (n.link) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = n.read ? 'transparent' : 'rgba(53,232,242,0.05)'; }}>
+                style={{ padding: '11px 16px', borderBottom: '1px solid var(--bd)', display: 'flex', gap: 10, alignItems: 'flex-start', cursor: n.link ? 'pointer' : 'default', background: n.read ? 'transparent' : 'rgba(13,148,136,0.05)', transition: 'background .12s' }}
+                onMouseEnter={e => { if (n.link) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = n.read ? 'transparent' : 'rgba(13,148,136,0.05)'; }}>
                 <div style={{ marginTop: 2, flexShrink: 0 }}>
                   <I n={NOTIF_ICONS[n.type] || 'bell'} s={13} c={n.read ? 'var(--t3)' : 'var(--green)'} />
                 </div>
@@ -607,7 +608,7 @@ const NextBestAction = ({ onGo, stats }) => {
   const later = () => { sessionStorage.setItem(NEXT_ACTION_DISMISS_KEY, '1'); setDismissed(true); };
 
   return (
-    <div style={{ borderRadius: 'var(--rl)', border: '1px solid var(--gbd)', background: 'linear-gradient(135deg, rgba(53,232,242,0.10), rgba(157,107,255,0.06))', padding: '16px 18px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}>
+    <div style={{ borderRadius: 'var(--rl)', border: '1px solid var(--gbd)', background: 'linear-gradient(135deg, rgba(13,148,136,0.10), rgba(124,58,237,0.06))', padding: '16px 18px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}>
       <div style={{ flex: '1 1 240px', minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '.14em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 7 }}>
           <I n="zap" s={12} c="var(--accent)" /> Next best action · {action.kind}
@@ -826,17 +827,17 @@ const HomeView = () => {
         )}
 
         {showLoginModal && (
-          <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
-            <div className="modal-card" style={{ background:'#070B14', border:'1px solid rgba(255,255,255,0.08)', width: 400, borderRadius: 12, padding: 24, display:'flex', flexDirection:'column', alignItems:'center', boxShadow:'0 24px 64px rgba(0,0,0,0.5)' }}>
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
+            <div className="modal-card" style={{ background:'var(--surf-solid)', border:'1px solid rgba(15,23,42,0.08)', width: 400, borderRadius: 12, padding: 24, display:'flex', flexDirection:'column', alignItems:'center', boxShadow:'0 24px 64px rgba(15,23,42,0.15)' }}>
               <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: '24px' }}>🔒</div>
               </div>
-              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 18, color:'#eef0f3', marginBottom: 8, margin: 0 }}>Login Required</h3>
-              <p style={{ fontSize: 14, color:'rgba(255,255,255,0.6)', textAlign:'center', marginBottom: 24, lineHeight: 1.5 }}>
+              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 18, color:'#0f172a', marginBottom: 8, margin: 0 }}>Login Required</h3>
+              <p style={{ fontSize: 14, color:'rgba(15,23,42,0.6)', textAlign:'center', marginBottom: 24, lineHeight: 1.5 }}>
                 You need to be logged in to use the AI Agent. Please sign in to your account to continue.
               </p>
               <div style={{ display: 'flex', gap: 12, width: '100%' }}>
-                <button onClick={() => setShowLoginModal(false)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setShowLoginModal(false)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'rgba(15,23,42,0.05)', color: 'var(--t1)', border: '1px solid rgba(15,23,42,0.1)', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={() => { window.dispatchEvent(new CustomEvent('app:nav', { detail: 'login' })); }} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'var(--grad-cta)', color: 'var(--ink)', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Log in</button>
               </div>
             </div>
@@ -861,7 +862,7 @@ const HomeView = () => {
 
         {stats && <HomeStatTiles stats={stats} />}
 
-        {canUpgrade && <div style={{ borderRadius: 'var(--rl)', background: 'linear-gradient(135deg,rgba(53,232,242,0.1),rgba(14,165,233,0.06))', border: '1px solid var(--gbd)', padding: '16px 20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+        {canUpgrade && <div style={{ borderRadius: 'var(--rl)', background: 'linear-gradient(135deg,rgba(13,148,136,0.1),rgba(14,165,233,0.06))', border: '1px solid var(--gbd)', padding: '16px 20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: 'var(--gbg)', border: '1px solid var(--gbd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <I n="spark" s={18} c="var(--green)" />
@@ -878,16 +879,16 @@ const HomeView = () => {
 
         <WalletSummaryCards />
 
-        <div style={{ width: '100%', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '12px', border: '1px solid rgba(53,232,242, 0.4)', boxShadow: '0 0 30px rgba(53,232,242, 0.15), inset 0 0 20px rgba(53,232,242, 0.05)', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', transition: 'all 0.3s ease', marginBottom: '16px' }}>
+        <div style={{ width: '100%', background: 'linear-gradient(135deg, rgba(13,148,136,0.05), rgba(14,165,233,0.03)), #ffffff', borderRadius: '12px', border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow)', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', transition: 'all 0.3s ease', marginBottom: '16px' }}>
           <div style={{ padding: '24px 24px 12px' }}>
-            <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '18px', color: '#fff', marginBottom: '8px' }}>Create your Free WhatsApp AI Assistant</h3>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>Describe your business flow or campaign parameters below to automatically build and register templates.</p>
+            <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '18px', color: 'var(--t1)', marginBottom: '8px' }}>Create your Free WhatsApp AI Assistant</h3>
+            <p style={{ fontSize: '13px', color: 'rgba(15,23,42,0.6)' }}>Describe your business flow or campaign parameters below to automatically build and register templates.</p>
           </div>
           <textarea 
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe your ideal WhatsApp campaign or onboarding flow..."
-            style={{ width: '100%', height: '120px', background: 'transparent', border: 'none', padding: '0 24px 24px', color: '#fff', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit' }}
+            style={{ width: '100%', height: '120px', background: 'transparent', border: 'none', padding: '0 24px 24px', color: 'var(--t1)', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit' }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -905,23 +906,23 @@ const HomeView = () => {
               <button
                 key={s}
                 onClick={() => setPrompt(s)}
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '10px 14px', color: '#fff', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(53,232,242, 0.1)'; e.currentTarget.style.borderColor = 'rgba(53,232,242, 0.3)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                style={{ background: 'rgba(15,23,42,0.05)', border: '1px solid rgba(15,23,42,0.1)', borderRadius: '6px', padding: '10px 14px', color: 'var(--t1)', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(13,148,136,0.1)'; e.currentTarget.style.borderColor = 'rgba(13,148,136,0.3)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.05)'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.1)'; }}
               >
                 {s}
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 24px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#35e8f2', fontWeight: 600 }}>
-              <input type="checkbox" checked={guided} onChange={(e) => setGuided(e.target.checked)} style={{ accentColor: '#35e8f2', width: '15px', height: '15px', cursor: 'pointer' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 24px', background: 'rgba(15,23,42,0.02)', borderTop: '1px solid rgba(15,23,42,0.05)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#0d9488', fontWeight: 600 }}>
+              <input type="checkbox" checked={guided} onChange={(e) => setGuided(e.target.checked)} style={{ accentColor: '#0d9488', width: '15px', height: '15px', cursor: 'pointer' }} />
               Guided Flow
             </label>
             <button 
               onClick={handleSend}
               disabled={aiLoading || !prompt.trim()}
-              style={{ background: aiLoading || !prompt.trim() ? 'rgba(53,232,242,0.22)' : 'var(--grad-cta)', color: aiLoading || !prompt.trim() ? 'var(--t3)' : 'var(--ink)', border: 'none', borderRadius: '9px', padding: '9px 20px', fontSize: '13px', fontWeight: 700, cursor: aiLoading || !prompt.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', transition: 'transform 0.1s' }}
+              style={{ background: aiLoading || !prompt.trim() ? 'rgba(13,148,136,0.22)' : 'var(--grad-cta)', color: aiLoading || !prompt.trim() ? 'var(--t3)' : 'var(--ink)', border: 'none', borderRadius: '9px', padding: '9px 20px', fontSize: '13px', fontWeight: 700, cursor: aiLoading || !prompt.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', transition: 'transform 0.1s' }}
               onMouseDown={e => { if (!aiLoading && prompt.trim()) e.currentTarget.style.transform = 'scale(0.96)'; }}
               onMouseUp={e => { if (!aiLoading && prompt.trim()) e.currentTarget.style.transform = 'scale(1)'; }}
             >
@@ -929,28 +930,28 @@ const HomeView = () => {
             </button>
           </div>
           {aiResponse && (
-            <div style={{ padding: '16px 24px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: '#fff', lineHeight: 1.6, fontSize: '13px' }}>
+            <div style={{ padding: '16px 24px', background: 'rgba(15,23,42,0.05)', border: '1px solid rgba(15,23,42,0.08)', borderRadius: '10px', color: 'var(--t1)', lineHeight: 1.6, fontSize: '13px' }}>
               <strong style={{ display: 'block', marginBottom: '8px', color: 'var(--accent)' }}>AI response:</strong>
               <div>{aiResponse}</div>
               {aiCard && (
                   <div style={{
                     marginTop: '10px',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid rgba(53,232,242,0.3)',
+                    background: 'rgba(15,23,42,0.2)',
+                    border: '1px solid rgba(13,148,136,0.3)',
                     borderRadius: '8px',
                     padding: '12px',
                   }}>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#35e8f2', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#0d9488', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {aiCard.icon || '✅'} {aiCard.title}
                     </div>
                     {aiCard.details && Object.entries(aiCard.details).map(([k, v]) => (
                       <div key={k} style={{ fontSize: '11px', marginBottom: '4px' }}>
                         <span style={{ color: 'var(--t2)', textTransform: 'capitalize' }}>{k}:</span>{' '}
-                        <span style={{ color: '#eef0f3' }}>{typeof v === 'object' ? JSON.stringify(v) : v}</span>
+                        <span style={{ color: '#0f172a' }}>{typeof v === 'object' ? JSON.stringify(v) : v}</span>
                       </div>
                     ))}
                     {aiCard.preview && (
-                       <div style={{ marginTop: '8px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '4px', fontSize: '11px', fontStyle: 'italic', borderLeft: '2px solid #35e8f2' }}>
+                       <div style={{ marginTop: '8px', background: 'rgba(15,23,42,0.05)', padding: '8px', borderRadius: '4px', fontSize: '11px', fontStyle: 'italic', borderLeft: '2px solid #0d9488' }}>
                          {aiCard.preview}
                        </div>
                     )}
@@ -959,7 +960,7 @@ const HomeView = () => {
             </div>
           )}
           {aiError && (
-            <div style={{ padding: '16px 24px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', borderRadius: '10px', color: '#f8c6c6', lineHeight: 1.6, fontSize: '13px' }}>
+            <div style={{ padding: '16px 24px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', borderRadius: '10px', color: '#b91c1c', lineHeight: 1.6, fontSize: '13px' }}>
               <strong style={{ display: 'block', marginBottom: '8px' }}>Error:</strong>
               <div>{aiError}</div>
             </div>
@@ -975,11 +976,11 @@ const HomeView = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', rowGap: 10 }}>
               <span style={{ fontFamily: 'var(--mono)', fontSize: '10px', fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.1em' }}>WhatsApp Number</span>
               {number ? <StatusBadge s={number.status === 'ACTIVE' ? 'Approved' : (number.status ?? 'Pending')} /> : (
-                <span style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.25)', color: '#fbbf24' }}>Not connected</span>
+                <span style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.25)', color: '#b45309' }}>Not connected</span>
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: number ? 'var(--gbg)' : 'rgba(255,255,255,0.04)', border: `1px solid ${number ? 'var(--gbd)' : 'var(--bd)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: number ? 'var(--gbg)' : 'rgba(15,23,42,0.04)', border: `1px solid ${number ? 'var(--gbd)' : 'var(--bd)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: number ? 1 : .55 }}>{'\u{1F4F1}'}</span>
               </div>
               <div>
@@ -998,11 +999,11 @@ const HomeView = () => {
               <span style={{ fontFamily: 'var(--mono)', fontSize: '10px', fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Instagram</span>
               <span style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
                 ...(igState.tone === 'ok' ? { background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--green)' }
-                  : igState.tone === 'warn' ? { background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.25)', color: '#fbbf24' }
-                  : { background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }) }}>{igState.badge}</span>
+                  : igState.tone === 'warn' ? { background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.25)', color: '#b45309' }
+                  : { background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }) }}>{igState.badge}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: igState.tone === 'ok' ? 1 : .55 }}>{'\u{1F4F7}'}</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1047,7 +1048,7 @@ const retryNote = (r, maxAttempts) => {
     const eta = fmtEta(r.nextRetryAt);
     const attempt = count + 1;
     return {
-      color: '#c4ff46',
+      color: '#4d7c0f',
       text: `Attempt ${attempt}${maxAttempts ? ` of ${maxAttempts}` : ''}${eta ? ` · retrying in ${eta}` : ' · retrying shortly'}${r.lastFailureReason ? ` · ${r.lastFailureReason}` : ''}`,
     };
   }
@@ -1056,7 +1057,7 @@ const retryNote = (r, maxAttempts) => {
     return { color: 'var(--green)', text: `Recovered — delivered on retry attempt ${count}` };
   }
   if (r.status === 'FAILED') {
-    return { color: '#f87171', text: `Failed after ${count} retr${count === 1 ? 'y' : 'ies'}` };
+    return { color: '#dc2626', text: `Failed after ${count} retr${count === 1 ? 'y' : 'ies'}` };
   }
   return null;
 };
@@ -1149,20 +1150,20 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
   useFocusTrap(modalRef, true);
 
   return (
-    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={c?.name || 'Campaign Detail'} style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={c?.name || 'Campaign Detail'} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div ref={modalRef} onClick={e => e.stopPropagation()} style={{ ...card, width:'100%', maxWidth:640, maxHeight:'86vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'16px 22px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div>
             <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--t1)' }}>{c?.name || 'Campaign'}</p>
             {c && <div style={{ marginTop:5 }}><StatusBadge s={c.status} /></div>}
           </div>
-          <button onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <button onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
 
         <div style={{ padding:22, overflowY:'auto', flex:1, display:'flex', flexDirection:'column', gap:16 }}>
-          {err && <div style={{ padding:'10px 14px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>}
+          {err && <div style={{ padding:'10px 14px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>}
           {!c && !err && <div style={{ textAlign:'center', padding:'32px', color:'var(--t2)', fontSize:13 }}>Loading…</div>}
           {c && (
             <>
@@ -1177,21 +1178,21 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
                   ['Accepted by WhatsApp', c.report?.authentication?.acceptedByWhatsApp, 'var(--t1)'],
                   ['Delivered', c.report?.delivered, 'var(--t1)'],
                   ['Verified', c.report?.authentication?.verified, 'var(--green)'],
-                  ['Expired', c.report?.authentication?.expired, '#fbbf24'],
-                  ['Failed Transactions', c.report?.authentication?.failed, '#f87171'],
-                  ['Retries', c.report?.retried ?? 0, '#c4ff46'],
-                  ['Skipped (Opted Out)', c.report?.skipped ?? c.skipped, '#fbbf24'],
+                  ['Expired', c.report?.authentication?.expired, '#b45309'],
+                  ['Failed Transactions', c.report?.authentication?.failed, '#dc2626'],
+                  ['Retries', c.report?.retried ?? 0, '#4d7c0f'],
+                  ['Skipped (Opted Out)', c.report?.skipped ?? c.skipped, '#b45309'],
                 ] : [
                   ['Total Contacts', c.report?.totalContacts ?? c.totalContacts, 'var(--t1)'],
                   ['Sent',           c.report?.sent ?? c.sent,                   'var(--t1)'],
                   ['Delivered',      c.report?.delivered ?? c.delivered,         'var(--t1)'],
                   ['Read',           c.report?.read ?? c.read,                   'var(--t1)'],
-                  ['Failed',         c.report?.failed ?? c.failed,               '#f87171'],
-                  ['Retries',        c.report?.retried ?? 0,                     '#c4ff46'],
-                  ['Retrying Now',   c.report?.retrying ?? 0,                    '#c4ff46'],
-                  ['Skipped (Opted Out)', c.report?.skipped ?? c.skipped,        '#fbbf24'],
+                  ['Failed',         c.report?.failed ?? c.failed,               '#dc2626'],
+                  ['Retries',        c.report?.retried ?? 0,                     '#4d7c0f'],
+                  ['Retrying Now',   c.report?.retrying ?? 0,                    '#4d7c0f'],
+                  ['Skipped (Opted Out)', c.report?.skipped ?? c.skipped,        '#b45309'],
                 ]).map(([k, v, danger]) => (
-                  <div key={k} style={{ padding:'12px 14px', borderRadius:10, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)' }}>
+                  <div key={k} style={{ padding:'12px 14px', borderRadius:10, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)' }}>
                     <p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:4 }}>{k}</p>
                     <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:18, color: v != null && v > 0 ? danger : 'var(--t1)' }}>{v == null ? '—' : v.toLocaleString()}</p>
                   </div>
@@ -1199,9 +1200,9 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
               </div>
 
               {isAuthentication ? (
-                <div style={{ padding:'13px 16px', borderRadius:10, background:'rgba(157,107,255,.07)', border:'1px solid rgba(157,107,255,.28)' }}>
+                <div style={{ padding:'13px 16px', borderRadius:10, background:'rgba(124,58,237,.07)', border:'1px solid rgba(124,58,237,.28)' }}>
                   <p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:4 }}>Verification rate</p>
-                  <p style={{ fontSize:18, fontWeight:800, color:'#c4ff46' }}>{c.report?.authentication?.verificationRate == null ? '—' : `${c.report.authentication.verificationRate}%`}</p>
+                  <p style={{ fontSize:18, fontWeight:800, color:'#4d7c0f' }}>{c.report?.authentication?.verificationRate == null ? '—' : `${c.report.authentication.verificationRate}%`}</p>
                 </div>
               ) : (
                 <>
@@ -1210,9 +1211,9 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
                       ['Replies', c.report?.replies],
                       ['Reply Rate', c.report?.replyRate == null ? '—' : `${c.report.replyRate}%`],
                       ['Total Clicks', c.report?.totalClicks],
-                    ].map(([k, v]) => <div key={k} style={{ padding:'12px 14px', borderRadius:10, background:'rgba(53,232,242,.05)', border:'1px solid var(--gbd)' }}><p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:4 }}>{k}</p><p style={{ fontWeight:800, fontSize:18, color:'var(--t1)' }}>{v == null ? '—' : v.toLocaleString?.() ?? v}</p></div>)}
+                    ].map(([k, v]) => <div key={k} style={{ padding:'12px 14px', borderRadius:10, background:'rgba(13,148,136,.05)', border:'1px solid var(--gbd)' }}><p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:4 }}>{k}</p><p style={{ fontWeight:800, fontSize:18, color:'var(--t1)' }}>{v == null ? '—' : v.toLocaleString?.() ?? v}</p></div>)}
                   </div>}
-                  <div style={{ padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,.02)', border:'1px solid var(--bd)' }}>
+                  <div style={{ padding:'14px 16px', borderRadius:10, background:'rgba(15,23,42,.02)', border:'1px solid var(--bd)' }}>
                     <p style={{ fontSize:11, fontWeight:700, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>Button-wise clicks</p>
                     {Array.isArray(c.report?.buttonClicks) && c.report.buttonClicks.length > 0 ? c.report.buttonClicks.map((button) => <div key={button.label} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', fontSize:13, color:'var(--t1)' }}><span>{button.label}</span><strong>{button.clicks.toLocaleString()}</strong></div>) : c.report?.buttonTracking?.mode === 'UNAVAILABLE' ? <><p style={{ fontSize:12, color:'var(--t2)', lineHeight:1.55 }}>{c.report.buttonTracking.reason}</p>{c.report.buttonTracking.buttons?.map((button) => <p key={button.id} style={{ marginTop:6, fontSize:12, color:'var(--t3)' }}>{button.cardIndex == null ? button.title : `Card ${button.cardIndex + 1}: ${button.title}`}</p>)}</> : <p style={{ fontSize:12, color:'var(--t3)' }}>No tracked button clicks yet.</p>}
                   </div>
@@ -1226,8 +1227,8 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
               {(c.report?.retrying > 0 || c.report?.retried > 0) && (
                 <div style={{ padding:'13px 16px', borderRadius:10, background:'rgba(168,85,247,.07)', border:'1px solid rgba(168,85,247,.28)', display:'flex', flexDirection:'column', gap:6 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <I n="refresh" s={13} c="#c4ff46" />
-                    <span style={{ fontSize:12.5, fontWeight:700, color:'#c4ff46' }}>
+                    <I n="refresh" s={13} c="#4d7c0f" />
+                    <span style={{ fontSize:12.5, fontWeight:700, color:'#4d7c0f' }}>
                       {c.report.retrying > 0
                         ? `${c.report.retrying} message${c.report.retrying === 1 ? '' : 's'} waiting to be retried`
                         : 'Retries finished'}
@@ -1245,7 +1246,7 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
               )}
 
               {c.totalCost != null && (
-                <div className="rgrid-4" style={{ padding:'14px 16px', borderRadius:10, background:'rgba(53,232,242,0.05)', border:'1px solid var(--gbd)', display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px 16px' }}>
+                <div className="rgrid-4" style={{ padding:'14px 16px', borderRadius:10, background:'rgba(13,148,136,0.05)', border:'1px solid var(--gbd)', display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px 16px' }}>
                   {[
                     ['Cost / message', `₹${Number(c.costPerMessage ?? 0).toFixed(2)}`],
                     ['Campaign cost',  `₹${Number(c.totalCost ?? 0).toFixed(2)}`],
@@ -1265,7 +1266,7 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
                 </div>
               )}
 
-              <div className="rgrid-2" style={{ padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px 20px' }}>
+              <div className="rgrid-2" style={{ padding:'14px 16px', borderRadius:10, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px 20px' }}>
                 {[
                   ['Created',        fmtDate(c.createdAt)],
                   ['Scheduled for',  fmtDate(c.scheduledAt)],
@@ -1294,7 +1295,7 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
                   reached by typing the CTA. The server works that out; this is
                   where the campaign's owner finds out. */}
               {Array.isArray(c.aiAgentWarnings) && c.aiAgentWarnings.map((warning, i) => (
-                <div key={i} style={{ padding:'11px 14px', borderRadius:8, background:'rgba(245,158,11,.06)', border:'1px solid rgba(245,158,11,.25)', fontSize:12, color:'#fbbf24', lineHeight:1.55 }}>
+                <div key={i} style={{ padding:'11px 14px', borderRadius:8, background:'rgba(245,158,11,.06)', border:'1px solid rgba(245,158,11,.25)', fontSize:12, color:'#b45309', lineHeight:1.55 }}>
                   {warning}
                 </div>
               ))}
@@ -1332,7 +1333,7 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
           <div style={{ display:'flex', gap:8 }}>
             {cancellable && (
               <Btn variant="outline" size="sm" onClick={cancel} disabled={cancelling}
-                style={{ borderColor:'rgba(239,68,68,.35)', color:'#f87171' }}>
+                style={{ borderColor:'rgba(239,68,68,.35)', color:'#dc2626' }}>
                 {cancelling ? 'Cancelling…' : 'Cancel Campaign'}
               </Btn>
             )}
@@ -1464,7 +1465,7 @@ const CampaignsView = ({ onCreateCampaign, onEditCampaign }) => {
                   const date = bestDate ? new Date(bestDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
                   return (
                     <tr key={c.id} style={{ borderBottom: i < campaigns.length - 1 ? '1px solid var(--bd)' : 'none', transition: 'background .12s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,23,42,0.015)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 600, color: 'var(--t1)' }}>{c.name}</td>
                       <td style={{ padding: '14px 16px' }}><StatusBadge s={c.status} /></td>
@@ -1473,22 +1474,22 @@ const CampaignsView = ({ onCreateCampaign, onEditCampaign }) => {
                       {campaignType === 'regular' && <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--t2)' }}>{read.toLocaleString()}</td>}
                       {campaignType === 'authentication' && <>
                         <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--green)' }}>{c.authentication?.verified == null ? '—' : c.authentication.verified.toLocaleString()}</td>
-                        <td style={{ padding: '14px 16px', fontSize: '13px', color: '#fbbf24' }}>{c.authentication?.expired == null ? '—' : c.authentication.expired.toLocaleString()}</td>
+                        <td style={{ padding: '14px 16px', fontSize: '13px', color: '#b45309' }}>{c.authentication?.expired == null ? '—' : c.authentication.expired.toLocaleString()}</td>
                       </>}
-                      <td style={{ padding: '14px 16px', fontSize: '13px', color: (campaignType === 'authentication' ? (c.authentication?.failed ?? 0) : (c.failed ?? 0)) > 0 ? '#f87171' : 'var(--t2)' }}>{campaignType === 'authentication' && c.authentication?.failed == null ? '—' : (campaignType === 'authentication' ? (c.authentication?.failed ?? 0) : (c.failed ?? 0)).toLocaleString()}</td>
+                      <td style={{ padding: '14px 16px', fontSize: '13px', color: (campaignType === 'authentication' ? (c.authentication?.failed ?? 0) : (c.failed ?? 0)) > 0 ? '#dc2626' : 'var(--t2)' }}>{campaignType === 'authentication' && c.authentication?.failed == null ? '—' : (campaignType === 'authentication' ? (c.authentication?.failed ?? 0) : (c.failed ?? 0)).toLocaleString()}</td>
                       {/* Messages that needed a retry, with the ones still
                           waiting on an attempt called out — those are not
                           failures yet, and the Failed column excludes them. */}
-                      {campaignType === 'regular' && <td style={{ padding: '14px 16px', fontSize: '13px', color: (c.retried ?? 0) > 0 ? '#c4ff46' : 'var(--t2)' }}
+                      {campaignType === 'regular' && <td style={{ padding: '14px 16px', fontSize: '13px', color: (c.retried ?? 0) > 0 ? '#4d7c0f' : 'var(--t2)' }}
                         title={(c.retrying ?? 0) > 0 ? `${c.retrying} still waiting on a retry` : 'Messages that needed at least one retry'}>
                         {(c.retried ?? 0).toLocaleString()}
                         {(c.retrying ?? 0) > 0 && <span style={{ fontSize: '11px', color: 'var(--t3)' }}> · {c.retrying} waiting</span>}
                       </td>}
-                      {campaignType === 'regular' && <td style={{ padding: '14px 16px', fontSize: '13px', color: (c.skipped ?? 0) > 0 ? '#fbbf24' : 'var(--t2)' }}>{(c.skipped ?? 0).toLocaleString()}</td>}
+                      {campaignType === 'regular' && <td style={{ padding: '14px 16px', fontSize: '13px', color: (c.skipped ?? 0) > 0 ? '#b45309' : 'var(--t2)' }}>{(c.skipped ?? 0).toLocaleString()}</td>}
                       <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--t2)' }}>{c.totalCost == null ? '—' : `₹${Number(c.totalCost).toFixed(2)}`}</td>
                       {campaignType === 'regular' && <td style={{ padding: '14px 16px' }}>
                         {rate > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ width: '60px', height: '4px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)' }}><div style={{ height: '100%', width: `${Math.min(rate,100)}%`, borderRadius: '4px', background: 'var(--green)' }} /></div>
+                          <div style={{ width: '60px', height: '4px', borderRadius: '4px', background: 'rgba(15,23,42,0.06)' }}><div style={{ height: '100%', width: `${Math.min(rate,100)}%`, borderRadius: '4px', background: 'var(--green)' }} /></div>
                           <span style={{ fontSize: '12px', color: 'var(--green)', fontWeight: 600 }}>{rate}%</span>
                         </div> : sent > 0 ? <span style={{ fontSize: '11.5px', color: 'var(--t3)' }} title="Delivery receipts arrive via webhook">Awaiting receipts</span> : <span style={{ fontSize: '12px', color: 'var(--t2)' }}>—</span>}
                       </td>}
@@ -1540,7 +1541,7 @@ const UtilityVariantModal = ({ template, onClose, onUseDraft }) => {
   }, [template.id]);
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div onClick={e => e.stopPropagation()} style={{ background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', width:'100%', maxWidth:600, maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--bd)', display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
           <div>
@@ -1550,17 +1551,17 @@ const UtilityVariantModal = ({ template, onClose, onUseDraft }) => {
               {rates ? `, so it bills at ${inrRate(rates.UTILITY)} instead of ${inrRate(rates.MARKETING)} per message.` : ', which bills at a much lower per-message rate.'}
             </p>
           </div>
-          <button onClick={onClose} style={{ width:26, height:26, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', color:'var(--t2)', flexShrink:0 }}>x</button>
+          <button onClick={onClose} style={{ width:26, height:26, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', color:'var(--t2)', flexShrink:0 }}>x</button>
         </div>
 
         <div style={{ padding:'18px 24px', overflowY:'auto', display:'flex', flexDirection:'column', gap:13 }}>
           {loading && <p style={{ fontSize:13, color:'var(--t2)' }}>Rewriting…</p>}
-          {err && <p style={{ fontSize:12.5, color:'#f87171' }}>{err}</p>}
+          {err && <p style={{ fontSize:12.5, color:'#dc2626' }}>{err}</p>}
 
           {variant && (
             <>
               <div style={{ background:'#ECE5DD', borderRadius:9, padding:12 }}>
-                <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', boxShadow:'0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', boxShadow:'0 1px 3px rgba(15,23,42,0.04)' }}>
                   {variant.headerText && <p style={{ fontSize:12.5, fontWeight:700, color:'#111', margin:'0 0 4px' }}>{variant.headerText}</p>}
                   <p style={{ fontSize:12, color:'#111', lineHeight:1.5, whiteSpace:'pre-wrap', margin:0 }}>{variant.body}</p>
                   {variant.footer && <p style={{ fontSize:10.5, color:'#888', marginTop:6 }}>{variant.footer}</p>}
@@ -1585,7 +1586,7 @@ const UtilityVariantModal = ({ template, onClose, onUseDraft }) => {
 
               {variant.caveat && (
                 <div style={{ padding:'11px 13px', borderRadius:8, background:'rgba(245,158,11,0.09)', border:'1px solid rgba(245,158,11,0.25)' }}>
-                  <p style={{ fontSize:12, color:'#fbbf24', lineHeight:1.55 }}>{variant.caveat}</p>
+                  <p style={{ fontSize:12, color:'#b45309', lineHeight:1.55 }}>{variant.caveat}</p>
                 </div>
               )}
 
@@ -1680,23 +1681,23 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
     if (draft && wantImage && !image && !imgLoading && !imgErr) generateImage();
   }, [draft, wantImage]);
 
-  const catTone = { MARKETING: '#f59e0b', UTILITY: '#9d6bff', AUTHENTICATION: '#c4ff46' };
+  const catTone = { MARKETING: '#d97706', UTILITY: '#7c3aed', AUTHENTICATION: '#4d7c0f' };
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div onClick={e => e.stopPropagation()} style={{ background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', width:'100%', maxWidth:620, maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--bd)', display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
           <div>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:17, fontWeight:800, color:'var(--t1)', marginBottom:4 }}>Create Template with AI</h3>
             <p style={{ fontSize:12.5, color:'var(--t2)' }}>Describe the message. AI writes the copy, picks the category and suggests variables.</p>
           </div>
-          <button onClick={onClose} style={{ width:26, height:26, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', color:'var(--t2)', flexShrink:0 }}>x</button>
+          <button onClick={onClose} style={{ width:26, height:26, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', color:'var(--t2)', flexShrink:0 }}>x</button>
         </div>
 
         <div style={{ padding:'18px 24px', overflowY:'auto', display:'flex', flexDirection:'column', gap:14 }}>
           <textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={3}
             placeholder="e.g. Remind a customer their dental appointment is tomorrow and let them confirm or reschedule."
-            style={{ width:'100%', padding:'10px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13.5, outline:'none', resize:'vertical', fontFamily:"'Manrope',sans-serif", lineHeight:1.55 }} />
+            style={{ width:'100%', padding:'10px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13.5, outline:'none', resize:'vertical', fontFamily:"'Manrope',sans-serif", lineHeight:1.55 }} />
 
           {suggestions.length > 0 && !draft && (
             <div>
@@ -1704,7 +1705,7 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
               <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                 {suggestions.map(sg => (
                   <button key={sg.label} onClick={() => generate(sg.prompt)} disabled={loading}
-                    style={{ padding:'7px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', cursor: loading ? 'wait' : 'pointer', fontSize:12.5, fontWeight:600, fontFamily:"'Manrope',sans-serif" }}>
+                    style={{ padding:'7px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', cursor: loading ? 'wait' : 'pointer', fontSize:12.5, fontWeight:600, fontFamily:"'Manrope',sans-serif" }}>
                     {sg.label}
                     <span style={{ marginLeft:7, fontSize:10, color: catTone[sg.category] || 'var(--t3)' }}>{sg.category[0] + sg.category.slice(1).toLowerCase()}</span>
                   </button>
@@ -1713,9 +1714,9 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
             </div>
           )}
 
-          {err && <p style={{ fontSize:12.5, color:'#f87171' }}>{err}</p>}
+          {err && <p style={{ fontSize:12.5, color:'#dc2626' }}>{err}</p>}
           {draft?.provider === 'fallback' && (
-            <p style={{ fontSize:12, color:'#fbbf24' }}>
+            <p style={{ fontSize:12, color:'#b45309' }}>
               {draft.fallbackReason === 'error'
                 ? 'Gemini could not be reached — this draft came from a built-in pattern. It is still fully editable.'
                 : 'No AI key on the server — this draft came from a built-in pattern. It is still fully editable.'}
@@ -1723,7 +1724,7 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
           )}
 
           {draft && (
-            <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(255,255,255,0.02)', padding:'14px 16px', display:'flex', flexDirection:'column', gap:11 }}>
+            <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(15,23,42,0.02)', padding:'14px 16px', display:'flex', flexDirection:'column', gap:11 }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:10, flexWrap:'wrap' }}>
                 <span style={{ fontFamily:'monospace', fontSize:12.5, color:'var(--green)' }}>{draft.name}</span>
                 <span style={{ padding:'2px 9px', borderRadius:10, fontSize:10.5, fontWeight:700, color: catTone[draft.category], border:`1px solid ${catTone[draft.category]}44` }}>
@@ -1732,7 +1733,7 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
               </div>
 
               <div style={{ background:'#ECE5DD', borderRadius:9, padding:12 }}>
-                <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', boxShadow:'0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', boxShadow:'0 1px 3px rgba(15,23,42,0.04)' }}>
                   {wantImage && (
                     image ? (
                       <img src={image.dataUri} alt="Generated header"
@@ -1763,7 +1764,7 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
                   <p style={{ fontSize:10.5, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.07em', marginBottom:5 }}>Variables</p>
                   <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
                     {draft.variables.map(v => (
-                      <span key={v.index} style={{ padding:'3px 9px', borderRadius:10, fontSize:11.5, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>
+                      <span key={v.index} style={{ padding:'3px 9px', borderRadius:10, fontSize:11.5, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>
                         <code style={{ color:'var(--green)', fontFamily:'monospace' }}>{`{{${v.index}}}`}</code> {v.meaning} — {v.example}
                       </span>
                     ))}
@@ -1796,12 +1797,12 @@ const TemplateAiPanel = ({ onClose, onUseDraft }) => {
                     </div>
                   )}
 
-                  {imgErr && <p style={{ fontSize:11.5, color:'#fbbf24', lineHeight:1.5 }}>{imgErr}</p>}
+                  {imgErr && <p style={{ fontSize:11.5, color:'#b45309', lineHeight:1.5 }}>{imgErr}</p>}
                 </div>
               )}
-              {draft.buttonNote && <p style={{ fontSize:11.5, color:'#fbbf24', lineHeight:1.5 }}>{draft.buttonNote}</p>}
+              {draft.buttonNote && <p style={{ fontSize:11.5, color:'#b45309', lineHeight:1.5 }}>{draft.buttonNote}</p>}
               {draft.buttonWarnings?.map((w, i) => (
-                <p key={i} style={{ fontSize:11.5, color:'#fbbf24', lineHeight:1.5 }}>{w}</p>
+                <p key={i} style={{ fontSize:11.5, color:'#b45309', lineHeight:1.5 }}>{w}</p>
               ))}
               {draft.rationale && <p style={{ fontSize:11.5, color:'var(--t3)', lineHeight:1.5 }}>{draft.rationale}</p>}
             </div>
@@ -2105,7 +2106,7 @@ const TemplatesView = () => {
           <div style={{ marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
             <label style={{ fontSize:12, fontWeight:700, color:'var(--t2)', whiteSpace:'nowrap' }}>WhatsApp Number</label>
             <select value={waNumberId} onChange={e => setWaNumberId(e.target.value)}
-              style={{ maxWidth:280, padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', appearance:'auto', colorScheme:'dark' }}>
+              style={{ maxWidth:280, padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', appearance:'auto', colorScheme:'dark' }}>
               <option value="">Select a number…</option>
               {numbers.map(n => <option key={n.id} value={n.id}>{n.phoneNumber}{n.displayName ? ` · ${n.displayName}` : ''}</option>)}
             </select>
@@ -2118,9 +2119,9 @@ const TemplatesView = () => {
             background: toast.error ? 'rgba(239,68,68,.08)' : 'var(--gbg)',
             border: `1px solid ${toast.error ? 'rgba(239,68,68,.22)' : 'var(--gbd)'}`,
             display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <p style={{ fontSize:12, color: toast.error ? '#f87171' : 'var(--green)' }}>{toast.error || toast.ok}</p>
+            <p style={{ fontSize:12, color: toast.error ? '#dc2626' : 'var(--green)' }}>{toast.error || toast.ok}</p>
             <button aria-label="Close" onClick={()=>setToast(null)} style={{ background:'none', border:'none', cursor:'pointer', padding:0, display:'flex' }}>
-              <I n="x" s={12} c={toast.error ? '#f87171' : 'var(--green)'} />
+              <I n="x" s={12} c={toast.error ? '#dc2626' : 'var(--green)'} />
             </button>
           </div>
         )}
@@ -2207,7 +2208,7 @@ const TemplatesView = () => {
             background: syncMsg.error ? 'rgba(239,68,68,.08)' : 'var(--gbg)',
             border: `1px solid ${syncMsg.error ? 'rgba(239,68,68,.2)' : 'var(--gbd)'}` }}>
             {syncMsg.error
-              ? <p style={{ fontSize:12, color:'#f87171' }}>{syncMsg.error}</p>
+              ? <p style={{ fontSize:12, color:'#dc2626' }}>{syncMsg.error}</p>
               : <p style={{ fontSize:12, color:'var(--green)' }}>
                   Synced {syncMsg.total} template{syncMsg.total !== 1 ? 's' : ''} from Meta
                   {syncMsg.created > 0 ? ` · ${syncMsg.created} new` : ''}
@@ -2263,20 +2264,20 @@ const TemplatesView = () => {
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '14px', color: 'var(--t1)', marginBottom: '5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.name}</p>
                       <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
-                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '5px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{t.category}</span>
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '5px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{t.category}</span>
                         {/* Standard is the norm, so only the shopping formats are called out. */}
                         {t.templateType && t.templateType !== 'STANDARD' && (
-                          <span style={{ fontSize:'11px', padding:'2px 8px', borderRadius:'5px', background:'rgba(196,255,70,.10)', border:'1px solid rgba(196,255,70,.28)', color:'#c4ff46', fontWeight:700 }}>
+                          <span style={{ fontSize:'11px', padding:'2px 8px', borderRadius:'5px', background:'rgba(101,163,13,.10)', border:'1px solid rgba(101,163,13,.28)', color:'#4d7c0f', fontWeight:700 }}>
                             {TEMPLATE_TYPE_META[t.templateType]?.label || t.templateType}
                           </span>
                         )}
-                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '5px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>{t.language}</span>
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '5px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>{t.language}</span>
                         {/* Meta moved this template's category after approval.
                             Worth flagging because the per-message price follows
                             the category. */}
                         {t.previousCategory && t.previousCategory !== t.category && (
                           <span title={`Meta moved this from ${t.previousCategory} on ${t.categoryUpdatedAt ? new Date(t.categoryUpdatedAt).toLocaleDateString() : 'a recent review'}`}
-                            style={{ fontSize:'11px', padding:'2px 8px', borderRadius:'5px', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.3)', color:'#fbbf24' }}>
+                            style={{ fontSize:'11px', padding:'2px 8px', borderRadius:'5px', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.3)', color:'#b45309' }}>
                             was {t.previousCategory}
                           </span>
                         )}
@@ -2287,12 +2288,12 @@ const TemplatesView = () => {
                   {/* Meta rejection reason */}
                   {t.status === 'REJECTED' && t.rejectedReason && (
                     <div style={{ padding:'8px 11px', borderRadius:6, background:'rgba(239,68,68,.06)', border:'1px solid rgba(239,68,68,.18)', marginBottom:12 }}>
-                      <p style={{ fontSize:11, color:'#f87171', lineHeight:1.45 }}>
+                      <p style={{ fontSize:11, color:'#dc2626', lineHeight:1.45 }}>
                         <strong>Rejected:</strong> {t.rejectedReason}
                       </p>
                     </div>
                   )}
-                  <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px', border: '1px solid var(--bd)', minHeight: '60px' }}>
+                  <div style={{ background: 'rgba(15,23,42,0.02)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px', border: '1px solid var(--bd)', minHeight: '60px' }}>
                     <p style={{ fontSize: '12px', color: 'var(--t1)', lineHeight: 1.55 }}>
                       {bodyText || <span style={{ color:'var(--t3)', fontStyle:'italic' }}>No body text</span>}
                     </p>
@@ -2302,7 +2303,7 @@ const TemplatesView = () => {
                       back rather than leaving them to absorb the price. */}
                   {isAdmin && t.category === 'MARKETING' && t.previousCategory === 'UTILITY' && (
                     <div style={{ marginBottom:12, padding:'10px 12px', borderRadius:8, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)' }}>
-                      <p style={{ fontSize:11.5, color:'#fbbf24', lineHeight:1.5, marginBottom:7 }}>
+                      <p style={{ fontSize:11.5, color:'#b45309', lineHeight:1.5, marginBottom:7 }}>
                         Meta moved this to Marketing{rates ? ` — now ${inrRate(rates.MARKETING)} per message instead of ${inrRate(rates.UTILITY)}.` : ' — it now bills at the higher marketing rate.'}
                       </p>
                       <button onClick={() => setVariantTpl(t)}
@@ -2332,8 +2333,8 @@ const TemplatesView = () => {
                     {isAdmin && <Btn variant="ghost" size="sm" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditTpl(t)}>Edit</Btn>}
                     <Btn variant="outline" size="sm" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setPreviewTpl(t)}>Preview</Btn>
                     {isAdmin && <Btn variant="ghost" size="sm" onClick={() => deleteTemplate(t)} disabled={deletingId === t.id}
-                      style={{ justifyContent: 'center', color: '#f87171' }} title="Delete template">
-                      {deletingId === t.id ? '…' : <I n="trash" s={13} c="#f87171" />}
+                      style={{ justifyContent: 'center', color: '#dc2626' }} title="Delete template">
+                      {deletingId === t.id ? '…' : <I n="trash" s={13} c="#dc2626" />}
                     </Btn>}
                   </div>
                   )}
@@ -2408,9 +2409,9 @@ const LibraryPane = ({ hasNumber, loading, items, filter, setFilter, search, set
       {hasNumber === false && (
         <div style={{ ...card, padding:'14px 18px', marginBottom:14, display:'flex', alignItems:'center', gap:12,
           background:'rgba(245,158,11,.06)', border:'1px solid rgba(245,158,11,.25)' }}>
-          <I n="alertt" s={18} c="#fbbf24" />
+          <I n="alertt" s={18} c="#b45309" />
           <div style={{ flex:1, minWidth:0 }}>
-            <p style={{ fontSize:13, fontWeight:700, color:'#fbbf24', marginBottom:2 }}>No WhatsApp number connected</p>
+            <p style={{ fontSize:13, fontWeight:700, color:'#b45309', marginBottom:2 }}>No WhatsApp number connected</p>
             <p style={{ fontSize:12, color:'var(--t2)', lineHeight:1.45 }}>You can browse and preview templates, but you need a connected number before you can install one.</p>
           </div>
           <Btn variant="outline" size="sm" onClick={() => window.dispatchEvent(new CustomEvent('app:nav', { detail: 'setup' }))}>
@@ -2420,7 +2421,7 @@ const LibraryPane = ({ hasNumber, loading, items, filter, setFilter, search, set
       )}
 
       {/* Hero strip */}
-      <div style={{ ...card, padding:'18px 22px', marginBottom:18, display:'flex', alignItems:'center', gap:16, background:'linear-gradient(135deg, rgba(53,232,242,0.06), rgba(53,232,242,0.01))' }}>
+      <div style={{ ...card, padding:'18px 22px', marginBottom:18, display:'flex', alignItems:'center', gap:16, background:'linear-gradient(135deg, rgba(13,148,136,0.06), rgba(13,148,136,0.01))' }}>
         <div style={{ width:44, height:44, borderRadius:12, background:'var(--gbg)', border:'1px solid var(--gbd)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'var(--glow)' }}>
           <I n="spark" s={20} c="var(--green)" />
         </div>
@@ -2467,7 +2468,7 @@ const LibraryPane = ({ hasNumber, loading, items, filter, setFilter, search, set
           {items.map(it => {
             const installed = !!it.installedStatus;
             const isInstalling = installing === it.id;
-            const catColor = it.category === 'MARKETING' ? '#c4ff46' : it.category === 'UTILITY' ? '#9d6bff' : '#fbbf24';
+            const catColor = it.category === 'MARKETING' ? '#4d7c0f' : it.category === 'UTILITY' ? '#7c3aed' : '#b45309';
             return (
               <div key={it.id} style={{ ...card, padding:'18px', display:'flex', flexDirection:'column', gap:12, transition:'transform .15s, border-color .15s' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--bdm)'; }}
@@ -2483,11 +2484,11 @@ const LibraryPane = ({ hasNumber, loading, items, filter, setFilter, search, set
 
                 <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
                   <span style={{ fontSize:10, padding:'2px 7px', borderRadius:5, background:`${catColor}14`, border:`1px solid ${catColor}33`, color:catColor, fontWeight:700, letterSpacing:'.04em' }}>{it.category}</span>
-                  <span style={{ fontSize:10, padding:'2px 7px', borderRadius:5, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t3)' }}>{it.useCase}</span>
-                  <span style={{ fontSize:10, padding:'2px 7px', borderRadius:5, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t3)' }}>{it.language}</span>
+                  <span style={{ fontSize:10, padding:'2px 7px', borderRadius:5, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t3)' }}>{it.useCase}</span>
+                  <span style={{ fontSize:10, padding:'2px 7px', borderRadius:5, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t3)' }}>{it.language}</span>
                 </div>
 
-                <div style={{ flex:1, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 12px', minHeight:70 }}>
+                <div style={{ flex:1, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 12px', minHeight:70 }}>
                   <p style={{ fontSize:12, color:'var(--t1)', lineHeight:1.5, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical' }}>{it.body}</p>
                 </div>
 
@@ -2515,14 +2516,14 @@ const LibraryPane = ({ hasNumber, loading, items, filter, setFilter, search, set
 const LibraryPreviewModal = ({ item, onClose, onInstall, installing }) => {
   const installed = !!item.installedStatus;
   return (
-    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={item.title} style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:50, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div onClick={onClose} onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={item.title} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:50, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div onClick={e => e.stopPropagation()} tabIndex={-1} style={{ ...card, width:'100%', maxWidth:520, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div>
             <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--t1)' }}>{item.title}</p>
             <p style={{ fontSize:11.5, color:'var(--t2)', marginTop:2 }}>{item.useCase} · {item.category} · {item.language}</p>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
@@ -2533,18 +2534,18 @@ const LibraryPreviewModal = ({ item, onClose, onInstall, installing }) => {
           {/* Chat-bubble preview */}
           <div>
             <p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>Preview</p>
-            <div style={{ padding:16, borderRadius:10, background:'#0a1426', border:'1px solid var(--bd)', backgroundImage:'radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize:'12px 12px' }}>
+            <div style={{ padding:16, borderRadius:10, background:'var(--surf2)', border:'1px solid var(--bd)', backgroundImage:'radial-gradient(rgba(15,23,42,0.025) 1px, transparent 1px)', backgroundSize:'12px 12px' }}>
               <div style={{ display:'inline-block', maxWidth:'90%', padding:'10px 14px', background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'14px 14px 14px 3px', boxShadow:'var(--card-shadow)' }}>
                 <p style={{ fontSize:13, color:'var(--t1)', lineHeight:1.55, whiteSpace:'pre-wrap' }}>{item.body}</p>
                 <p style={{ fontSize:10, color:'var(--t3)', textAlign:'right', marginTop:4 }}>now</p>
               </div>
             </div>
-            <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Placeholders like <code style={{ background:'rgba(255,255,255,0.05)', padding:'1px 5px', borderRadius:4 }}>{`{{1}}`}</code> are filled in per recipient at send time.</p>
+            <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Placeholders like <code style={{ background:'rgba(15,23,42,0.05)', padding:'1px 5px', borderRadius:4 }}>{`{{1}}`}</code> are filled in per recipient at send time.</p>
           </div>
 
           <div>
             <p style={{ fontSize:10, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:6 }}>Template Name</p>
-            <code style={{ display:'inline-block', fontSize:12, color:'var(--t1)', background:'rgba(255,255,255,0.04)', padding:'5px 10px', borderRadius:6, border:'1px solid var(--bd)', fontFamily:'monospace' }}>{item.name}</code>
+            <code style={{ display:'inline-block', fontSize:12, color:'var(--t1)', background:'rgba(15,23,42,0.04)', padding:'5px 10px', borderRadius:6, border:'1px solid var(--bd)', fontFamily:'monospace' }}>{item.name}</code>
           </div>
         </div>
 
@@ -2735,7 +2736,7 @@ const NoAccessView = ({ title }) => (
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ ...card, maxWidth: 440, padding: '32px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
         <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <I n="lock" s={24} c="#f59e0b" />
+          <I n="lock" s={24} c="#d97706" />
         </div>
         <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 17, color: 'var(--t1)' }}>No access</h3>
         <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.6 }}>
@@ -2786,7 +2787,7 @@ const MobileTabBar = ({ page, setPage, user }) => {
   return (
     <nav style={{
       flexShrink: 0, display: 'flex', justifyContent: 'space-around', alignItems: 'stretch',
-      borderTop: '1px solid var(--bd)', background: 'rgba(6,9,19,0.94)',
+      borderTop: '1px solid var(--bd)', background: 'rgba(255,255,255,0.96)',
       backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)',
       // The extra bottom padding clears the iOS home indicator; on anything
       // else env() resolves to 0 and this is a plain 8px bar.
@@ -2855,9 +2856,9 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
 
   const panel = (
     <div role="navigation" aria-label="Main navigation" style={{
-      width: col ? '60px' : '232px', background: mobile ? 'rgba(6,9,19,0.97)' : 'rgba(6,9,19,0.72)',
+      width: col ? '60px' : '232px', background: mobile ? 'rgba(255,255,255,0.96)' : 'rgba(255,255,255,0.88)',
       backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)',
-      borderRight: '1px solid var(--bd)', boxShadow: mobile ? '8px 0 40px rgba(0,0,0,0.55)' : 'inset -1px 0 0 rgba(255,255,255,0.03)',
+      borderRight: '1px solid var(--bd)', boxShadow: mobile ? '8px 0 40px rgba(15,23,42,0.165)' : 'inset -1px 0 0 rgba(15,23,42,0.03)',
       display: 'flex', flexDirection: 'column', transition: mobile ? 'transform .24s ease' : 'width .22s ease',
       flexShrink: 0, overflow: 'hidden', minHeight: 0,
       ...(mobile ? {
@@ -2872,7 +2873,7 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
           logo is hidden and the button takes the row on its own. */}
       <div style={{ padding: col ? '16px 8px' : '16px 14px', display: 'flex', alignItems: 'center', justifyContent: col ? 'center' : 'flex-start', gap: '9px', borderBottom: '1px solid var(--bd)', minHeight: '62px', flexShrink: 0 }}>
         {!col && <div onClick={() => go(isSuperAdmin ? 'admin-overview' : 'home')} style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }} title="Dashboard">
-          <span className="sp-pulse" style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)' }} />
+          <Logo size={30} text={false} />
         </div>}
         {!col && <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '15px', color: 'var(--t1)', whiteSpace: 'nowrap', letterSpacing: '-.02em' }}>Inboxly</span>}
         {mobile && (
@@ -2909,9 +2910,9 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
                   onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)'; }}
                   onBlur={e => { e.currentTarget.style.boxShadow = 'none'; }}
                   style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '10px', padding: col ? '10px' : '7px 10px', borderRadius: '9px', cursor: 'pointer', transition: 'background .15s ease, border-color .15s ease', justifyContent: col ? 'center' : 'flex-start',
-                    background: on ? 'rgba(53,232,242,0.10)' : 'transparent',
+                    background: on ? 'rgba(13,148,136,0.10)' : 'transparent',
                     borderLeft: col ? 'none' : `2px solid ${on ? 'var(--accent)' : 'transparent'}` }}
-                  onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                  onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
                   onMouseLeave={e => { if (!on) e.currentTarget.style.background = 'transparent'; }}
                   title={col ? (item.id === 'crm-overview' && crmBadge > 0 ? `${item.label} (${crmBadge} urgent)` : item.label) : ''}>
                   {/* Fixed-width cell so labels line up whether the glyph is
@@ -2948,19 +2949,19 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
         ))}
       </div>
       {!col && !isSuperAdmin && (
-        <div onClick={() => go('payments')} title="Open Payments to recharge" style={{ margin: '8px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(53,232,242,0.04)', border: '1px solid rgba(53,232,242,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '4px', transition: 'all 0.15s', marginBottom: '4px', flexShrink: 0 }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(53,232,242,0.08)'; e.currentTarget.style.borderColor = 'rgba(53,232,242,0.3)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(53,232,242,0.04)'; e.currentTarget.style.borderColor = 'rgba(53,232,242,0.15)'; }}>
+        <div onClick={() => go('payments')} title="Open Payments to recharge" style={{ margin: '8px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(13,148,136,0.04)', border: '1px solid rgba(13,148,136,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '4px', transition: 'all 0.15s', marginBottom: '4px', flexShrink: 0 }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(13,148,136,0.08)'; e.currentTarget.style.borderColor = 'rgba(13,148,136,0.3)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(13,148,136,0.04)'; e.currentTarget.style.borderColor = 'rgba(13,148,136,0.15)'; }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--mono)', fontSize: '9.5px', fontWeight: 600, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.1em' }}>
             <I n="credit" s={12} c="var(--accent)" /> Wallet Balance
           </div>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: '14px', fontWeight: 600, color: balance != null && balance <= 0 ? '#f87171' : 'var(--accent)' }}>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: '14px', fontWeight: 600, color: balance != null && balance <= 0 ? '#dc2626' : 'var(--accent)' }}>
             {balance == null ? '—' : `₹ ${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           </span>
         </div>
       )}
       <div style={{ padding: '10px 8px', borderTop: '1px solid var(--bd)', flexShrink: 0 }}>
-        {!col && <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '9px' }}>
+        {!col && <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '9px' }}>
           <Avatar variant="gradient" name={user?.name || 'User'} size={28} showRing />
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--t1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</p>
@@ -2975,8 +2976,8 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('legal'); } }}
           onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)'; }}
           onBlur={e => { e.currentTarget.style.boxShadow = 'none'; }}
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: col ? '10px' : '9px 10px', borderRadius: '8px', cursor: 'pointer', transition: 'background .12s', justifyContent: col ? 'center' : 'flex-start', background: legalOn ? 'rgba(53,232,242,0.10)' : 'transparent' }}
-          onMouseEnter={e => { if (!legalOn) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: col ? '10px' : '9px 10px', borderRadius: '8px', cursor: 'pointer', transition: 'background .12s', justifyContent: col ? 'center' : 'flex-start', background: legalOn ? 'rgba(13,148,136,0.10)' : 'transparent' }}
+          onMouseEnter={e => { if (!legalOn) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
           onMouseLeave={e => { if (!legalOn) e.currentTarget.style.background = 'transparent'; }}
           title={col ? 'Legal & Policies' : ''}>
           <I n="file" s={16} c={legalOn ? 'var(--accent)' : 'var(--t2)'} />
@@ -2985,9 +2986,9 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
         <div onClick={() => onNav('landing')} tabIndex={0} role="button"
           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNav('landing'); } }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: col ? '10px' : '9px 10px', borderRadius: '8px', cursor: 'pointer', transition: 'background .12s', justifyContent: col ? 'center' : 'flex-start' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,23,42,0.04)'}
           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px var(--green)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+          onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px var(--green)'; e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
           onBlur={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = 'transparent'; }}
           title={col ? 'Sign out' : ''}>
           <I n="logout" s={16} c="var(--t2)" />
@@ -3007,7 +3008,7 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
         onClick={onClose}
         aria-hidden="true"
         style={{
-          position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(0,0,0,0.55)',
+          position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(15,23,42,0.4)',
           backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
           opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
           transition: 'opacity .24s ease',
@@ -3243,19 +3244,19 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     // Two very low-opacity washes behind everything, so the panels above them
     // read as translucent panes rather than flat blocks. Static, not animated:
     // this is a work surface, not a landing page.
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'radial-gradient(1200px 600px at 12% -8%, rgba(53,232,242,0.07), transparent 60%), radial-gradient(1000px 520px at 100% 0%, rgba(14,165,233,0.06), transparent 62%), #060B18' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'radial-gradient(1200px 600px at 12% -8%, rgba(13,148,136,0.07), transparent 60%), radial-gradient(1000px 520px at 100% 0%, rgba(14,165,233,0.06), transparent 62%), var(--bg)' }}>
       {impersonator && (
-        <div style={{ flexShrink: 0, height: 38, background: 'linear-gradient(135deg, rgba(245,158,11,.16), rgba(245,158,11,.06))', borderBottom: '1px solid rgba(245,158,11,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 12.5, color: '#fbbf24', fontWeight: 600 }}>
-          <I n="eye" s={13} c="#fbbf24" />
+        <div style={{ flexShrink: 0, height: 38, background: 'linear-gradient(135deg, rgba(245,158,11,.16), rgba(245,158,11,.06))', borderBottom: '1px solid rgba(245,158,11,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 12.5, color: '#b45309', fontWeight: 600 }}>
+          <I n="eye" s={13} c="#b45309" />
           Impersonating {user?.name} ({user?.email}) in this tab
           {impersonator.expiresAt && ` · until ${new Date(impersonator.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-          <button onClick={returnToAdmin} style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(245,158,11,.15)', border: '1px solid rgba(245,158,11,.4)', color: '#fbbf24', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={returnToAdmin} style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(245,158,11,.15)', border: '1px solid rgba(245,158,11,.4)', color: '#b45309', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
             Return to admin
           </button>
         </div>
       )}
       {restrictedNote && !impersonator && (
-        <div role="status" style={{ flexShrink: 0, minHeight: 34, padding: '6px 14px', background: 'rgba(53,232,242,0.06)', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 12.5, color: 'var(--t2)' }}>
+        <div role="status" style={{ flexShrink: 0, minHeight: 34, padding: '6px 14px', background: 'rgba(13,148,136,0.06)', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 12.5, color: 'var(--t2)' }}>
           <I n="lock" s={13} c="var(--t2)" />
           <span>{restrictedNote}</span>
           <button type="button" onClick={dismissRestrictedNote} aria-label="Dismiss"

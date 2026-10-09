@@ -48,7 +48,7 @@ const StatusPill = ({ enabled }) => (
     display: 'inline-flex', alignItems: 'center', gap: 8,
     padding: '8px 14px', borderRadius: 999, fontSize: 12.5, fontWeight: 700,
     fontFamily: "'Manrope',sans-serif", flexShrink: 0,
-    background: enabled ? 'var(--sbg)' : 'rgba(255,255,255,0.04)',
+    background: enabled ? 'var(--sbg)' : 'rgba(15,23,42,0.04)',
     border: `1px solid ${enabled ? 'var(--sbd)' : 'var(--bd)'}`,
     color: enabled ? 'var(--success)' : 'var(--t2)',
   }}>
@@ -64,7 +64,7 @@ const StatusPill = ({ enabled }) => (
 const AlertBanner = ({ type = 'error', children }) => {
   const cfg = type === 'success'
     ? { bg: 'var(--sbg)', bd: 'var(--sbd)', c: 'var(--success)', icon: 'checkc' }
-    : { bg: 'rgba(239,68,68,0.08)', bd: 'rgba(239,68,68,0.22)', c: '#fca5a5', icon: 'alertt' };
+    : { bg: 'rgba(239,68,68,0.08)', bd: 'rgba(239,68,68,0.22)', c: '#dc2626', icon: 'alertt' };
 
   return (
     <div style={{
@@ -96,7 +96,7 @@ const SectionHeader = ({ icon, title, description, right }) => (
 
 const Toggle = ({ checked, onChange, label }) => (
   <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', userSelect: 'none' }}>
-    <span style={{ position: 'relative', width: 38, height: 22, borderRadius: 999, flexShrink: 0, transition: 'all .18s', background: checked ? 'var(--sbg)' : 'rgba(255,255,255,0.06)', border: `1px solid ${checked ? 'var(--sbd)' : 'var(--bd)'}` }}>
+    <span style={{ position: 'relative', width: 38, height: 22, borderRadius: 999, flexShrink: 0, transition: 'all .18s', background: checked ? 'var(--sbg)' : 'rgba(15,23,42,0.06)', border: `1px solid ${checked ? 'var(--sbd)' : 'var(--bd)'}` }}>
       <input type="checkbox" checked={checked} onChange={onChange} aria-label={label} style={{ position: 'absolute', inset: 0, opacity: 0, margin: 0, cursor: 'pointer' }} />
       <span style={{ position: 'absolute', top: 2, left: checked ? 18 : 2, width: 16, height: 16, borderRadius: '50%', transition: 'all .18s', background: checked ? 'var(--success)' : 'var(--t3)' }} />
     </span>
@@ -108,11 +108,11 @@ const OverviewMetric = ({ icon, label, value, detail, tone = 'accent' }) => {
   const palette = tone === 'success'
     ? { bg: 'var(--sbg)', bd: 'var(--sbd)', c: 'var(--success)' }
     : tone === 'warning'
-      ? { bg: 'rgba(245,158,11,.09)', bd: 'rgba(245,158,11,.24)', c: '#fbbf24' }
+      ? { bg: 'rgba(245,158,11,.09)', bd: 'rgba(245,158,11,.24)', c: '#b45309' }
       : { bg: 'var(--gbg)', bd: 'var(--gbd)', c: 'var(--green)' };
 
   return (
-    <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(255,255,255,.018)', border: '1px solid var(--bd)', minWidth: 0 }}>
+    <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(15,23,42,.018)', border: '1px solid var(--bd)', minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span style={{ width: 27, height: 27, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7, background: palette.bg, border: `1px solid ${palette.bd}` }}>
           <I n={icon} s={13} c={palette.c} />
@@ -128,7 +128,7 @@ const OverviewMetric = ({ icon, label, value, detail, tone = 'accent' }) => {
 const ReadinessItem = ({ ready, label, detail }) => (
   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--bd)' }}>
     <span style={{ width: 21, height: 21, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0, background: ready ? 'var(--sbg)' : 'rgba(245,158,11,.09)', border: `1px solid ${ready ? 'var(--sbd)' : 'rgba(245,158,11,.24)'}` }}>
-      <I n={ready ? 'check' : 'alertc'} s={11} c={ready ? 'var(--success)' : '#fbbf24'} />
+      <I n={ready ? 'check' : 'alertc'} s={11} c={ready ? 'var(--success)' : '#b45309'} />
     </span>
     <div>
       <p style={{ margin: 0, color: 'var(--t1)', fontSize: 12.5, fontWeight: 700 }}>{label}</p>
@@ -138,7 +138,7 @@ const ReadinessItem = ({ ready, label, detail }) => (
 );
 
 const OtpFlow = () => (
-  <section style={{ ...card, padding: '20px 22px', background: 'linear-gradient(135deg, rgba(53,232,242,.07), rgba(157,107,255,.035)), var(--surf)' }}>
+  <section style={{ ...card, padding: '20px 22px', background: 'linear-gradient(135deg, rgba(13,148,136,.07), rgba(124,58,237,.035)), var(--surf)' }}>
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 16 }}>
       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--gbg)', border: '1px solid var(--gbd)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><I n="shield" s={15} c="var(--green)" /></div>
       <div>
@@ -153,7 +153,7 @@ const OtpFlow = () => (
         ['lock', 'Code entry', 'Customer submits code'],
         ['checkc', 'Verified', 'Access is confirmed'],
       ].map(([icon, title, text], index) => (
-        <div key={title} style={{ position: 'relative', padding: '12px', borderRadius: 9, background: 'rgba(3,7,13,.34)', border: '1px solid var(--bd)' }}>
+        <div key={title} style={{ position: 'relative', padding: '12px', borderRadius: 9, background: 'var(--surf2)', border: '1px solid var(--bd)' }}>
           <I n={icon} s={14} c={index === 3 ? 'var(--success)' : 'var(--green)'} />
           <p style={{ margin: '9px 0 2px', color: 'var(--t1)', fontSize: 12, fontWeight: 700 }}>{title}</p>
           <p style={{ margin: 0, color: 'var(--t3)', fontSize: 10.5, lineHeight: 1.4 }}>{text}</p>
@@ -196,7 +196,7 @@ const CopyButton = ({ text, label = 'Copy', message = 'Copied to clipboard', sma
           borderRadius: 7, fontSize: small ? 11.5 : 12.5, fontWeight: 600,
           fontFamily: "'Manrope',sans-serif", cursor: 'pointer', transition: 'all .15s',
           border: `1px solid ${copied ? 'var(--sbd)' : 'var(--bd)'}`,
-          background: copied ? 'var(--sbg)' : 'rgba(255,255,255,0.04)',
+          background: copied ? 'var(--sbg)' : 'rgba(15,23,42,0.04)',
           color: copied ? 'var(--success)' : 'var(--t2)',
         }}
       >
@@ -209,7 +209,7 @@ const CopyButton = ({ text, label = 'Copy', message = 'Copied to clipboard', sma
           position: 'absolute', top: 'calc(100% + 7px)', right: 0, whiteSpace: 'nowrap', zIndex: 5,
           padding: '6px 10px', borderRadius: 7, fontSize: 11.5, fontWeight: 600,
           background: 'var(--sbg)', border: '1px solid var(--sbd)', color: 'var(--success)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+          boxShadow: '0 8px 20px rgba(15,23,42,0.105)',
         }}>
           {message}
         </span>
@@ -224,7 +224,7 @@ const CodeBlock = ({ title, code, copyMessage }) => (
       <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em' }}>{title}</span>
       <CopyButton text={code} small message={copyMessage || 'Copied to clipboard'} />
     </div>
-    <pre style={{ margin: 0, padding: '13px 15px', borderRadius: 9, background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)', overflowX: 'auto', fontFamily: mono, fontSize: 12, lineHeight: 1.65, color: 'var(--t1)', whiteSpace: 'pre' }}>
+    <pre style={{ margin: 0, padding: '13px 15px', borderRadius: 9, background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)', overflowX: 'auto', fontFamily: mono, fontSize: 12, lineHeight: 1.65, color: 'var(--t1)', whiteSpace: 'pre' }}>
       {code}
     </pre>
   </div>
@@ -263,7 +263,7 @@ Content-Type: application/json
 ];
 
 const EndpointCard = ({ endpoint, open, onToggle }) => (
-  <div style={{ border: '1px solid var(--bd)', borderRadius: 10, overflow: 'hidden', background: 'rgba(255,255,255,0.015)' }}>
+  <div style={{ border: '1px solid var(--bd)', borderRadius: 10, overflow: 'hidden', background: 'rgba(15,23,42,0.015)' }}>
     <button
       type="button"
       onClick={onToggle}
@@ -296,7 +296,7 @@ const EndpointCard = ({ endpoint, open, onToggle }) => (
 
 const selectFieldStyle = {
   width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 8,
-  background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)',
+  background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)',
   fontSize: 13.5, fontFamily: "'Manrope',sans-serif", outline: 'none', cursor: 'pointer',
 };
 
@@ -311,11 +311,11 @@ const TABS = [
 ];
 
 const TabBar = ({ active, onChange }) => (
-  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', flexShrink: 0, maxWidth: '100%', overflowX: 'auto', padding: 4, gap: 4, border: '1px solid var(--bd)', borderRadius: 10, background: 'rgba(255,255,255,.02)' }}>
+  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', flexShrink: 0, maxWidth: '100%', overflowX: 'auto', padding: 4, gap: 4, border: '1px solid var(--bd)', borderRadius: 10, background: 'rgba(15,23,42,.02)' }}>
     {TABS.map(t => {
       const on = active === t.id;
       return (
-        <button key={t.id} onClick={() => onChange(t.id)} style={{ flexShrink: 0, whiteSpace: 'nowrap', border: 0, borderRadius: 7, padding: '8px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700, transition: 'all .15s', color: on ? '#071015' : 'var(--t2)', background: on ? 'var(--green)' : 'transparent', boxShadow: on ? '0 0 18px rgba(53,232,242,0.35)' : 'none' }}>
+        <button key={t.id} onClick={() => onChange(t.id)} style={{ flexShrink: 0, whiteSpace: 'nowrap', border: 0, borderRadius: 7, padding: '8px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700, transition: 'all .15s', color: on ? '#071015' : 'var(--t2)', background: on ? 'var(--green)' : 'transparent', boxShadow: on ? '0 0 18px rgba(13,148,136,0.35)' : 'none' }}>
           {t.label}
         </button>
       );
@@ -414,8 +414,8 @@ const AuthenticationAnalyticsPanel = () => {
   const hasActiveFilters = dateRange !== 'all' || statusFilter !== 'all' || sourceFilter !== 'all' || templateFilter !== 'all';
   const statusBreakdown = [
     ['Verified', metrics.verified, 'var(--success)'],
-    ['Expired', metrics.expired, '#fbbf24'],
-    ['Failed', metrics.failed, '#fca5a5'],
+    ['Expired', metrics.expired, '#b45309'],
+    ['Failed', metrics.failed, '#dc2626'],
     ['Pending', metrics.pending, 'var(--t2)'],
   ];
   const sourceBreakdown = sources.map((source) => [
@@ -460,7 +460,7 @@ const AuthenticationAnalyticsPanel = () => {
           ['Verified', metrics.verified], ['Expired', metrics.expired], ['Failed', metrics.failed],
           ['Verification Rate', metrics.verificationRate == null ? null : `${metrics.verificationRate}%`], ['Cost', metrics.cost == null ? null : `₹${Number(metrics.cost).toFixed(2)}`],
         ].map(([label, value]) => (
-          <div key={label} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,.02)', border: '1px solid var(--bd)' }}>
+          <div key={label} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(15,23,42,.02)', border: '1px solid var(--bd)' }}>
             <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 4 }}>{label}</p>
             <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: 18, color: 'var(--t1)' }}>{value == null ? '—' : value.toLocaleString?.() ?? value}</p>
           </div>
@@ -472,7 +472,7 @@ const AuthenticationAnalyticsPanel = () => {
         </p>
       )}
       <div className="rgrid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginBottom: 16 }}>
-        <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(255,255,255,.02)', border: '1px solid var(--bd)' }}>
+        <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(15,23,42,.02)', border: '1px solid var(--bd)' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>Status breakdown{dateRange !== 'all' ? ' · selected range' : ''}</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
             {statusBreakdown.map(([label, value, color]) => (
@@ -483,7 +483,7 @@ const AuthenticationAnalyticsPanel = () => {
             ))}
           </div>
         </div>
-        <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(255,255,255,.02)', border: '1px solid var(--bd)' }}>
+        <div style={{ padding: '15px 16px', borderRadius: 10, background: 'rgba(15,23,42,.02)', border: '1px solid var(--bd)' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>Source breakdown{dateRange !== 'all' ? ' · selected range' : ''}</p>
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
             {sourceBreakdown.map(([label, value]) => <p key={label} style={{ margin: 0, fontSize: 12.5, color: 'var(--t2)' }}>{label}: <strong style={{ color: 'var(--t1)' }}>{value}</strong></p>)}
@@ -491,7 +491,7 @@ const AuthenticationAnalyticsPanel = () => {
           <p style={{ margin: '9px 0 0', fontSize: 11, color: 'var(--t3)' }}>All attempts in the selected date range.</p>
         </div>
       </div>
-      <div style={{ borderRadius: 10, padding: '16px 18px', background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)', overflowX: 'auto' }}>
+      <div style={{ borderRadius: 10, padding: '16px 18px', background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)', overflowX: 'auto' }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 10 }}>Authentication attempts{total ? ` · ${total.toLocaleString()}` : ''}</p>
         {attempts.length === 0 ? (
           <p style={{ fontSize: 13, color: 'var(--t2)', padding: '16px 0' }}>{q || hasActiveFilters ? 'No Authentication attempts match your filters.' : 'No Authentication API or campaign OTP attempts yet.'}</p>
@@ -566,11 +566,11 @@ const AuthenticationTemplatesPanel = () => {
       {loading ? (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--t2)', fontSize: 13 }}>Loading templates…</div>
       ) : templates.length === 0 ? (
-        <div style={{ borderRadius: 10, padding: '48px 24px', background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)', textAlign: 'center', color: 'var(--t2)', fontSize: 13 }}>
+        <div style={{ borderRadius: 10, padding: '48px 24px', background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)', textAlign: 'center', color: 'var(--t2)', fontSize: 13 }}>
           No Authentication templates yet. Create one, or use "Sync from Meta" on the Templates page — it still reaches this list.
         </div>
       ) : (
-        <div style={{ borderRadius: 10, background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)', overflowX: 'auto' }}>
+        <div style={{ borderRadius: 10, background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)', overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--bd)' }}>
@@ -585,7 +585,7 @@ const AuthenticationTemplatesPanel = () => {
                   <td style={{ padding: '14px 16px', fontSize: 13.5, fontWeight: 600, color: 'var(--t1)' }}>
                     {t.name}
                     {t.status === 'REJECTED' && t.rejectedReason && (
-                      <p style={{ margin: '4px 0 0', fontSize: 11, color: '#f87171', fontWeight: 500 }}>{t.rejectedReason}</p>
+                      <p style={{ margin: '4px 0 0', fontSize: 11, color: '#dc2626', fontWeight: 500 }}>{t.rejectedReason}</p>
                     )}
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--t2)' }}>{t.language}</td>
@@ -632,17 +632,17 @@ const ConfirmRegenerateModal = ({ onCancel, onConfirm, loading }) => (
   <div
     onClick={loading ? undefined : onCancel}
     role="dialog" aria-modal="true" aria-label="Regenerate API Key?"
-    style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+    style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
   >
-    <div onClick={e => e.stopPropagation()} style={{ ...card, border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(53,232,242,0.10)', width: '100%', maxWidth: 440, overflow: 'hidden' }}>
+    <div onClick={e => e.stopPropagation()} style={{ ...card, border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(13,148,136,0.10)', width: '100%', maxWidth: 440, overflow: 'hidden' }}>
       <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(248,113,113,.1)', border: '1px solid rgba(248,113,113,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
-            <I n="alertt" s={15} c="#f87171" />
+            <I n="alertt" s={15} c="#dc2626" />
           </div>
           <h3 style={{ margin: 0, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--t1)' }}>Regenerate API Key?</h3>
         </div>
-        <button onClick={onCancel} disabled={loading} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: loading ? 'not-allowed' : 'pointer', color: 'var(--t2)', flexShrink: 0, opacity: loading ? .5 : 1 }}>
+        <button onClick={onCancel} disabled={loading} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: loading ? 'not-allowed' : 'pointer', color: 'var(--t2)', flexShrink: 0, opacity: loading ? .5 : 1 }}>
           <I n="x" s={12} c="var(--t2)" />
         </button>
       </div>
@@ -653,8 +653,8 @@ const ConfirmRegenerateModal = ({ onCancel, onConfirm, loading }) => (
         </p>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 9, background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.25)' }}>
-          <I n="alertc" s={14} c="#fbbf24" />
-          <p style={{ margin: 0, fontSize: 12.5, color: '#fcd34d', lineHeight: 1.55 }}>
+          <I n="alertc" s={14} c="#b45309" />
+          <p style={{ margin: 0, fontSize: 12.5, color: '#b45309', lineHeight: 1.55 }}>
             Make sure you can update your application with the new key before continuing.
           </p>
         </div>
@@ -666,7 +666,7 @@ const ConfirmRegenerateModal = ({ onCancel, onConfirm, loading }) => (
           variant="ghost"
           onClick={onConfirm}
           disabled={loading}
-          style={{ border: '1px solid rgba(248,113,113,.4)', background: 'rgba(248,113,113,.08)', color: '#f87171' }}
+          style={{ border: '1px solid rgba(248,113,113,.4)', background: 'rgba(248,113,113,.08)', color: '#dc2626' }}
         >
           {loading ? 'Regenerating…' : 'Regenerate Key'}
         </Btn>
@@ -679,8 +679,8 @@ const ConfirmRegenerateModal = ({ onCancel, onConfirm, loading }) => (
 // out — no backdrop-click dismiss — since the raw value is dropped the moment
 // it closes and cannot be recovered from this page again.
 const NewKeyModal = ({ apiKey, onClose }) => (
-  <div role="dialog" aria-modal="true" aria-label="New API Key Generated" style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-    <div style={{ ...card, border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(53,232,242,0.10)', width: '100%', maxWidth: 480, overflow: 'hidden' }}>
+  <div role="dialog" aria-modal="true" aria-label="New API Key Generated" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ ...card, border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(13,148,136,0.10)', width: '100%', maxWidth: 480, overflow: 'hidden' }}>
       <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--sbg)', border: '1px solid var(--sbd)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
@@ -688,7 +688,7 @@ const NewKeyModal = ({ apiKey, onClose }) => (
           </div>
           <h3 style={{ margin: 0, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--t1)' }}>New API Key Generated</h3>
         </div>
-        <button onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', color: 'var(--t2)', flexShrink: 0 }}>
+        <button onClick={onClose} style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', color: 'var(--t2)', flexShrink: 0 }}>
           <I n="x" s={12} c="var(--t2)" />
         </button>
       </div>
@@ -702,7 +702,7 @@ const NewKeyModal = ({ apiKey, onClose }) => (
           <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 9 }}>
             New API Key
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderRadius: 10, padding: '12px 14px', background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderRadius: 10, padding: '12px 14px', background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)' }}>
             <code style={{ flex: 1, minWidth: 0, fontFamily: mono, fontSize: 13, wordBreak: 'break-all', color: 'var(--t1)' }}>
               {apiKey || 'Not available'}
             </code>
@@ -711,8 +711,8 @@ const NewKeyModal = ({ apiKey, onClose }) => (
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 9, background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.25)' }}>
-          <I n="alertc" s={14} c="#fbbf24" />
-          <p style={{ margin: 0, fontSize: 12.5, color: '#fcd34d', lineHeight: 1.55 }}>
+          <I n="alertc" s={14} c="#b45309" />
+          <p style={{ margin: 0, fontSize: 12.5, color: '#b45309', lineHeight: 1.55 }}>
             Save this key securely. For security, the full key will only be available in this window. Once you close this window, you may not be able to view or copy the full key again.
           </p>
         </div>
@@ -1076,14 +1076,14 @@ export default function AuthenticationDashboard({ header }) {
 
         {activeTab === 'overview' && (
         <>
-        <section style={{ ...card, padding: '20px 22px', background: 'linear-gradient(135deg, rgba(53,232,242,.08), rgba(157,107,255,.04)), var(--surf)', borderColor: 'var(--gbd)' }}>
+        <section style={{ ...card, padding: '20px 22px', background: 'linear-gradient(135deg, rgba(13,148,136,.08), rgba(124,58,237,.04)), var(--surf)', borderColor: 'var(--gbd)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
             <div>
               <p style={{ margin: 0, fontFamily: mono, fontSize: 10, fontWeight: 700, letterSpacing: '.1em', color: 'var(--green)', textTransform: 'uppercase' }}>Authentication overview</p>
               <h2 style={{ margin: '6px 0 0', fontSize: 18, fontWeight: 700, color: 'var(--t1)' }}>{configurationState}</h2>
               <p style={{ margin: '5px 0 0', fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.5 }}>Configure the number and approved template used for verification-code messages.</p>
             </div>
-            {hasUnsavedChanges && <span style={{ padding: '5px 9px', borderRadius: 999, background: 'rgba(245,158,11,.09)', border: '1px solid rgba(245,158,11,.25)', color: '#fbbf24', fontSize: 11, fontWeight: 700 }}>Unsaved changes</span>}
+            {hasUnsavedChanges && <span style={{ padding: '5px 9px', borderRadius: 999, background: 'rgba(245,158,11,.09)', border: '1px solid rgba(245,158,11,.25)', color: '#b45309', fontSize: 11, fontWeight: 700 }}>Unsaved changes</span>}
           </div>
           <div className="rgrid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
             <OverviewMetric icon={enabled ? 'checkc' : 'clock'} label="Status" value={enabled ? 'Enabled' : 'Disabled'} detail={enabled ? 'Authentication is active' : 'Save to activate'} tone={enabled ? 'success' : 'warning'} />
@@ -1132,8 +1132,8 @@ export default function AuthenticationDashboard({ header }) {
 
               {numbers.length === 0 && (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 9, padding: '10px 11px', borderRadius: 8, background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.18)' }}>
-                  <I n="alertc" s={13} c="#fbbf24" />
-                  <p style={{ margin: 0, color: '#fcd34d', fontSize: 11.5, lineHeight: 1.45 }}>No WhatsApp numbers are available. Connect a WhatsApp number before enabling Authentication.</p>
+                  <I n="alertc" s={13} c="#b45309" />
+                  <p style={{ margin: 0, color: '#b45309', fontSize: 11.5, lineHeight: 1.45 }}>No WhatsApp numbers are available. Connect a WhatsApp number before enabling Authentication.</p>
                 </div>
               )}
 
@@ -1183,9 +1183,9 @@ export default function AuthenticationDashboard({ header }) {
 
               {templates.length === 0 && (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 9, padding: '10px 11px', borderRadius: 8, background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.18)' }}>
-                  <I n="alertc" s={13} c="#fbbf24" />
+                  <I n="alertc" s={13} c="#b45309" />
                   <div>
-                    <p style={{ margin: 0, color: '#fcd34d', fontSize: 11.5, lineHeight: 1.45 }}>No approved Authentication templates are available.</p>
+                    <p style={{ margin: 0, color: '#b45309', fontSize: 11.5, lineHeight: 1.45 }}>No approved Authentication templates are available.</p>
                     <button type="button" onClick={() => setActiveTab('templates')} style={{ marginTop: 4, padding: 0, border: 0, background: 'none', color: 'var(--green)', cursor: 'pointer', fontSize: 11.5, fontWeight: 700 }}>Create or manage templates</button>
                   </div>
                 </div>
@@ -1199,7 +1199,7 @@ export default function AuthenticationDashboard({ header }) {
             </div>
           </div>
 
-          <div style={{ marginTop: 18, padding: '14px 16px', borderRadius: 9, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 18, padding: '14px 16px', borderRadius: 9, background: 'rgba(15,23,42,0.02)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <I n="clock" s={15} c="var(--t2)" />
               <div>
@@ -1248,16 +1248,16 @@ export default function AuthenticationDashboard({ header }) {
           />
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '13px 15px', borderRadius: 9, background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.25)', marginBottom: 18 }}>
-            <I n="shield" s={15} c="#fbbf24" />
+            <I n="shield" s={15} c="#b45309" />
             <div>
-              <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: '#fbbf24' }}>Keep this key secret.</p>
-              <p style={{ margin: '3px 0 0', fontSize: 12, color: '#fcd34d', lineHeight: 1.5 }}>
+              <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: '#b45309' }}>Keep this key secret.</p>
+              <p style={{ margin: '3px 0 0', fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
                 Never expose the Authentication API key in browser or mobile application code.
               </p>
             </div>
           </div>
 
-          <div style={{ borderRadius: 10, padding: '16px 18px', background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)' }}>
+          <div style={{ borderRadius: 10, padding: '16px 18px', background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)' }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 9 }}>
               Authentication API Key
             </div>
@@ -1288,7 +1288,7 @@ export default function AuthenticationDashboard({ header }) {
                   variant="ghost"
                   onClick={() => setShowRegenerateConfirm(true)}
                   disabled={rotating}
-                  style={{ border: '1px solid rgba(248,113,113,.4)', background: 'rgba(248,113,113,.08)', color: '#f87171' }}
+                  style={{ border: '1px solid rgba(248,113,113,.4)', background: 'rgba(248,113,113,.08)', color: '#dc2626' }}
                 >
                   {rotating ? 'Rotating…' : 'Regenerate'}
                 </Btn>
@@ -1297,8 +1297,8 @@ export default function AuthenticationDashboard({ header }) {
 
             {apiKey && (
               <div style={{ marginTop: 14, display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 14, borderTop: '1px solid var(--bd)' }}>
-                <I n="alertc" s={13} c="#fbbf24" />
-                <p style={{ margin: 0, fontSize: 11.5, color: '#fcd34d', lineHeight: 1.55 }}>
+                <I n="alertc" s={13} c="#b45309" />
+                <p style={{ margin: 0, fontSize: 11.5, color: '#b45309', lineHeight: 1.55 }}>
                   For security, this key is shown temporarily. Store it securely before leaving this page.
                 </p>
               </div>

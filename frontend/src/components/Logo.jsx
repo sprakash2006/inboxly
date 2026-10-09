@@ -9,7 +9,7 @@ export function Logo({
   style = {},
   ariaLabel = 'Inboxly',
 }) {
-  const dot = Math.max(9, Math.round(size * 0.32));
+  const mark = Math.round(size * 0.86);
   return (
     <div
       onClick={onClick}
@@ -33,16 +33,23 @@ export function Logo({
           flexShrink: 0,
         }}
       >
+        {/* The chat-bubble mark used on the landing and sign-in pages. */}
         <span
-          className="sp-pulse"
           style={{
-            width: dot,
-            height: dot,
-            borderRadius: '50%',
-            background: 'var(--accent)',
-            boxShadow: '0 0 12px var(--accent)',
+            width: mark,
+            height: mark,
+            borderRadius: Math.round(mark * 0.3),
+            background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+            boxShadow: '0 2px 8px rgba(13,148,136,0.28)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-        />
+        >
+          <svg width={Math.round(mark * 0.52)} height={Math.round(mark * 0.52)} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
+          </svg>
+        </span>
       </span>
       {text && (
         <span

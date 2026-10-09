@@ -67,7 +67,7 @@ export default function Register({ onNav }) {
 
   const inp = (name) => ({
     width: '100%', padding: '11px 14px', borderRadius: '9px', outline: 'none',
-    background: 'rgba(255,255,255,0.035)', fontFamily: "'Manrope',sans-serif",
+    background: 'rgba(15,23,42,0.035)', fontFamily: "'Manrope',sans-serif",
     fontSize: '14px', color: 'var(--t1)', transition: 'border .18s',
     border: focus === name ? '1px solid var(--gbd)' : '1px solid var(--bd)',
   });
@@ -138,15 +138,15 @@ export default function Register({ onNav }) {
         }
       `}</style>
       {/* Left brand panel */}
-      <div className="auth-brand-panel" style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '44px 52px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg,#0a0b0e 0%,#0a0f1e 60%,#0a0b0e 100%)', borderRight: '1px solid var(--bd)' }}>
+      <div className="auth-brand-panel" style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '44px 52px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg,#f0fdfa 0%,#ecfeff 55%,#f5f3ff 100%)', borderRight: '1px solid var(--bd)' }}>
         {/* Matches the landing page and the sign-in screen. */}
-        <div className="aurora-a" style={{ position: 'absolute', top: '-120px', left: '-120px', width: '460px', height: '460px', background: 'radial-gradient(circle,rgba(53,232,242,0.13) 0%,transparent 62%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+        <div className="aurora-a" style={{ position: 'absolute', top: '-120px', left: '-120px', width: '460px', height: '460px', background: 'radial-gradient(circle,rgba(13,148,136,0.13) 0%,transparent 62%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div className="aurora-b" style={{ position: 'absolute', bottom: '-90px', right: '-70px', width: '400px', height: '400px', background: 'radial-gradient(circle,rgba(14,165,233,0.10) 0%,transparent 62%)', filter: 'blur(34px)', pointerEvents: 'none' }} />
         <div onClick={() => onNav('landing')} style={{ display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer', position: 'relative', zIndex: 1 }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#0a0b0e" />
-              <path d="M5.5 7.5h5M5.5 10h3" stroke="#35e8f2" strokeWidth="1.3" strokeLinecap="round" />
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
+              <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.3" strokeLinecap="round" />
             </svg>
           </div>
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '17px', color: 'var(--t1)' }}>
@@ -166,7 +166,7 @@ export default function Register({ onNav }) {
 
       {/* Right form panel */}
       <div className="auth-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', position: 'relative' }}>
-        <div className="aurora-b" style={{ position: 'absolute', top: '10%', right: '-10%', width: '420px', height: '420px', background: 'radial-gradient(circle,rgba(53,232,242,0.07) 0%,transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+        <div className="aurora-b" style={{ position: 'absolute', top: '10%', right: '-10%', width: '420px', height: '420px', background: 'radial-gradient(circle,rgba(13,148,136,0.07) 0%,transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
         <div className="glass auth-card" style={{ width: '100%', maxWidth: '420px', padding: '34px 32px', borderRadius: 'var(--rxl)', position: 'relative' }}>
           {step === 'details' ? (
             <>
@@ -182,11 +182,11 @@ export default function Register({ onNav }) {
                 </div>
               )}
               {inviteWarning && (
-                <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', color: '#fbbf24', fontSize: 13, marginBottom: 16 }}>
+                <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', color: '#b45309', fontSize: 13, marginBottom: 16 }}>
                   {inviteWarning}
                 </div>
               )}
-              {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
+              {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
 
               <form onSubmit={submitDetails} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
@@ -239,7 +239,7 @@ export default function Register({ onNav }) {
                 </div>
               ) : (
                 <>
-                  {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
+                  {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
                   <form onSubmit={submitOtp} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <input
                       inputMode="numeric" maxLength={6} placeholder="000000"

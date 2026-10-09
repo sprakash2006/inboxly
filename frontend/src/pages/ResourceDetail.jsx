@@ -181,7 +181,7 @@ export default function ResourceDetail({ slug }) {
               <>
                 <h2 id="tips">Tips &amp; common issues</h2>
                 <div className="callout warn">
-                  <span className="ico"><I n="alertt" s={16} c="var(--rc-amber, #F59E0B)" /></span>
+                  <span className="ico"><I n="alertt" s={16} c="var(--rc-amber, #d97706)" /></span>
                   <div>
                     <ul style={{ margin: 0 }}>{resource.tips.map((t) => <li key={t}>{t}</li>)}</ul>
                   </div>

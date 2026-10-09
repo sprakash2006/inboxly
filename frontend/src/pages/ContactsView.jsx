@@ -12,11 +12,11 @@ const card = { background: 'var(--surf)', border: '1px solid var(--bd)', borderR
 
 
 const Tag = ({ label }) => (
-  <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'10px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid var(--bd)', color:'var(--t2)', whiteSpace:'nowrap' }}>{label}</span>
+  <span style={{ padding:'2px 8px', borderRadius:'6px', fontSize:'10px', fontWeight:600, background:'rgba(15,23,42,0.06)', border:'1px solid var(--bd)', color:'var(--t2)', whiteSpace:'nowrap' }}>{label}</span>
 );
 
 const StatusBadge = ({ optedOut }) => (
-  <span style={{ padding:'2px 9px', borderRadius:'12px', fontSize:'11px', fontWeight:600, background: optedOut ? 'rgba(255,255,255,0.04)' : 'var(--gbg)', border:`1px solid ${optedOut ? 'var(--bd)' : 'var(--gbd)'}`, color: optedOut ? 'var(--t2)' : 'var(--green)' }}>
+  <span style={{ padding:'2px 9px', borderRadius:'12px', fontSize:'11px', fontWeight:600, background: optedOut ? 'rgba(15,23,42,0.04)' : 'var(--gbg)', border:`1px solid ${optedOut ? 'var(--bd)' : 'var(--gbd)'}`, color: optedOut ? 'var(--t2)' : 'var(--green)' }}>
     {optedOut ? 'Opted Out' : 'Active'}
   </span>
 );
@@ -30,7 +30,7 @@ const ColHead = ({ children, width }) => (
 );
 
 const Modal = ({ title, onClose, children, footer, width = 540 }) => (
-  <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
+  <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
     <div style={{ ...card, width, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--bd)', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
         <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--t1)' }}>{title}</span>
@@ -47,14 +47,14 @@ const Modal = ({ title, onClose, children, footer, width = 540 }) => (
 const FInput = ({ value, onChange, placeholder, type = 'text', onKeyDown }) => (
   <input
     type={type} value={value} onChange={onChange} placeholder={placeholder} onKeyDown={onKeyDown}
-    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
+    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
     onFocus={e => e.target.style.borderColor='var(--gbd)'}
     onBlur={e => e.target.style.borderColor='var(--bd)'} />
 );
 
 const FLabel = ({ children, required }) => (
   <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', letterSpacing:'.04em', marginBottom:6 }}>
-    {children} {required && <span style={{ color:'#f87171' }}>*</span>}
+    {children} {required && <span style={{ color:'#dc2626' }}>*</span>}
   </label>
 );
 
@@ -90,7 +90,7 @@ const ManualTab = ({ onSaved }) => {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
       {err && (
-        <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>
+        <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
       )}
       <div>
         <FLabel>Name</FLabel>
@@ -175,7 +175,7 @@ const CsvTab = ({ onSaved }) => {
         </Btn>
       </div>
       {err && (
-        <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>
+        <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
       )}
       {result && (
         <div style={{ padding:'10px 13px', borderRadius:8, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)', fontSize:13, fontWeight:600 }}>
@@ -191,10 +191,10 @@ const CsvTab = ({ onSaved }) => {
         style={{
           border:`2px dashed ${dragging ? 'var(--green)' : 'var(--bd)'}`,
           borderRadius:12, padding:'30px 18px', textAlign:'center', cursor:'pointer',
-          transition:'all .2s', background: dragging ? 'var(--gbg)' : 'rgba(255,255,255,0.01)',
+          transition:'all .2s', background: dragging ? 'var(--gbg)' : 'rgba(15,23,42,0.01)',
         }}>
         <div style={{ display:'flex', justifyContent:'center', marginBottom:10 }}>
-          <div style={{ width:44, height:44, borderRadius:12, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:44, height:44, borderRadius:12, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="17,8 12,3 7,8"/>
@@ -217,43 +217,43 @@ const CsvTab = ({ onSaved }) => {
         )}
       </div>
       <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:8, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9d6bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <span style={{ fontSize:12, color:'#b9a3ff', lineHeight:1.5 }}>
-          Phone numbers must include country code (e.g. <code style={{ fontFamily:'monospace', color:'#b9a3ff' }}>+919876543210</code>). Tags column is comma-separated.
+        <span style={{ fontSize:12, color:'#6d28d9', lineHeight:1.5 }}>
+          Phone numbers must include country code (e.g. <code style={{ fontFamily:'monospace', color:'#6d28d9' }}>+919876543210</code>). Tags column is comma-separated.
         </span>
       </div>
       <div style={{ padding:'14px 16px', borderRadius:8, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9d6bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <span style={{ fontSize:13, fontWeight:600, color:'#b9a3ff' }}>Instructions for uploading CSV</span>
+          <span style={{ fontSize:13, fontWeight:600, color:'#6d28d9' }}>Instructions for uploading CSV</span>
         </div>
-        <ul style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#b9a3ff', lineHeight: 1.5 }}>
+        <ul style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#6d28d9', lineHeight: 1.5 }}>
           <li>Upload a CSV file to bulk import contacts.</li>
           <li>
             Required columns:
             <ul style={{ listStyleType: 'none', paddingLeft: 16, marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>phoneNumber</code> (required)</li>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>name</code> (optional)</li>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>email</code> (optional)</li>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>tags</code> (optional)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>phoneNumber</code> (required)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>name</code> (optional)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>email</code> (optional)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>tags</code> (optional)</li>
             </ul>
           </li>
           <li>
             Phone numbers must include country code.
             <div style={{ marginTop: 4 }}>
               Example:<br />
-              <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>+919876543210</code>
+              <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>+919876543210</code>
             </div>
           </li>
           <li>
             Tags must be comma-separated.
             <div style={{ marginTop: 4 }}>
               Example:<br />
-              <code style={{ fontFamily: 'monospace', color: '#b9a3ff' }}>vip,customer</code>
+              <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>vip,customer</code>
             </div>
           </li>
           <li>Duplicate phone numbers in the CSV will be skipped.</li>
@@ -328,7 +328,7 @@ const EditContactDialog = ({ contact, onClose, onSaved }) => {
     <Modal title="Edit Contact" onClose={onClose}>
       <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
         {err && (
-          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>
+          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
         )}
         <div>
           <FLabel>Name</FLabel>
@@ -382,14 +382,14 @@ const DeleteContactModal = ({ contact, onClose, onDeleted }) => {
     <Modal title="Delete Contact" onClose={onClose} width={400} footer={
       <>
         <Btn variant="outline" onClick={onClose} disabled={deleting}>Cancel</Btn>
-        <Btn onClick={confirmDelete} disabled={deleting} style={{ background: '#f87171', color: '#fff' }}>
+        <Btn onClick={confirmDelete} disabled={deleting} style={{ background: '#dc2626', color: '#fff' }}>
           {deleting ? 'Deleting…' : 'Delete'}
         </Btn>
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {err && (
-          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>
+          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
         )}
         <p style={{ fontSize: 13, color: 'var(--t1)', lineHeight: 1.5 }}>
           Are you sure you want to delete <strong>{contact.name || contact.phoneNumber}</strong>?
@@ -433,14 +433,14 @@ const DeleteMultipleModal = ({ selectedIds, onClose, onDeleted }) => {
     <Modal title="Delete Contacts" onClose={onClose} width={400} footer={
       <>
         <Btn variant="outline" onClick={onClose} disabled={deleting}>Cancel</Btn>
-        <Btn onClick={confirmDelete} disabled={deleting} style={{ background: '#f87171', color: '#fff' }}>
+        <Btn onClick={confirmDelete} disabled={deleting} style={{ background: '#dc2626', color: '#fff' }}>
           {deleting ? 'Deleting…' : 'Delete'}
         </Btn>
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {err && (
-          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>{err}</div>
+          <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
         )}
         <p style={{ fontSize: 13, color: 'var(--t1)', lineHeight: 1.5 }}>
           Are you sure you want to delete <strong>{selectedIds.size}</strong> selected contact{selectedIds.size > 1 ? 's' : ''}?
@@ -540,7 +540,7 @@ const CreateClusterModal = ({ cluster = null, onClose, onSaved }) => {
     <Modal title={isEdit ? 'Edit Cluster' : 'Create Cluster'} onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {err && (
-          <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12 }}>
+          <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12 }}>
             {err}
           </div>
         )}
@@ -554,7 +554,7 @@ const CreateClusterModal = ({ cluster = null, onClose, onSaved }) => {
         </div>
         <div>
           <FLabel required>Select Contacts</FLabel>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', marginBottom: 10 }}>
             <I n="search" s={13} c="var(--t2)" />
             <input
               value={search}
@@ -563,7 +563,7 @@ const CreateClusterModal = ({ cluster = null, onClose, onSaved }) => {
               style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif" }}
             />
           </div>
-          <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid var(--bd)', borderRadius: 8, padding: 4, display: 'flex', flexDirection: 'column', gap: 2, background: 'rgba(0,0,0,0.15)' }}>
+          <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid var(--bd)', borderRadius: 8, padding: 4, display: 'flex', flexDirection: 'column', gap: 2, background: 'rgba(15,23,42,0.15)' }}>
             {loading ? (
               <div style={{ padding: 24, textAlign: 'center', color: 'var(--t2)', fontSize: 12 }}>Loading contacts...</div>
             ) : filtered.length === 0 ? (
@@ -575,9 +575,9 @@ const CreateClusterModal = ({ cluster = null, onClose, onSaved }) => {
                   <div
                     key={c.id}
                     onClick={() => toggle(c.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 6, cursor: 'pointer', background: sel ? 'rgba(53,232,242,0.08)' : 'transparent', transition: 'background .12s' }}
-                    onMouseEnter={(e) => { if (!sel) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                    onMouseLeave={(e) => { if (!sel) e.currentTarget.style.background = sel ? 'rgba(53,232,242,0.08)' : 'transparent'; }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 6, cursor: 'pointer', background: sel ? 'rgba(13,148,136,0.08)' : 'transparent', transition: 'background .12s' }}
+                    onMouseEnter={(e) => { if (!sel) e.currentTarget.style.background = 'rgba(15,23,42,0.03)'; }}
+                    onMouseLeave={(e) => { if (!sel) e.currentTarget.style.background = sel ? 'rgba(13,148,136,0.08)' : 'transparent'; }}
                   >
                     <div style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--green)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}>
                       {sel && <I n="check" s={9} c="#08090c" w={3} />}
@@ -795,8 +795,8 @@ export default function ContactsView() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {selCount > 0 && canDelete && (
-            <Btn variant="outline" onClick={() => setDeletingMultiple(true)} style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#f87171', background: 'rgba(239,68,68,0.05)' }}>
-              <I n="trash" s={14} c="#f87171" />
+            <Btn variant="outline" onClick={() => setDeletingMultiple(true)} style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#dc2626', background: 'rgba(239,68,68,0.05)' }}>
+              <I n="trash" s={14} c="#dc2626" />
               Delete {selCount} selected
             </Btn>
           )}
@@ -817,7 +817,7 @@ export default function ContactsView() {
 
       {/* filter bar */}
       <div style={{ padding:'12px 28px', borderBottom:'1px solid var(--bd)', display:'flex', gap:10, alignItems:'center', background:'var(--surf)', flexShrink:0, flexWrap:'wrap' }}>
-        <div style={{ flex:1, maxWidth:360, minWidth:200, display:'flex', alignItems:'center', gap:8, padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+        <div style={{ flex:1, maxWidth:360, minWidth:200, display:'flex', alignItems:'center', gap:8, padding:'8px 12px', borderRadius:8, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
           <I n="search" s={13} c="var(--t2)" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone or email…"
             style={{ flex:1, background:'none', border:'none', outline:'none', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif" }} />
@@ -853,7 +853,7 @@ export default function ContactsView() {
                         style={{ flex:1, padding:'7px 8px', borderRadius:7, cursor:'pointer', fontSize:12, fontWeight:600,
                                  fontFamily:"'Manrope',sans-serif",
                                  border:`1px solid ${filters.status === v ? 'var(--gbd)' : 'var(--bd)'}`,
-                                 background: filters.status === v ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                                 background: filters.status === v ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                                  color: filters.status === v ? 'var(--green)' : 'var(--t2)' }}>
                         {label}
                       </button>
@@ -865,7 +865,7 @@ export default function ContactsView() {
                   <div>
                     <FLabel>Group</FLabel>
                     <select value={filters.segmentId} onChange={e => setFilters(f => ({ ...f, segmentId: e.target.value }))}
-                      style={{ width:'100%', padding:'8px 10px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', appearance:'auto', colorScheme:'dark' }}>
+                      style={{ width:'100%', padding:'8px 10px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', appearance:'auto', colorScheme:'dark' }}>
                       <option value="">Any group</option>
                       {segments.map(sg => <option key={sg.id} value={sg.id}>{sg.name}</option>)}
                     </select>
@@ -885,7 +885,7 @@ export default function ContactsView() {
                             style={{ padding:'4px 10px', borderRadius:20, cursor:'pointer', fontSize:11.5, fontWeight:600,
                                      fontFamily:"'Manrope',sans-serif",
                                      border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
-                                     background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                                     background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                                      color: on ? 'var(--green)' : 'var(--t2)' }}>
                             {t.name} <span style={{ opacity:.6 }}>{t.count}</span>
                           </button>
@@ -902,10 +902,10 @@ export default function ContactsView() {
                   <FLabel>Created between</FLabel>
                   <div style={{ display:'flex', gap:6, alignItems:'center' }}>
                     <input type="date" value={filters.createdFrom} onChange={e => setFilters(f => ({ ...f, createdFrom: e.target.value }))}
-                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
+                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
                     <span style={{ fontSize:11, color:'var(--t3)' }}>to</span>
                     <input type="date" value={filters.createdTo} onChange={e => setFilters(f => ({ ...f, createdTo: e.target.value }))}
-                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
+                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
                   </div>
                 </div>
 
@@ -913,10 +913,10 @@ export default function ContactsView() {
                   <FLabel>Updated between</FLabel>
                   <div style={{ display:'flex', gap:6, alignItems:'center' }}>
                     <input type="date" value={filters.updatedFrom} onChange={e => setFilters(f => ({ ...f, updatedFrom: e.target.value }))}
-                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
+                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
                     <span style={{ fontSize:11, color:'var(--t3)' }}>to</span>
                     <input type="date" value={filters.updatedTo} onChange={e => setFilters(f => ({ ...f, updatedTo: e.target.value }))}
-                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
+                      style={{ flex:1, padding:'7px 9px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none', colorScheme:'dark' }} />
                   </div>
                 </div>
 
@@ -945,7 +945,7 @@ export default function ContactsView() {
                              fontWeight: sort === o.id ? 700 : 500,
                              color: sort === o.id ? 'var(--green)' : 'var(--t2)',
                              background: sort === o.id ? 'var(--gbg)' : 'transparent' }}
-                    onMouseEnter={e => { if (sort !== o.id) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                    onMouseEnter={e => { if (sort !== o.id) e.currentTarget.style.background = 'rgba(15,23,42,0.03)'; }}
                     onMouseLeave={e => { if (sort !== o.id) e.currentTarget.style.background = 'transparent'; }}>
                     {o.label}
                   </div>
@@ -978,7 +978,7 @@ export default function ContactsView() {
               color: !selectedCluster ? 'var(--green)' : 'var(--t2)',
               fontSize:13, fontWeight: !selectedCluster ? 600 : 500, transition:'all .15s'
             }}
-            onMouseEnter={e => { if (selectedCluster) e.currentTarget.style.background='rgba(255,255,255,0.03)'; }}
+            onMouseEnter={e => { if (selectedCluster) e.currentTarget.style.background='rgba(15,23,42,0.03)'; }}
             onMouseLeave={e => { if (selectedCluster) e.currentTarget.style.background='transparent'; }}
           >
             <span>All Contacts</span>
@@ -996,7 +996,7 @@ export default function ContactsView() {
                   color: active ? 'var(--green)' : 'var(--t2)',
                   fontSize:13, fontWeight: active ? 600 : 500, transition:'all .15s'
                 }}
-                onMouseEnter={e => { if (!active) e.currentTarget.style.background='rgba(255,255,255,0.03)'; }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background='rgba(15,23,42,0.03)'; }}
                 onMouseLeave={e => { if (!active) e.currentTarget.style.background='transparent'; }}
               >
                 <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>{c.name}</span>
@@ -1013,7 +1013,7 @@ export default function ContactsView() {
                     <button title="Delete cluster" aria-label={`Delete ${c.name}`}
                       onClick={e => { e.stopPropagation(); deleteCluster(c); }}
                       style={{ background:'none', border:'none', cursor:'pointer', padding:2, display:'flex' }}>
-                      <I n="trash" s={12} c="#f87171" />
+                      <I n="trash" s={12} c="#dc2626" />
                     </button>
                   </span>
                 )}
@@ -1074,8 +1074,8 @@ export default function ContactsView() {
                   const sel = selected.has(c.id);
                   return (
                     <tr key={c.id}
-                      style={{ borderBottom: i < contacts.length - 1 ? '1px solid var(--bd)' : 'none', background: sel ? 'rgba(53,232,242,0.04)' : 'transparent', transition:'background .12s' }}
-                      onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'rgba(255,255,255,0.015)'; }}
+                      style={{ borderBottom: i < contacts.length - 1 ? '1px solid var(--bd)' : 'none', background: sel ? 'rgba(13,148,136,0.04)' : 'transparent', transition:'background .12s' }}
+                      onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'rgba(15,23,42,0.015)'; }}
                       onMouseLeave={e => { if (!sel) e.currentTarget.style.background = 'transparent'; }}>
                       <td style={{ padding:'12px 16px' }}>
                         <Chk checked={sel} onChange={() => toggle(c.id)} />
@@ -1098,22 +1098,22 @@ export default function ContactsView() {
                       </td>
                       <td style={{ padding:'12px 16px' }}>
                         <div style={{ display:'flex', gap:6, justifyContent:'flex-end' }}>
-                          <button aria-label="Message" style={{ width:30, height:30, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', transition:'all .15s', flexShrink:0 }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(53,232,242,0.1)'; e.currentTarget.style.borderColor = 'var(--gbd)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
+                          <button aria-label="Message" style={{ width:30, height:30, borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', transition:'all .15s', flexShrink:0 }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(13,148,136,0.1)'; e.currentTarget.style.borderColor = 'var(--gbd)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
                             <I n="msg" s={13} c="var(--t2)" />
                           </button>
-                          {canEdit && <button aria-label="Edit" style={{ width:30, height:30, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', transition:'all .15s', flexShrink:0 }}
+                          {canEdit && <button aria-label="Edit" style={{ width:30, height:30, borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', transition:'all .15s', flexShrink:0 }}
                             onClick={() => setEditingContact(c)}
                             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,165,233,0.1)'; e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
                             <I n="pencil" s={13} c="var(--t2)" />
                           </button>}
-                          {canDelete && <button aria-label="Delete" style={{ width:30, height:30, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#f87171', transition:'all .15s', flexShrink:0 }}
+                          {canDelete && <button aria-label="Delete" style={{ width:30, height:30, borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#dc2626', transition:'all .15s', flexShrink:0 }}
                             onClick={() => setDeletingContact(c)}
                             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
-                            <I n="trash" s={13} c="#f87171" />
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
+                            <I n="trash" s={13} c="#dc2626" />
                           </button>}
                         </div>
                       </td>

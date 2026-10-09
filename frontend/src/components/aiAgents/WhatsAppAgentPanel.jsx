@@ -17,21 +17,21 @@ import { usePlanFeatures } from '../../lib/usePlanFeatures.js';
 const WA = AI_AGENTS_API.whatsapp;
 
 const card = { background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', boxShadow:'var(--card-shadow)' };
-const inputStyle = { width:'100%', padding:'10px 13px', borderRadius:8, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, outline:'none', fontFamily:"'Manrope',sans-serif", boxSizing:'border-box' };
+const inputStyle = { width:'100%', padding:'10px 13px', borderRadius:8, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, outline:'none', fontFamily:"'Manrope',sans-serif", boxSizing:'border-box' };
 const labelStyle = { display:'block', fontSize:'11px', fontWeight:600, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 };
 
 const Toggle = ({ on, onToggle, disabled = false }) => (
-  <div onClick={disabled ? undefined : onToggle} style={{ width:36, height:20, borderRadius:20, background: on ? 'var(--green)' : 'rgba(255,255,255,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
-    <div style={{ position:'absolute', top:2, left: on ? 17 : 2, width:14, height:14, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(0,0,0,0.4)' }} />
+  <div onClick={disabled ? undefined : onToggle} style={{ width:36, height:20, borderRadius:20, background: on ? 'var(--green)' : 'rgba(15,23,42,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
+    <div style={{ position:'absolute', top:2, left: on ? 17 : 2, width:14, height:14, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(15,23,42,0.12)' }} />
   </div>
 );
 
 const Banner = ({ tone = 'info', children }) => {
   const palette = {
-    error: { bd:'rgba(239,68,68,.25)', bg:'rgba(239,68,68,.06)', fg:'#f87171' },
-    warn:  { bd:'rgba(245,158,11,.3)', bg:'rgba(245,158,11,.06)', fg:'#fbbf24' },
+    error: { bd:'rgba(239,68,68,.25)', bg:'rgba(239,68,68,.06)', fg:'#dc2626' },
+    warn:  { bd:'rgba(245,158,11,.3)', bg:'rgba(245,158,11,.06)', fg:'#b45309' },
     ok:    { bd:'var(--gbd)',          bg:'var(--gbg)',           fg:'var(--green)' },
-    info:  { bd:'var(--bd)',           bg:'rgba(255,255,255,0.03)', fg:'var(--t2)' },
+    info:  { bd:'var(--bd)',           bg:'rgba(15,23,42,0.03)', fg:'var(--t2)' },
   }[tone];
   return (
     <div style={{ ...card, padding:'11px 15px', border:`1px solid ${palette.bd}`, background:palette.bg, display:'flex', alignItems:'center', gap:8 }}>
@@ -60,7 +60,7 @@ const TabHeader = ({ icon, color, bg, title, subtitle, badge, children }) => (
 );
 
 const Pill = ({ children, tone = 'green' }) => (
-  <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:20, background: tone === 'green' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border:`1px solid ${tone === 'green' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: tone === 'green' ? 'var(--green)' : '#f59e0b', textTransform:'uppercase', letterSpacing:'.05em' }}>
+  <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:20, background: tone === 'green' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border:`1px solid ${tone === 'green' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: tone === 'green' ? 'var(--green)' : '#d97706', textTransform:'uppercase', letterSpacing:'.05em' }}>
     {children}
   </span>
 );
@@ -71,11 +71,11 @@ const Pill = ({ children, tone = 'green' }) => (
 // campaign still has customers holding a message with a live CTA.
 const CAMPAIGN_TONE = {
   RUNNING:   { label:'Active',    fg:'var(--success)', bg:'var(--sbg)',          bd:'var(--sbd)' },
-  SCHEDULED: { label:'Scheduled', fg:'#9d6bff',      bg:'rgba(157,107,255,.08)',  bd:'rgba(157,107,255,.25)' },
+  SCHEDULED: { label:'Scheduled', fg:'#7c3aed',      bg:'rgba(124,58,237,.08)',  bd:'rgba(124,58,237,.25)' },
   COMPLETED: { label:'Completed', fg:'var(--success)', bg:'var(--sbg)',          bd:'var(--sbd)' },
-  DRAFT:     { label:'Draft',     fg:'var(--t2)',    bg:'rgba(255,255,255,.05)', bd:'var(--bd)' },
-  CANCELLED: { label:'Paused',    fg:'#fbbf24',      bg:'rgba(245,158,11,.08)',  bd:'rgba(245,158,11,.25)' },
-  FAILED:    { label:'Failed',    fg:'#f87171',      bg:'rgba(239,68,68,.08)',   bd:'rgba(239,68,68,.25)' },
+  DRAFT:     { label:'Draft',     fg:'var(--t2)',    bg:'rgba(15,23,42,.05)', bd:'var(--bd)' },
+  CANCELLED: { label:'Paused',    fg:'#b45309',      bg:'rgba(245,158,11,.08)',  bd:'rgba(245,158,11,.25)' },
+  FAILED:    { label:'Failed',    fg:'#dc2626',      bg:'rgba(239,68,68,.08)',   bd:'rgba(239,68,68,.25)' },
 };
 // The eight things that make an agent answer well, in the order you configure
 // them. The section rail is the page's spine: each one edits a different part
@@ -105,8 +105,8 @@ const ESCALATION_RULES = [
 
 const SOURCE_STATUS = {
   READY:   { label: 'CONNECTED', fg: 'var(--success)', bg: 'var(--sbg)',              bd: 'var(--sbd)' },
-  PENDING: { label: 'INDEXING',  fg: '#fbbf24',        bg: 'rgba(245,158,11,.08)',   bd: 'rgba(245,158,11,.28)' },
-  ERROR:   { label: 'FAILED',    fg: '#f87171',        bg: 'rgba(239,68,68,.08)',    bd: 'rgba(239,68,68,.25)' },
+  PENDING: { label: 'INDEXING',  fg: '#b45309',        bg: 'rgba(245,158,11,.08)',   bd: 'rgba(245,158,11,.28)' },
+  ERROR:   { label: 'FAILED',    fg: '#dc2626',        bg: 'rgba(239,68,68,.08)',    bd: 'rgba(239,68,68,.25)' },
 };
 
 const SectionIntro = ({ section }) => (
@@ -321,7 +321,7 @@ const WhatsAppAgentPanel = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="bot" color="#9d6bff" bg="rgba(157,107,255,0.1)"
+      <TabHeader icon="bot" color="#7c3aed" bg="rgba(124,58,237,0.1)"
         title={name || 'WhatsApp AI Agent'}
         subtitle={deployed
           ? 'Deployed · answering campaign CTAs and inbound messages'
@@ -330,7 +330,7 @@ const WhatsAppAgentPanel = () => {
         {canEdit && <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
           <Btn variant="outline" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</Btn>
           <Btn onClick={deploy} disabled={deploying || llmMissing || (planLocked && !deployed)}
-            style={deployed ? { background:'rgba(239,68,68,.12)', border:'1px solid rgba(239,68,68,.3)', color:'#f87171', boxShadow:'none' } : { boxShadow:'var(--glow)' }}>
+            style={deployed ? { background:'rgba(239,68,68,.12)', border:'1px solid rgba(239,68,68,.3)', color:'#dc2626', boxShadow:'none' } : { boxShadow:'var(--glow)' }}>
             {deploying ? 'Working…' : deployed ? 'Undeploy agent' : <><I n="play" s={14} c="#08090c"/> Deploy agent</>}
           </Btn>
         </div>}
@@ -354,9 +354,9 @@ const WhatsAppAgentPanel = () => {
                   style={{ display:'flex', alignItems:'center', gap:9, padding:'9px 10px', borderRadius:9, border:'none', cursor:'pointer', textAlign:'left', width:'100%',
                            fontFamily:"'Manrope',sans-serif", fontSize:13, fontWeight: on ? 700 : 500,
                            color: on ? 'var(--t1)' : 'var(--t2)',
-                           background: on ? 'rgba(157,107,255,0.12)' : 'transparent',
-                           borderLeft: `2px solid ${on ? '#9d6bff' : 'transparent'}` }}>
-                  <I n={sec.icon} s={14} c={on ? '#9d6bff' : 'var(--t3)'} />
+                           background: on ? 'rgba(124,58,237,0.12)' : 'transparent',
+                           borderLeft: `2px solid ${on ? '#7c3aed' : 'transparent'}` }}>
+                  <I n={sec.icon} s={14} c={on ? '#7c3aed' : 'var(--t3)'} />
                   {sec.label}
                 </button>
               );
@@ -366,10 +366,10 @@ const WhatsAppAgentPanel = () => {
           {readiness && (
             <div style={{ ...card, padding:16 }}>
               <div style={{ fontFamily:'var(--mono)', fontSize:9.5, letterSpacing:'.14em', textTransform:'uppercase', color:'var(--t3)', marginBottom:8 }}>AI readiness</div>
-              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:30, color: readiness.score >= 80 ? 'var(--lime)' : readiness.score >= 50 ? 'var(--accent)' : '#fbbf24', letterSpacing:'-.03em', lineHeight:1 }}>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:30, color: readiness.score >= 80 ? 'var(--lime)' : readiness.score >= 50 ? 'var(--accent)' : '#b45309', letterSpacing:'-.03em', lineHeight:1 }}>
                 {readiness.score}%
               </div>
-              <div style={{ height:4, borderRadius:4, background:'rgba(255,255,255,0.07)', overflow:'hidden', margin:'10px 0 9px' }}>
+              <div style={{ height:4, borderRadius:4, background:'rgba(15,23,42,0.07)', overflow:'hidden', margin:'10px 0 9px' }}>
                 <div style={{ width:`${readiness.score}%`, height:'100%', borderRadius:4, background:'var(--grad-cta)', transition:'width .3s' }} />
               </div>
               <p style={{ fontSize:11.5, color:'var(--t2)', lineHeight:1.5 }}>
@@ -404,7 +404,7 @@ const WhatsAppAgentPanel = () => {
                     return (
                       <button key={lang} type="button" onClick={() => toggleLanguage(lang)}
                         style={{ fontSize:12.5, fontWeight:600, padding:'6px 13px', borderRadius:100, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                                 background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                                 background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                                  border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
                                  color: on ? 'var(--green)' : 'var(--t2)' }}>{lang}</button>
                     );
@@ -443,7 +443,7 @@ const WhatsAppAgentPanel = () => {
                 {/* The WhatsApp agent's prompt is built from the notes below
                     only; nothing retrieves from these indexed sources yet, so
                     they are labelled for what they actually feed. */}
-                <p style={{ fontSize:12, color:'#fbbf24', lineHeight:1.6, marginBottom:12 }}>
+                <p style={{ fontSize:12, color:'#b45309', lineHeight:1.6, marginBottom:12 }}>
                   These sources feed the website widget assistant. The WhatsApp AI agent does not read them yet — put the facts it
                   needs in the notes below, or upload a document there.
                 </p>
@@ -452,7 +452,7 @@ const WhatsAppAgentPanel = () => {
                   {sources.map(src => {
                     const tone = SOURCE_STATUS[src.status] || SOURCE_STATUS.PENDING;
                     return (
-                      <div key={src.id} style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 13px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+                      <div key={src.id} style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 13px', borderRadius:10, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
                         <I n={src.kind === 'url' ? 'globe' : src.kind === 'file' ? 'file' : 'note'} s={15} c="var(--t2)" />
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:13, fontWeight:600, color:'var(--t1)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{src.title}</div>
@@ -467,7 +467,7 @@ const WhatsAppAgentPanel = () => {
                         </span>
                         <button onClick={() => removeSource(src)} aria-label={`Remove ${src.title}`}
                           style={{ width:26, height:26, borderRadius:7, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                          <I n="trash" s={11} c="#f87171" />
+                          <I n="trash" s={11} c="#dc2626" />
                         </button>
                       </div>
                     );
@@ -495,7 +495,7 @@ const WhatsAppAgentPanel = () => {
 
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, marginTop:7, flexWrap:'wrap' }}>
                   <label style={{ display:'inline-flex', alignItems:'center', gap:7, fontSize:12, color:'var(--t2)', cursor: uploadingDoc ? 'wait' : 'pointer' }}>
-                    <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(255,255,255,0.04)', fontWeight:600 }}>
+                    <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(15,23,42,0.04)', fontWeight:600 }}>
                       <I n="file" s={12} c="var(--t2)" />
                       {uploadingDoc ? 'Reading…' : 'Upload document'}
                     </span>
@@ -503,7 +503,7 @@ const WhatsAppAgentPanel = () => {
                       onChange={e => { uploadKnowledgeDoc(e.target.files?.[0]); e.target.value = ''; }}
                       style={{ display:'none' }} />
                   </label>
-                  <span style={{ fontSize:11, color: knowledge.length >= 12000 ? '#fbbf24' : 'var(--t3)' }}>
+                  <span style={{ fontSize:11, color: knowledge.length >= 12000 ? '#b45309' : 'var(--t3)' }}>
                     {knowledge.length.toLocaleString()} / 12,000
                   </span>
                 </div>
@@ -516,7 +516,7 @@ const WhatsAppAgentPanel = () => {
                   <div style={{ marginTop:8, padding:'8px 11px', borderRadius:8, fontSize:11.5, lineHeight:1.5,
                     background: uploadNote.error ? 'rgba(239,68,68,.08)' : uploadNote.truncated ? 'rgba(245,158,11,.08)' : 'var(--gbg)',
                     border: `1px solid ${uploadNote.error ? 'rgba(239,68,68,.25)' : uploadNote.truncated ? 'rgba(245,158,11,.28)' : 'var(--gbd)'}`,
-                    color: uploadNote.error ? '#f87171' : uploadNote.truncated ? '#fbbf24' : 'var(--green)' }}>
+                    color: uploadNote.error ? '#dc2626' : uploadNote.truncated ? '#b45309' : 'var(--green)' }}>
                     {uploadNote.error || uploadNote.text}
                   </div>
                 )}
@@ -565,7 +565,7 @@ const WhatsAppAgentPanel = () => {
                       )}
                       <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20, textTransform:'capitalize',
                         color: CAMPAIGN_TONE[c.status]?.fg || 'var(--t2)',
-                        background: CAMPAIGN_TONE[c.status]?.bg || 'rgba(255,255,255,0.05)',
+                        background: CAMPAIGN_TONE[c.status]?.bg || 'rgba(15,23,42,0.05)',
                         border: `1px solid ${CAMPAIGN_TONE[c.status]?.bd || 'var(--bd)'}` }}>
                         {CAMPAIGN_TONE[c.status]?.label || c.status}
                       </span>
@@ -574,7 +574,7 @@ const WhatsAppAgentPanel = () => {
                 </div>
               )}
 
-              <div style={{ padding:'11px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', borderRadius:8, fontSize:11.5, color:'var(--t3)', lineHeight:1.6 }}>
+              <div style={{ padding:'11px 14px', background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', borderRadius:8, fontSize:11.5, color:'var(--t3)', lineHeight:1.6 }}>
                 Reply order on inbound messages: <strong style={{ color:'var(--t2)' }}>active campaign AI chat</strong> → form in progress → workflow → keyword trigger → intent match → escalation rules → welcome/out-of-office → <strong style={{ color:'var(--t2)' }}>this agent</strong>.
               </div>
             </div>
@@ -595,7 +595,7 @@ const WhatsAppAgentPanel = () => {
                 <div style={{ fontFamily:'var(--mono)', fontSize:10, letterSpacing:'.14em', textTransform:'uppercase', color:'var(--t3)', marginBottom:10 }}>Always escalate on</div>
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {ESCALATION_RULES.map(rule => (
-                    <div key={rule.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 13px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+                    <div key={rule.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 13px', borderRadius:10, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:13, fontWeight:600, color:'var(--t1)' }}>{rule.label}</div>
                         <div style={{ fontSize:11, color:'var(--t3)', marginTop:2 }}>{rule.hint}</div>
@@ -631,7 +631,7 @@ const WhatsAppAgentPanel = () => {
               {!readiness && <p style={{ fontSize:13, color:'var(--t3)' }}>Loading…</p>}
               {readiness?.checks?.map(check => (
                 <div key={check.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:10,
-                  background: check.done ? 'var(--sbg)' : 'rgba(255,255,255,0.03)',
+                  background: check.done ? 'var(--sbg)' : 'rgba(15,23,42,0.03)',
                   border: `1px solid ${check.done ? 'var(--sbd)' : 'var(--bd)'}` }}>
                   <I n={check.done ? 'checkc' : 'alertc'} s={16} c={check.done ? 'var(--success)' : 'var(--t3)'} />
                   <span style={{ flex:1, fontSize:13, color: check.done ? 'var(--t1)' : 'var(--t2)' }}>{check.label}</span>
@@ -647,7 +647,7 @@ const WhatsAppAgentPanel = () => {
         <div style={{ ...card, padding:18, display:'flex', flexDirection:'column', gap:12, minWidth:0 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
             <span style={{ fontFamily:'var(--mono)', fontSize:10, letterSpacing:'.14em', textTransform:'uppercase', color:'var(--t1)' }}>Test lab</span>
-            <span style={{ fontFamily:'var(--mono)', fontSize:9, letterSpacing:'.06em', padding:'2px 7px', borderRadius:5, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t3)' }}>
+            <span style={{ fontFamily:'var(--mono)', fontSize:9, letterSpacing:'.06em', padding:'2px 7px', borderRadius:5, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t3)' }}>
               not live · sandbox
             </span>
           </div>
@@ -661,7 +661,7 @@ const WhatsAppAgentPanel = () => {
               return (
                 <button key={id} onClick={() => { setTestMode(id); setThread([]); }}
                   style={{ fontSize:12, fontWeight:600, padding:'6px 12px', borderRadius:100, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                           background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                           background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                            border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
                            color: on ? 'var(--green)' : 'var(--t2)' }}>{label}</button>
               );
@@ -686,7 +686,7 @@ const WhatsAppAgentPanel = () => {
             {thread.map((m, i) => {
               if (m.role === 'customer') {
                 return (
-                  <div key={i} style={{ alignSelf:'flex-end', maxWidth:'88%', borderRadius:'13px 4px 13px 13px', background:'rgba(53,232,242,0.14)', border:'1px solid var(--gbd)', padding:'8px 11px' }}>
+                  <div key={i} style={{ alignSelf:'flex-end', maxWidth:'88%', borderRadius:'13px 4px 13px 13px', background:'rgba(13,148,136,0.14)', border:'1px solid var(--gbd)', padding:'8px 11px' }}>
                     <p style={{ fontSize:12.5, color:'var(--t1)', lineHeight:1.5 }}>{m.text}</p>
                   </div>
                 );
@@ -694,7 +694,7 @@ const WhatsAppAgentPanel = () => {
               if (m.role === 'error') {
                 return (
                   <div key={i} style={{ borderRadius:9, background:'rgba(239,68,68,.06)', border:'1px solid rgba(239,68,68,.25)', padding:'9px 12px' }}>
-                    <p style={{ fontSize:12, color:'#f87171', lineHeight:1.5 }}>{m.text}</p>
+                    <p style={{ fontSize:12, color:'#dc2626', lineHeight:1.5 }}>{m.text}</p>
                   </div>
                 );
               }
@@ -705,25 +705,25 @@ const WhatsAppAgentPanel = () => {
                     <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:6 }}>
                       {m.sources.map(src => (
                         <span key={src.kind} style={{ fontFamily:'var(--mono)', fontSize:8.5, letterSpacing:'.06em', textTransform:'uppercase', padding:'2px 7px', borderRadius:5,
-                          background: src.kind === 'campaign' ? 'rgba(53,232,242,0.12)' : src.kind === 'knowledge' ? 'rgba(196,255,70,0.12)' : 'rgba(157,107,255,0.12)',
-                          border: `1px solid ${src.kind === 'campaign' ? 'var(--gbd)' : src.kind === 'knowledge' ? 'rgba(196,255,70,0.3)' : 'rgba(157,107,255,0.3)'}`,
+                          background: src.kind === 'campaign' ? 'rgba(13,148,136,0.12)' : src.kind === 'knowledge' ? 'rgba(101,163,13,0.12)' : 'rgba(124,58,237,0.12)',
+                          border: `1px solid ${src.kind === 'campaign' ? 'var(--gbd)' : src.kind === 'knowledge' ? 'rgba(101,163,13,0.3)' : 'rgba(124,58,237,0.3)'}`,
                           color: src.kind === 'campaign' ? 'var(--cyan)' : src.kind === 'knowledge' ? 'var(--lime)' : 'var(--violet)' }}>
                           {src.label}
                         </span>
                       ))}
                     </div>
                   )}
-                  <div style={{ borderRadius:'4px 13px 13px 13px', background:'rgba(255,255,255,0.045)', border:'1px solid var(--bd)', padding:'10px 12px' }}>
+                  <div style={{ borderRadius:'4px 13px 13px 13px', background:'rgba(15,23,42,0.045)', border:'1px solid var(--bd)', padding:'10px 12px' }}>
                     <p style={{ fontSize:12.5, color:'var(--t1)', lineHeight:1.55, whiteSpace:'pre-wrap' }}>{m.text}</p>
                   </div>
                   {pct != null && (
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:7 }}
                       title="Share of the answer's distinctive words that appear in the sources the agent was given. Low means the model supplied it from its own knowledge rather than yours.">
                       <span style={{ fontFamily:'var(--mono)', fontSize:8.5, letterSpacing:'.1em', color:'var(--t3)', textTransform:'uppercase' }}>Grounding</span>
-                      <span style={{ flex:1, height:4, borderRadius:4, background:'rgba(255,255,255,0.07)', overflow:'hidden' }}>
-                        <span style={{ display:'block', width:`${pct}%`, height:'100%', borderRadius:4, background: pct >= 60 ? 'var(--lime)' : pct >= 30 ? '#fbbf24' : '#f87171' }} />
+                      <span style={{ flex:1, height:4, borderRadius:4, background:'rgba(15,23,42,0.07)', overflow:'hidden' }}>
+                        <span style={{ display:'block', width:`${pct}%`, height:'100%', borderRadius:4, background: pct >= 60 ? 'var(--lime)' : pct >= 30 ? '#b45309' : '#dc2626' }} />
                       </span>
-                      <span style={{ fontFamily:'var(--mono)', fontSize:10, color: pct >= 60 ? 'var(--lime)' : pct >= 30 ? '#fbbf24' : '#f87171' }}>{pct}%</span>
+                      <span style={{ fontFamily:'var(--mono)', fontSize:10, color: pct >= 60 ? 'var(--lime)' : pct >= 30 ? '#b45309' : '#dc2626' }}>{pct}%</span>
                     </div>
                   )}
                   {m.context && (

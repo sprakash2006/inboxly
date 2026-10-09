@@ -124,16 +124,16 @@ export const SectionHead = ({ eyebrow, title, sub, align = 'center' }) => (
 
 export const Aurora = () => (
   <>
-    <div className="aurora-a" style={{ position: 'absolute', top: '-10%', left: '-5%', width: 620, height: 620, background: 'radial-gradient(circle, rgba(53,232,242,0.16), transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none', willChange: 'transform' }} />
+    <div className="aurora-a" style={{ position: 'absolute', top: '-10%', left: '-5%', width: 620, height: 620, background: 'radial-gradient(circle, rgba(13,148,136,0.16), transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none', willChange: 'transform' }} />
     <div className="aurora-b" style={{ position: 'absolute', top: '18%', right: '-12%', width: 680, height: 680, background: 'radial-gradient(circle, rgba(14,165,233,0.13), transparent 62%)', filter: 'blur(48px)', pointerEvents: 'none', willChange: 'transform' }} />
   </>
 );
 
 export const BrandMark = ({ size = 32, radius = 9, glow = true }) => (
-  <div style={{ width: size, height: size, borderRadius: radius, background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: glow ? '0 0 18px rgba(53,232,242,0.35)' : 'none' }}>
+  <div style={{ width: size, height: size, borderRadius: radius, background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: glow ? '0 0 18px rgba(13,148,136,0.35)' : 'none' }}>
     <svg width={size * 0.44} height={size * 0.44} viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#08090c" />
-      <path d="M5.5 7.5h5M5.5 10h3" stroke="#35e8f2" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   </div>
 );
@@ -159,7 +159,7 @@ export const MarketingNav = ({ onNav, links = [['Product', '#story'], ['Live dem
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, height: 64,
       display: 'flex', alignItems: 'center',
-      background: scrolled ? 'rgba(8,11,18,0.72)' : 'transparent',
+      background: scrolled ? 'rgba(255,255,255,0.85)' : 'transparent',
       backdropFilter: scrolled ? 'blur(18px) saturate(150%)' : 'none',
       WebkitBackdropFilter: scrolled ? 'blur(18px) saturate(150%)' : 'none',
       borderBottom: `1px solid ${scrolled ? 'var(--bd)' : 'transparent'}`,
@@ -198,7 +198,7 @@ const FOOTER_LINK_HREFS = {
 };
 
 export const MarketingFooter = ({ onNav }) => (
-  <footer style={{ borderTop: '1px solid var(--bd)', padding: '56px clamp(18px,4vw,32px) 30px', background: 'rgba(13,17,33,0.5)' }}>
+  <footer style={{ borderTop: '1px solid var(--bd)', padding: '56px clamp(18px,4vw,32px) 30px', background: 'var(--surf2)' }}>
     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
       <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr 1fr 1fr', gap: 40, marginBottom: 44 }}>
         <div>

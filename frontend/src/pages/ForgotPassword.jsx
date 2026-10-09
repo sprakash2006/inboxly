@@ -29,7 +29,7 @@ export default function ForgotPassword() {
 
   const inp = (name) => ({
     width: '100%', padding: '11px 14px', borderRadius: '9px', outline: 'none',
-    background: 'rgba(255,255,255,0.035)', fontFamily: "'Manrope',sans-serif",
+    background: 'rgba(15,23,42,0.035)', fontFamily: "'Manrope',sans-serif",
     fontSize: '14px', color: 'var(--t1)', transition: 'border .18s',
     border: focus === name ? '1px solid var(--gbd)' : '1px solid var(--bd)',
   });
@@ -85,8 +85,8 @@ export default function ForgotPassword() {
         <div onClick={() => navigate('/login')} style={{ display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer', marginBottom: '28px' }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#0a0b0e" />
-              <path d="M5.5 7.5h5M5.5 10h3" stroke="#35e8f2" strokeWidth="1.3" strokeLinecap="round" />
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
+              <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.3" strokeLinecap="round" />
             </svg>
           </div>
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '17px', color: 'var(--t1)' }}>
@@ -100,7 +100,7 @@ export default function ForgotPassword() {
             <p style={{ fontSize: '14px', color: 'var(--t2)', marginBottom: '28px' }}>
               Enter your account email and we'll send you a reset code.
             </p>
-            {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
+            {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
             <form onSubmit={submitEmail} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--t1)', marginBottom: '7px' }}>Email address</label>
@@ -128,7 +128,7 @@ export default function ForgotPassword() {
               </div>
             ) : (
               <>
-                {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
+                {errMsg && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{errMsg}</div>}
                 <form onSubmit={submitReset} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <input
                     inputMode="numeric" maxLength={6} placeholder="000000"

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { wFetch } from '../lib/api.js';
 
 const inr = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const card = { background: 'var(--gbg)', border: '1px solid var(--bd)', borderRadius: 12 };
+const card = { background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 12, boxShadow: 'var(--card-shadow)' };
 
 export const WalletSummaryCards = () => {
   const [summary, setSummary] = useState(null);
@@ -22,7 +22,7 @@ export const WalletSummaryCards = () => {
   if (!summary) return null;
 
   const tiles = [
-    { label: 'Wallet Balance',   value: inr(summary.balance), accent: summary.balance <= 0 ? '#f87171' : 'var(--green)' },
+    { label: 'Wallet Balance',   value: inr(summary.balance), accent: summary.balance <= 0 ? '#dc2626' : 'var(--green)' },
     { label: "Today's Spend",    value: inr(summary.todaySpend) },
     { label: 'Campaign Spend',   value: inr(summary.campaignSpend) },
     { label: 'Total Campaigns',  value: (summary.totalCampaigns || 0).toLocaleString() },

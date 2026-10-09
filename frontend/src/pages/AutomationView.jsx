@@ -24,7 +24,7 @@ import { can } from '../lib/permissions.js';
 import { usePlanFeatures } from '../lib/usePlanFeatures.js';
 
 const card = { background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', boxShadow:'var(--card-shadow)' };
-const inputStyle = { width:'100%', padding:'10px 13px', borderRadius:8, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, outline:'none', fontFamily:"'Manrope',sans-serif", boxSizing:'border-box' };
+const inputStyle = { width:'100%', padding:'10px 13px', borderRadius:8, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, outline:'none', fontFamily:"'Manrope',sans-serif", boxSizing:'border-box' };
 const labelStyle = { display:'block', fontSize:'11px', fontWeight:600, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 };
 
 // Every automation write is member-level (authorize('CLIENT') or the role
@@ -32,18 +32,18 @@ const labelStyle = { display:'block', fontSize:'11px', fontWeight:600, color:'va
 const Toggle = ({ on, onToggle, disabled: disabledProp = false }) => {
   const disabled = disabledProp || !can('automation.manage');
   return (
-  <div onClick={disabled ? undefined : onToggle} style={{ width:36, height:20, borderRadius:20, background: on ? 'var(--green)' : 'rgba(255,255,255,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
-    <div style={{ position:'absolute', top:2, left: on ? 17 : 2, width:14, height:14, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(0,0,0,0.4)' }} />
+  <div onClick={disabled ? undefined : onToggle} style={{ width:36, height:20, borderRadius:20, background: on ? 'var(--green)' : 'rgba(15,23,42,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
+    <div style={{ position:'absolute', top:2, left: on ? 17 : 2, width:14, height:14, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(15,23,42,0.12)' }} />
   </div>
   );
 };
 
 const Banner = ({ tone = 'info', children }) => {
   const palette = {
-    error: { bd:'rgba(239,68,68,.25)', bg:'rgba(239,68,68,.06)', fg:'#f87171' },
-    warn:  { bd:'rgba(245,158,11,.3)', bg:'rgba(245,158,11,.06)', fg:'#fbbf24' },
+    error: { bd:'rgba(239,68,68,.25)', bg:'rgba(239,68,68,.06)', fg:'#dc2626' },
+    warn:  { bd:'rgba(245,158,11,.3)', bg:'rgba(245,158,11,.06)', fg:'#b45309' },
     ok:    { bd:'var(--gbd)',          bg:'var(--gbg)',           fg:'var(--green)' },
-    info:  { bd:'var(--bd)',           bg:'rgba(255,255,255,0.03)', fg:'var(--t2)' },
+    info:  { bd:'var(--bd)',           bg:'rgba(15,23,42,0.03)', fg:'var(--t2)' },
   }[tone];
   return (
     <div style={{ ...card, padding:'11px 15px', border:`1px solid ${palette.bd}`, background:palette.bg, display:'flex', alignItems:'center', gap:8 }}>
@@ -59,7 +59,7 @@ const Banner = ({ tone = 'info', children }) => {
 const PlanLocked = ({ feature }) => (
   <div style={{ ...card, padding:'40px 28px', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:14 }}>
     <div style={{ width:56, height:56, borderRadius:14, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <I n="lock" s={26} c="#f59e0b" />
+      <I n="lock" s={26} c="#d97706" />
     </div>
     <div>
       <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:17, fontWeight:700, color:'var(--t1)', marginBottom:6 }}>Not included in your plan</h3>
@@ -95,7 +95,7 @@ const TabHeader = ({ icon, color, bg, title, subtitle, badge, children }) => (
 );
 
 const Pill = ({ children, tone = 'green' }) => (
-  <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:20, background: tone === 'green' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border:`1px solid ${tone === 'green' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: tone === 'green' ? 'var(--green)' : '#f59e0b', textTransform:'uppercase', letterSpacing:'.05em' }}>
+  <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:20, background: tone === 'green' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border:`1px solid ${tone === 'green' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: tone === 'green' ? 'var(--green)' : '#d97706', textTransform:'uppercase', letterSpacing:'.05em' }}>
     {children}
   </span>
 );
@@ -198,7 +198,7 @@ const BasicAutomationsTab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="play" color="var(--green)" bg="rgba(53,232,242,0.1)"
+      <TabHeader icon="play" color="var(--green)" bg="rgba(13,148,136,0.1)"
         title="Basic Automations" subtitle="Welcome, out-of-office and delayed auto-replies" />
 
       {banner && <Banner tone={banner.tone}>{banner.text}</Banner>}
@@ -237,7 +237,7 @@ const BasicAutomationsTab = () => {
                       onChange={e => setCfg(c => ({ ...c, delayedAfterMinutes: parseInt(e.target.value, 10) }))}
                       style={inputStyle}>
                       {[5, 10, 15, 30, 60, 120, 240].map(m => (
-                        <option key={m} value={m} style={{ background:'#0a0b0e' }}>
+                        <option key={m} value={m} style={{ background:'#ffffff' }}>
                           {m < 60 ? `${m} minutes` : `${m / 60} hour${m === 60 ? '' : 's'}`}
                         </option>
                       ))}
@@ -417,7 +417,7 @@ const CustomAutoReplyTab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="msg" color="var(--green)" bg="rgba(53,232,242,0.1)"
+      <TabHeader icon="msg" color="var(--green)" bg="rgba(13,148,136,0.1)"
         title="Custom Auto Reply" subtitle="Keyword-based automatic replies for common questions">
         <Btn onClick={openCreate} style={{ boxShadow:'var(--glow)' }}><I n="plus" s={14} c="#08090c" /> Add Trigger</Btn>
       </TabHeader>
@@ -437,7 +437,7 @@ const CustomAutoReplyTab = () => {
             <textarea value={resp} onChange={e => setResp(e.target.value)} placeholder="Auto-reply message…" rows={3}
               style={{ ...inputStyle, resize:'vertical' }} />
           </div>
-          {error && <p style={{ fontSize:12, color:'#f87171', margin:0 }}>⚠️ {error}</p>}
+          {error && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {error}</p>}
           <div style={{ display:'flex', gap:8 }}>
             <Btn onClick={save} disabled={saving} style={{ boxShadow:'var(--glow)' }}>{saving ? 'Saving…' : editing ? 'Update Trigger' : 'Save Trigger'}</Btn>
             <Btn variant="ghost" onClick={cancel}>Cancel</Btn>
@@ -453,7 +453,7 @@ const CustomAutoReplyTab = () => {
         )}
         {triggers.map((t, i) => (
           <div key={t.id} style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 20px', borderBottom: i < triggers.length-1 ? '1px solid var(--bd)' : 'none', opacity: t.isActive ? 1 : 0.55, transition:'opacity .2s' }}>
-            <span style={{ padding:'3px 10px', borderRadius:6, fontSize:12, fontWeight:700, fontFamily:'monospace', background:'rgba(53,232,242,0.08)', border:'1px solid var(--gbd)', color:'var(--green)', letterSpacing:'.05em', flexShrink:0 }}>{t.keyword}</span>
+            <span style={{ padding:'3px 10px', borderRadius:6, fontSize:12, fontWeight:700, fontFamily:'monospace', background:'rgba(13,148,136,0.08)', border:'1px solid var(--gbd)', color:'var(--green)', letterSpacing:'.05em', flexShrink:0 }}>{t.keyword}</span>
             <p style={{ flex:1, fontSize:13, color:'var(--t2)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.responseTemplate}</p>
             <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
               <Toggle on={t.isActive} onToggle={() => toggleActive(t)} />
@@ -492,12 +492,12 @@ const ConfirmDialog = ({ title, message, confirmLabel = 'Delete', busy = false, 
 
   return (
     <div onClick={onCancel} role="dialog" aria-modal="true"
-      style={{ position:'fixed', inset:0, background:'rgba(3,5,12,0.78)', backdropFilter:'blur(4px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+      style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.45)', backdropFilter:'blur(4px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div onClick={e => e.stopPropagation()}
         style={{ ...card, width:'100%', maxWidth:420, padding:24, display:'flex', flexDirection:'column', gap:14 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <div style={{ width:38, height:38, borderRadius:10, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <I n="alertt" s={17} c="#f87171" />
+            <I n="alertt" s={17} c="#dc2626" />
           </div>
           <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--t1)' }}>{title}</p>
         </div>
@@ -515,8 +515,8 @@ const ConfirmDialog = ({ title, message, confirmLabel = 'Delete', busy = false, 
 };
 
 const IconBtn = ({ icon, onClick, danger = false, title }) => (
-  <button onClick={onClick} title={title} style={{ width:28, height:28, borderRadius:6, background: danger ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.04)', border:`1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'var(--bd)'}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-    <I n={icon} s={12} c={danger ? '#f87171' : 'var(--t2)'} />
+  <button onClick={onClick} title={title} style={{ width:28, height:28, borderRadius:6, background: danger ? 'rgba(239,68,68,0.07)' : 'rgba(15,23,42,0.04)', border:`1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'var(--bd)'}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+    <I n={icon} s={12} c={danger ? '#dc2626' : 'var(--t2)'} />
   </button>
 );
 
@@ -547,9 +547,9 @@ const timeAgo = (d) => {
 
 const TONE_STYLE = {
   ok:      { color:'var(--success)', background:'var(--sbg)' },
-  error:   { color:'#f87171', background:'rgba(239,68,68,.08)' },
+  error:   { color:'#dc2626', background:'rgba(239,68,68,.08)' },
   muted:   { color:'var(--t3)', background:'var(--surf3)' },
-  pending: { color:'#fbbf24', background:'rgba(245,158,11,.08)' },
+  pending: { color:'#b45309', background:'rgba(245,158,11,.08)' },
 };
 
 const StatusPill = ({ tone = 'pending', children }) => (
@@ -578,7 +578,7 @@ const traceStepLabel = (t, nodes) => {
 };
 
 const TraceList = ({ trace, nodes }) => (
-  <div style={{ display:'flex', flexDirection:'column', gap:4, padding:'8px 10px', borderRadius:7, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)' }}>
+  <div style={{ display:'flex', flexDirection:'column', gap:4, padding:'8px 10px', borderRadius:7, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)' }}>
     {trace.map((t, i) => (
       <div key={i} style={{ display:'flex', gap:10, fontSize:11.5, lineHeight:1.45, flexWrap:'wrap' }}>
         <span style={{ color:'var(--t3)', minWidth:150 }}>{traceStepLabel(t, nodes)}</span>
@@ -598,14 +598,14 @@ const InsightList = ({ label, items }) => {
       <p style={{ fontSize:10.5, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.07em', marginBottom:6 }}>{label}</p>
       <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
         {items.map((t, i) => (
-          <span key={i} style={{ padding:'3px 9px', borderRadius:11, fontSize:11.5, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{t}</span>
+          <span key={i} style={{ padding:'3px 9px', borderRadius:11, fontSize:11.5, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{t}</span>
         ))}
       </div>
     </div>
   );
 };
 
-const COMPLEXITY_TONE = { Low:'var(--green)', Medium:'#fbbf24', High:'#f87171' };
+const COMPLEXITY_TONE = { Low:'var(--green)', Medium:'#b45309', High:'#dc2626' };
 
 const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit, readOnly }) => {
   const [openId, setOpenId] = useState(null);
@@ -622,7 +622,7 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
             <a href={data.sourceUrl} target="_blank" rel="noreferrer noopener"
               style={{ fontSize:11.5, color:'var(--t3)', textDecoration:'none', wordBreak:'break-all' }}>{data.sourceUrl}</a>
           </div>
-          <span style={{ padding:'4px 11px', borderRadius:12, fontSize:11.5, fontWeight:700, background:'rgba(53,232,242,0.14)', border:'1px solid var(--gbd)', color:'var(--green)', whiteSpace:'nowrap' }}>
+          <span style={{ padding:'4px 11px', borderRadius:12, fontSize:11.5, fontWeight:700, background:'rgba(13,148,136,0.14)', border:'1px solid var(--gbd)', color:'var(--green)', whiteSpace:'nowrap' }}>
             {data.business?.industry}
           </span>
         </div>
@@ -639,7 +639,7 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
       )}
 
       {/* Business insights */}
-      <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(255,255,255,0.02)', padding:'14px 16px', display:'flex', flexDirection:'column', gap:12 }}>
+      <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(15,23,42,0.02)', padding:'14px 16px', display:'flex', flexDirection:'column', gap:12 }}>
         <p style={{ fontSize:12.5, fontWeight:700, color:'var(--t1)', fontFamily:"'Space Grotesk',sans-serif" }}>Business insights</p>
         <InsightList label="Primary services" items={a.primaryServices} />
         <InsightList label="Products" items={a.products} />
@@ -677,7 +677,7 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
             const busy = savingWfId === wf.id;
             const open = openId === wf.id;
             return (
-              <div key={wf.id} style={{ border:`1px solid ${saved ? 'var(--gbd)' : 'var(--bd)'}`, borderRadius:10, background: saved ? 'var(--gbg)' : 'rgba(255,255,255,0.02)', padding:'13px 14px', display:'flex', flexDirection:'column', gap:8 }}>
+              <div key={wf.id} style={{ border:`1px solid ${saved ? 'var(--gbd)' : 'var(--bd)'}`, borderRadius:10, background: saved ? 'var(--gbg)' : 'rgba(15,23,42,0.02)', padding:'13px 14px', display:'flex', flexDirection:'column', gap:8 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', gap:8, alignItems:'flex-start' }}>
                   <h5 style={{ fontSize:13.5, fontWeight:700, color:'var(--t1)' }}>{wf.title}</h5>
                   <span style={{ fontSize:10, fontWeight:700, color:COMPLEXITY_TONE[wf.complexity] || 'var(--t3)', whiteSpace:'nowrap', border:`1px solid ${COMPLEXITY_TONE[wf.complexity] || 'var(--bd)'}33`, borderRadius:9, padding:'2px 7px' }}>
@@ -698,7 +698,7 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
                   <div style={{ display:'flex', flexDirection:'column', gap:5, borderTop:'1px solid var(--bd)', paddingTop:8 }}>
                     {wf.nodes.map((n, i) => (
                       <div key={i} style={{ fontSize:11.5, color:'var(--t2)', lineHeight:1.45 }}>
-                        <span style={{ color: n.type === 'trigger' ? '#f59e0b' : n.type === 'condition' ? '#9d6bff' : 'var(--green)', fontWeight:700 }}>{subtypeLabel(n.type, n.subtype)}</span>
+                        <span style={{ color: n.type === 'trigger' ? '#d97706' : n.type === 'condition' ? '#7c3aed' : 'var(--green)', fontWeight:700 }}>{subtypeLabel(n.type, n.subtype)}</span>
                         {n.value ? ` — ${n.value}` : ''}
                       </div>
                     ))}
@@ -728,9 +728,9 @@ const WebsiteAnalysisPanel = ({ data, savingWfId, savedWfIds, onGenerate, onEdit
 // nodes so the person sees exactly what was stored.
 const SaveNotice = ({ notice, onDismiss }) => (
   <div role="status" style={{ ...card, padding:'12px 15px', border:'1px solid rgba(245,158,11,.3)', background:'rgba(245,158,11,.06)', display:'flex', gap:10, alignItems:'flex-start' }}>
-    <I n="alertt" s={15} c="#fbbf24" />
+    <I n="alertt" s={15} c="#b45309" />
     <div style={{ flex:1, minWidth:0 }}>
-      <p style={{ fontSize:12.5, fontWeight:700, color:'#fbbf24', margin:'0 0 4px' }}>{notice.title}</p>
+      <p style={{ fontSize:12.5, fontWeight:700, color:'#b45309', margin:'0 0 4px' }}>{notice.title}</p>
       <ul style={{ margin:0, paddingLeft:16, display:'flex', flexDirection:'column', gap:3 }}>
         {notice.warnings.map((w, i) => <li key={i} style={{ fontSize:12.5, color:'var(--t2)', lineHeight:1.5 }}>{String(w)}</li>)}
       </ul>
@@ -767,7 +767,7 @@ const SimResult = ({ result, workflowId, staleNote }) => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-      <span style={{ fontSize:12.5, fontWeight:700, color: result.ran ? 'var(--green)' : '#f87171' }}>
+      <span style={{ fontSize:12.5, fontWeight:700, color: result.ran ? 'var(--green)' : '#dc2626' }}>
         {result.ran ? 'Triggered' : `Would not run — ${result.reason || 'trigger did not match'}`}
       </span>
       {inactive && <Banner tone="warn">This workflow is paused, so a real message would not start it. Turn it on to go live.</Banner>}
@@ -780,7 +780,7 @@ const SimResult = ({ result, workflowId, staleNote }) => {
       {wins && !loses && <span style={{ fontSize:12, color:'var(--t2)' }}>Among your active workflows, this one would answer.</span>}
       {warnings.map((w, i) => <Banner key={i} tone="warn">{String(w)}</Banner>)}
       {(skipped > 0 || failed > 0) && (
-        <span style={{ fontSize:12, color:'#fbbf24' }}>
+        <span style={{ fontSize:12, color:'#b45309' }}>
           {[failed ? `${failed} step${failed === 1 ? '' : 's'} would fail` : '', skipped ? `${skipped} step${skipped === 1 ? '' : 's'} would be skipped` : ''].filter(Boolean).join(', ')} — see below.
         </span>
       )}
@@ -791,7 +791,7 @@ const SimResult = ({ result, workflowId, staleNote }) => {
 };
 
 const SimPanel = ({ title, sim, waitsForReply, onSample, onReplies, onRun, onClose, workflowId, staleNote }) => (
-  <div style={{ border:'1px solid var(--bd)', borderRadius:8, padding:14, display:'flex', flexDirection:'column', gap:10, background:'rgba(255,255,255,0.02)' }}>
+  <div style={{ border:'1px solid var(--bd)', borderRadius:8, padding:14, display:'flex', flexDirection:'column', gap:10, background:'rgba(15,23,42,0.02)' }}>
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
       <span style={{ fontSize:12, fontWeight:700, color:'var(--t1)' }}>{title}</span>
       <IconBtn icon="x" onClick={onClose} />
@@ -1174,7 +1174,7 @@ const WorkflowsTab = () => {
   return (
     <BuilderContext.Provider value={builderCtx}>
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="wflow" color="#f59e0b" bg="rgba(245,158,11,0.1)"
+      <TabHeader icon="wflow" color="#d97706" bg="rgba(245,158,11,0.1)"
         title="Workflows" subtitle="Multi-step automations that run on incoming messages and CRM events">
         {!creating && !aiOpen && !readOnly && (
           <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'flex-end' }}>
@@ -1212,7 +1212,7 @@ const WorkflowsTab = () => {
                 ['Analyse a website', 'https://example.com'],
               ].map(([label, prompt]) => (
                 <button key={label} onClick={() => setAiPrompt(prompt)}
-                  style={{ padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', cursor:'pointer', fontSize:12.5, fontWeight:600 }}>
+                  style={{ padding:'8px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', cursor:'pointer', fontSize:12.5, fontWeight:600 }}>
                   {label}
                 </button>
               ))}
@@ -1239,7 +1239,7 @@ const WorkflowsTab = () => {
             )}
 
             {aiPreview && (
-              <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(255,255,255,0.02)', overflow:'hidden' }}>
+              <div style={{ border:'1px solid var(--bd)', borderRadius:10, background:'rgba(15,23,42,0.02)', overflow:'hidden' }}>
                 <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--bd)' }}>
                   <label style={labelStyle}>Workflow name</label>
                   <input value={aiPreview.name || ''} onChange={e => setAiPreview(p => ({ ...p, name: e.target.value }))}
@@ -1291,7 +1291,7 @@ const WorkflowsTab = () => {
           <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
               <label style={{ ...labelStyle, marginBottom:0 }}>Steps</label>
-              <div style={{ display:'flex', gap:4, padding:3, borderRadius:9, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+              <div style={{ display:'flex', gap:4, padding:3, borderRadius:9, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
                 {[['canvas', 'Canvas'], ['list', 'List']].map(([id, label]) => {
                   const on = editorView === id;
                   return (
@@ -1341,7 +1341,7 @@ const WorkflowsTab = () => {
                 {/* Inspector. Below the canvas rather than beside it: the canvas
                     already gives up a column to the palette, and a third one
                     leaves nothing for the flow itself on a laptop. */}
-                <div style={{ border:'1px solid var(--bd)', borderRadius:10, padding:14, background:'rgba(255,255,255,0.02)' }}>
+                <div style={{ border:'1px solid var(--bd)', borderRadius:10, padding:14, background:'rgba(15,23,42,0.02)' }}>
                   <div style={{ fontFamily:'var(--mono)', fontSize:9, letterSpacing:'.14em', color:'var(--t3)', textTransform:'uppercase', marginBottom:10 }}>Inspector</div>
                   {(() => {
                     const idx = steps.findIndex(x => x.id === selectedStepId);
@@ -1370,7 +1370,7 @@ const WorkflowsTab = () => {
 
           {error && (
             <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
-              <p style={{ fontSize:12, color:'#f87171', margin:0, flex:1, minWidth:240 }}>⚠️ {error}</p>
+              <p style={{ fontSize:12, color:'#dc2626', margin:0, flex:1, minWidth:240 }}>⚠️ {error}</p>
               {errorFix && <Btn size="sm" variant="outline" onClick={() => applyFix(errorFix)}>{errorFix.label}</Btn>}
             </div>
           )}
@@ -1397,7 +1397,7 @@ const WorkflowsTab = () => {
           {workflows.length === 0 ? (
             <div style={{ ...card, padding:'40px 28px', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:16 }}>
               <div style={{ width:64, height:64, borderRadius:16, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <I n="wflow" s={32} c="#f59e0b" />
+                <I n="wflow" s={32} c="#d97706" />
               </div>
               <div>
                 <h3 style={{ fontSize:16, fontWeight:600, color:'var(--t1)', marginBottom:8 }}>No Workflows Yet</h3>
@@ -1438,7 +1438,7 @@ const InsertBar = ({ onInsert }) => (
     {[['action', '+ Action'], ['condition', '+ Condition']].map(([type, label]) => (
       <button key={type} onClick={() => onInsert(type)}
         style={{ fontSize:10.5, fontWeight:600, padding:'2px 8px', borderRadius:6, cursor:'pointer', background:'transparent',
-                 border:'1px dashed var(--bd)', color: type === 'condition' ? '#9d6bff' : 'var(--green)', fontFamily:"'Manrope',sans-serif" }}>
+                 border:'1px dashed var(--bd)', color: type === 'condition' ? '#7c3aed' : 'var(--green)', fontFamily:"'Manrope',sans-serif" }}>
         {label}
       </button>
     ))}
@@ -1480,7 +1480,7 @@ const PALETTE_VALUE = {
   message: 'Thanks for reaching out — how can we help?', tag: 'VIP',
   contains: 'yes', has_tag: 'VIP', field_equals: 'plan=premium', field_set: 'order_number',
 };
-const TYPE_COLOR = { trigger: '#f59e0b', action: 'var(--green)', condition: '#9d6bff' };
+const TYPE_COLOR = { trigger: '#d97706', action: 'var(--green)', condition: '#7c3aed' };
 
 // The palette follows the trigger: under a CRM trigger the template step is
 // listed first, since it is the only send that reaches every contact.
@@ -1541,7 +1541,7 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
   return (
     <div style={{ display:'grid', gridTemplateColumns:'170px minmax(0,1fr)', gap:12, alignItems:'start' }} className="agent-grid">
       {/* palette */}
-      <div style={{ border:'1px solid var(--bd)', borderRadius:10, padding:10, background:'rgba(255,255,255,0.02)' }}>
+      <div style={{ border:'1px solid var(--bd)', borderRadius:10, padding:10, background:'rgba(15,23,42,0.02)' }}>
         <div style={{ fontFamily:'var(--mono)', fontSize:9, letterSpacing:'.14em', color:'var(--t3)', textTransform:'uppercase', marginBottom:9 }}>Click to add</div>
         {palette.map(group => (
           <div key={group.name} style={{ marginBottom:12 }}>
@@ -1553,7 +1553,7 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
               {group.items.map(item => (
                 <button key={`${item.type}-${item.subtype}`} onClick={() => onAdd(item)}
                   style={{ display:'flex', alignItems:'center', gap:7, padding:'7px 9px', borderRadius:8, cursor:'pointer', textAlign:'left',
-                           background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t2)',
+                           background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t2)',
                            fontSize:11.5, fontFamily:"'Manrope',sans-serif" }}>
                   <I n={NODE_ICON[item.subtype] || 'zap'} s={12} c={group.color} />
                   {item.label}
@@ -1567,7 +1567,7 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
       {/* canvas */}
       <div
         style={{ position:'relative', minHeight:340, height, borderRadius:10, border:'1px solid var(--bd)', overflow:'hidden',
-                 background:'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 0) 0 0 / 22px 22px, rgba(5,8,20,0.4)',
+                 background:'radial-gradient(circle at 1px 1px, rgba(15,23,42,0.07) 1px, transparent 0) 0 0 / 22px 22px, var(--surf2)',
                  touchAction: drag ? 'none' : 'pan-y' }}>
 
         {/* edges, behind the cards */}
@@ -1576,7 +1576,7 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
             const x = CANVAS_PAD + NODE_W / 2;
             const y1 = CANVAS_PAD + i * ROW_H + NODE_H;
             const y2 = CANVAS_PAD + (i + 1) * ROW_H;
-            return <path key={step.id} d={`M ${x} ${y1} L ${x} ${y2}`} fill="none" strokeWidth="2" strokeDasharray="6 8" stroke="rgba(255,255,255,0.22)" />;
+            return <path key={step.id} d={`M ${x} ${y1} L ${x} ${y2}`} fill="none" strokeWidth="2" strokeDasharray="6 8" stroke="rgba(15,23,42,0.22)" />;
           })}
         </svg>
 
@@ -1603,16 +1603,16 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
               style={{ position:'absolute', left:CANVAS_PAD, top:CANVAS_PAD + index * ROW_H, width:NODE_W, minHeight:NODE_H,
                        transform: dragging ? `translateY(${drag.dy}px)` : 'none', zIndex: dragging ? 5 : 1,
                        padding:'11px 13px', borderRadius:13, cursor: isTrigger ? 'pointer' : dragging ? 'grabbing' : 'grab',
-                       background: on ? 'rgba(255,255,255,0.07)' : 'rgba(18,20,26,0.96)',
+                       background: on ? 'rgba(15,23,42,0.07)' : 'var(--surf-solid)',
                        border:`1px solid ${on ? accent : 'var(--bd)'}`,
-                       boxShadow: dragging ? '0 14px 34px rgba(0,0,0,0.55)' : on ? `0 0 22px ${isTrigger ? 'rgba(245,158,11,0.3)' : 'rgba(53,232,242,0.3)'}` : '0 8px 24px rgba(0,0,0,0.4)',
+                       boxShadow: dragging ? '0 14px 34px rgba(15,23,42,0.165)' : on ? `0 0 22px ${isTrigger ? 'rgba(245,158,11,0.3)' : 'rgba(13,148,136,0.3)'}` : '0 8px 24px rgba(15,23,42,0.12)',
                        transition: dragging ? 'none' : 'box-shadow .2s, border-color .2s' }}>
               <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6 }}>
                 <I n={NODE_ICON[step.subtype] || 'zap'} s={12} c={accent} />
                 <span style={{ fontFamily:'var(--mono)', fontSize:8.5, letterSpacing:'.12em', color:accent, textTransform:'uppercase' }}>
                   {stepTitle(steps, index)}{step.type === 'condition' ? ' · If' : ''}
                 </span>
-                {hint?.tone === 'warn' && <span title={hint.text} style={{ display:'flex' }}><I n="alertt" s={11} c="#fbbf24" /></span>}
+                {hint?.tone === 'warn' && <span title={hint.text} style={{ display:'flex' }}><I n="alertt" s={11} c="#b45309" /></span>}
                 {!isTrigger && (
                   <button onClick={e => { e.stopPropagation(); onRemove(step.id); }} aria-label="Remove step"
                     style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', padding:0, display:'flex', color:'var(--t3)' }}>
@@ -1642,18 +1642,18 @@ const WorkflowCanvas = ({ steps, palette, selectedId, onSelect, onAdd, onRemove,
   );
 };
 
-const selectStyle = { padding:'7px 10px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none' };
-const optBg = { background:'#0a0b0e' };
+const selectStyle = { padding:'7px 10px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, outline:'none' };
+const optBg = { background:'#ffffff' };
 
 const StepHint = ({ hint, onUseTemplate }) => (
   <div style={{ flexBasis:'100%', display:'flex', gap:8, alignItems:'flex-start', padding:'7px 10px', borderRadius:7,
-                background: hint.tone === 'warn' ? 'rgba(245,158,11,.06)' : 'rgba(255,255,255,0.03)',
+                background: hint.tone === 'warn' ? 'rgba(245,158,11,.06)' : 'rgba(15,23,42,0.03)',
                 border:`1px solid ${hint.tone === 'warn' ? 'rgba(245,158,11,.25)' : 'var(--bd)'}` }}>
-    <I n={hint.tone === 'warn' ? 'alertt' : 'info'} s={13} c={hint.tone === 'warn' ? '#fbbf24' : 'var(--t2)'} />
-    <span style={{ flex:1, fontSize:11.5, lineHeight:1.5, color: hint.tone === 'warn' ? '#fbbf24' : 'var(--t2)' }}>{hint.text}</span>
+    <I n={hint.tone === 'warn' ? 'alertt' : 'info'} s={13} c={hint.tone === 'warn' ? '#b45309' : 'var(--t2)'} />
+    <span style={{ flex:1, fontSize:11.5, lineHeight:1.5, color: hint.tone === 'warn' ? '#b45309' : 'var(--t2)' }}>{hint.text}</span>
     {onUseTemplate && (
       <button onClick={onUseTemplate}
-        style={{ fontSize:11, fontWeight:700, padding:'3px 9px', borderRadius:6, cursor:'pointer', whiteSpace:'nowrap', background:'transparent', border:'1px solid rgba(245,158,11,.4)', color:'#fbbf24' }}>
+        style={{ fontSize:11, fontWeight:700, padding:'3px 9px', borderRadius:6, cursor:'pointer', whiteSpace:'nowrap', background:'transparent', border:'1px solid rgba(245,158,11,.4)', color:'#b45309' }}>
         Use a template instead
       </button>
     )}
@@ -1705,24 +1705,24 @@ const TemplateStepEditor = ({ step, steps, index, onChange }) => {
         </select>
       )}
       {templatesError && (
-        <span style={{ fontSize:11.5, color:'#f87171' }}>
+        <span style={{ fontSize:11.5, color:'#dc2626' }}>
           {templatesError} <button onClick={reloadTemplates} style={{ background:'none', border:'none', color:'var(--green)', cursor:'pointer', fontSize:11.5, padding:0 }}>Retry</button>
         </span>
       )}
       {templates !== null && !templatesError && !list.some(isApprovedTemplate) && (
-        <span style={{ fontSize:11.5, color:'#fbbf24' }}>No approved templates yet. Create one under Templates and wait for Meta to approve it.</span>
+        <span style={{ fontSize:11.5, color:'#b45309' }}>No approved templates yet. Create one under Templates and wait for Meta to approve it.</span>
       )}
       {unapprovedCount > 0 && (
         <span style={{ fontSize:11, color:'var(--t3)' }}>Pending and rejected templates are listed but cannot be chosen until Meta approves them.</span>
       )}
       {step.value && !current && templates !== null && (
-        <span style={{ fontSize:11.5, color:'#fbbf24' }}>"{step.value}" is not one of this workspace's templates — choose one from the list.</span>
+        <span style={{ fontSize:11.5, color:'#b45309' }}>"{step.value}" is not one of this workspace's templates — choose one from the list.</span>
       )}
       {current && !isApprovedTemplate(current) && (
-        <span style={{ fontSize:11.5, color:'#fbbf24' }}>This template is {statusLabel(current.status).toLowerCase()} — it cannot be sent until Meta approves it.</span>
+        <span style={{ fontSize:11.5, color:'#b45309' }}>This template is {statusLabel(current.status).toLowerCase()} — it cannot be sent until Meta approves it.</span>
       )}
       {current && body && (
-        <div style={{ fontSize:11.5, color:'var(--t2)', lineHeight:1.5, padding:'7px 10px', borderRadius:7, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)', whiteSpace:'pre-wrap' }}>{body}</div>
+        <div style={{ fontSize:11.5, color:'var(--t2)', lineHeight:1.5, padding:'7px 10px', borderRadius:7, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)', whiteSpace:'pre-wrap' }}>{body}</div>
       )}
       {count > 0 && (
         <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
@@ -1737,7 +1737,7 @@ const TemplateStepEditor = ({ step, steps, index, onChange }) => {
             </div>
           ))}
           {missing.length > 0 && (
-            <span style={{ fontSize:11.5, color:'#fbbf24' }}>
+            <span style={{ fontSize:11.5, color:'#b45309' }}>
               {missing.map(m => `{{${m}}}`).join(', ')} {missing.length === 1 ? 'is' : 'are'} not filled — Meta refuses a template send with an empty variable.
             </span>
           )}
@@ -1758,7 +1758,7 @@ const KeywordEditor = ({ value, onChange }) => {
         {chips.length > 0 && (
           <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
             {chips.map(k => (
-              <span key={k} style={{ fontSize:11, fontFamily:'monospace', padding:'2px 8px', borderRadius:10, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)', color:'#f59e0b' }}>{k}</span>
+              <span key={k} style={{ fontSize:11, fontFamily:'monospace', padding:'2px 8px', borderRadius:10, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)', color:'#d97706' }}>{k}</span>
             ))}
           </div>
         )}
@@ -1775,12 +1775,12 @@ const StepRow = ({ step, index, steps = [], onChange, onRemove, canRemove, typeC
   const triggerSubtype = steps.find(s => s.type === 'trigger')?.subtype;
   const options = isTrigger ? TRIGGER_SUBTYPES : isCondition ? CONDITION_SUBTYPES : actionSubtypesFor(triggerSubtype);
   const accent = TYPE_COLOR[step.type] || 'var(--green)';
-  const accentBg = isTrigger ? 'rgba(245,158,11,0.1)' : isCondition ? 'rgba(157,107,255,0.12)' : 'rgba(53,232,242,0.1)';
+  const accentBg = isTrigger ? 'rgba(245,158,11,0.1)' : isCondition ? 'rgba(124,58,237,0.12)' : 'rgba(13,148,136,0.1)';
   const hint = stepHint(triggerSubtype, step);
   const maxSkip = maxSkipFor(steps, index);
   const bodyIdx = stepNumber(steps, index);
   const bodyCount = steps.filter(s => s.type !== 'trigger').length;
-  const moveBtn = { padding:'5px 8px', borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:11, lineHeight:1 };
+  const moveBtn = { padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:11, lineHeight:1 };
 
   const valueEditor = (() => {
     if (step.subtype === 'template') return null; // full-width editor below
@@ -1843,7 +1843,7 @@ const StepRow = ({ step, index, steps = [], onChange, onRemove, canRemove, typeC
   })();
 
   return (
-    <div style={{ display:'flex', gap:10, alignItems:'center', padding:'10px 12px', borderRadius:8, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)', flexWrap:'wrap' }}>
+    <div style={{ display:'flex', gap:10, alignItems:'center', padding:'10px 12px', borderRadius:8, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)', flexWrap:'wrap' }}>
       <span style={{ width:52, fontSize:11, fontWeight:700, color:'var(--t3)' }}>{stepTitle(steps, index)}</span>
 
       {typeChoices ? (
@@ -1879,7 +1879,7 @@ const StepRow = ({ step, index, steps = [], onChange, onRemove, canRemove, typeC
           </span>}
         </label>
       ) : (
-        <span style={{ fontSize:11.5, color:'#fbbf24' }}>Add the steps this condition should guard below it.</span>
+        <span style={{ fontSize:11.5, color:'#b45309' }}>Add the steps this condition should guard below it.</span>
       ))}
 
       <div style={{ display:'flex', gap:6, marginLeft:'auto' }}>
@@ -1892,7 +1892,7 @@ const StepRow = ({ step, index, steps = [], onChange, onRemove, canRemove, typeC
           </>
         )}
         {canRemove && (
-          <button onClick={onRemove} style={{ padding:'7px 10px', borderRadius:7, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#f87171', cursor:'pointer', fontSize:11 }}>Remove</button>
+          <button onClick={onRemove} style={{ padding:'7px 10px', borderRadius:7, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#dc2626', cursor:'pointer', fontSize:11 }}>Remove</button>
         )}
       </div>
 
@@ -1988,7 +1988,7 @@ const RunRow = ({ run }) => {
       )}
       {d.suppressed
         ? <span style={{ flexBasis:'100%', fontSize:11.5, color:'var(--t2)' }}>Didn't run — {d.reason}</span>
-        : d.reason && <span style={{ flexBasis:'100%', fontSize:11.5, color: d.tone === 'error' ? '#f87171' : 'var(--t2)' }}>{d.reason}</span>}
+        : d.reason && <span style={{ flexBasis:'100%', fontSize:11.5, color: d.tone === 'error' ? '#dc2626' : 'var(--t2)' }}>{d.reason}</span>}
       {open && <div style={{ flexBasis:'100%' }}><TraceList trace={trace} nodes={run.nodes} /></div>}
     </div>
   );
@@ -2055,7 +2055,7 @@ const RunHistory = ({ workflowId, tick }) => {
 
   return (
     <div style={{ border:'1px solid var(--bd)', borderRadius:8, overflow:'hidden' }}>
-      {err && <div style={{ padding:'10px 14px', fontSize:12, color:'#f87171' }}>{err}</div>}
+      {err && <div style={{ padding:'10px 14px', fontSize:12, color:'#dc2626' }}>{err}</div>}
       {loading ? (
         <div style={{ padding:16, fontSize:12.5, color:'var(--t2)', textAlign:'center' }}>Loading runs…</div>
       ) : runs.length === 0 ? (
@@ -2089,7 +2089,7 @@ const WorkflowCard = ({ workflow: w, stats, readOnly, runsTick, onToggle, onEdit
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
         <div style={{ display:'flex', gap:12, alignItems:'center', minWidth:0 }}>
           <div style={{ width:32, height:32, borderRadius:8, background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.2)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <I n="wflow" s={16} c="#f59e0b" />
+            <I n="wflow" s={16} c="#d97706" />
           </div>
           <div style={{ minWidth:0 }}>
             <h3 style={{ fontSize:15, fontWeight:600, color:'var(--t1)' }}>{w.name}</h3>
@@ -2111,11 +2111,11 @@ const WorkflowCard = ({ workflow: w, stats, readOnly, runsTick, onToggle, onEdit
         </div>
       </div>
 
-      <div style={{ display:'flex', flexWrap:'wrap', gap:6, alignItems:'center', background:'rgba(255,255,255,0.01)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px' }}>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6, alignItems:'center', background:'rgba(15,23,42,0.01)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px' }}>
         {nodes.map((step, idx) => (
           <div key={step.id || idx} style={{ display:'flex', alignItems:'center', gap:6 }}>
             {idx > 0 && <I n="arrow" s={10} c="var(--t3)" />}
-            <span style={{ fontSize:12, padding:'3px 8px', borderRadius:6, background: step.type === 'trigger' ? 'rgba(245,158,11,0.08)' : step.type === 'condition' ? 'rgba(157,107,255,0.08)' : 'rgba(53,232,242,0.08)', border:`1px solid ${step.type === 'trigger' ? 'rgba(245,158,11,0.2)' : step.type === 'condition' ? 'rgba(157,107,255,0.25)' : 'var(--gbd)'}`, color: TYPE_COLOR[step.type] || 'var(--green)', fontWeight:600 }}>
+            <span style={{ fontSize:12, padding:'3px 8px', borderRadius:6, background: step.type === 'trigger' ? 'rgba(245,158,11,0.08)' : step.type === 'condition' ? 'rgba(124,58,237,0.08)' : 'rgba(13,148,136,0.08)', border:`1px solid ${step.type === 'trigger' ? 'rgba(245,158,11,0.2)' : step.type === 'condition' ? 'rgba(124,58,237,0.25)' : 'var(--gbd)'}`, color: TYPE_COLOR[step.type] || 'var(--green)', fontWeight:600 }}>
               {stepLabel(step)}
             </span>
           </div>
@@ -2204,7 +2204,7 @@ const IntentEditor = ({ intent, onClose, onSaved }) => {
   };
 
   return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.62)', backdropFilter:'blur(4px)', zIndex:120, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', backdropFilter:'blur(4px)', zIndex:120, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width:'100%', maxWidth:520, maxHeight:'88vh', overflowY:'auto', padding:24 }}>
         <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, color:'var(--t1)', marginBottom:18 }}>
           {editing ? 'Edit intent' : 'New intent'}
@@ -2219,7 +2219,7 @@ const IntentEditor = ({ intent, onClose, onSaved }) => {
               {INTENT_ICONS.map(g => (
                 <button key={g} type="button" onClick={() => setIcon(g)}
                   style={{ width:36, height:36, borderRadius:9, fontSize:17, cursor:'pointer', lineHeight:1,
-                           background: icon === g ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                           background: icon === g ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                            border:`1px solid ${icon === g ? 'var(--gbd)' : 'var(--bd)'}` }}>{g}</button>
               ))}
             </div>
@@ -2238,7 +2238,7 @@ const IntentEditor = ({ intent, onClose, onSaved }) => {
                 return (
                   <button key={a.id} type="button" onClick={() => setActionType(a.id)}
                     style={{ textAlign:'left', padding:'10px 12px', borderRadius:9, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                             background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                             background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                              border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}` }}>
                     <div style={{ fontSize:13, fontWeight:600, color: on ? 'var(--green)' : 'var(--t1)' }}>{a.label}</div>
                     <div style={{ fontSize:11, color:'var(--t3)', marginTop:2 }}>{a.hint}</div>
@@ -2267,7 +2267,7 @@ const IntentEditor = ({ intent, onClose, onSaved }) => {
             {phrases.length > 0 && (
               <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10 }}>
                 {phrases.map(ph => (
-                  <span key={ph} style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12, padding:'4px 8px 4px 10px', borderRadius:20, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>
+                  <span key={ph} style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12, padding:'4px 8px 4px 10px', borderRadius:20, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>
                     {ph}
                     <button type="button" onClick={() => setPhrases(list => list.filter(x => x !== ph))} aria-label={`Remove ${ph}`}
                       style={{ background:'none', border:'none', cursor:'pointer', display:'flex', padding:0, color:'var(--t3)' }}>
@@ -2381,7 +2381,7 @@ const AIIntentMatchingTab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="spark" color="#c4ff46" bg="rgba(196,255,70,0.1)"
+      <TabHeader icon="spark" color="#4d7c0f" bg="rgba(101,163,13,0.1)"
         title="Intent matching" subtitle={`Rules that route messages before the AI · ${activeCount} active`}
         badge={enabled && <Pill>On</Pill>}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
@@ -2417,7 +2417,7 @@ const AIIntentMatchingTab = () => {
           {rules.map(rule => (
             <div key={rule.id} style={{ ...card, padding:'16px 18px', opacity: rule.isActive ? 1 : 0.6, transition:'opacity .15s' }}>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <span style={{ width:36, height:36, borderRadius:10, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>
+                <span style={{ width:36, height:36, borderRadius:10, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>
                   {rule.icon}
                 </span>
                 <div style={{ flex:1, minWidth:0 }}>
@@ -2428,19 +2428,19 @@ const AIIntentMatchingTab = () => {
                   {rule.matchCount30d}× / 30d
                 </span>
                 <button onClick={() => setEditor({ intent: rule })} aria-label={`Edit ${rule.name}`}
-                  style={{ width:28, height:28, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  style={{ width:28, height:28, borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   <I n="pencil" s={12} c="var(--t2)" />
                 </button>
                 <button onClick={() => removeRule(rule)} aria-label={`Delete ${rule.name}`}
                   style={{ width:28, height:28, borderRadius:7, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <I n="trash" s={12} c="#f87171" />
+                  <I n="trash" s={12} c="#dc2626" />
                 </button>
                 <Toggle on={rule.isActive} onToggle={() => toggleRule(rule)} />
               </div>
               {Array.isArray(rule.phrases) && rule.phrases.length > 0 && (
                 <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:12, paddingLeft:48 }}>
                   {rule.phrases.map(ph => (
-                    <span key={ph} style={{ fontFamily:'var(--mono)', fontSize:10.5, padding:'3px 9px', borderRadius:20, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{ph}</span>
+                    <span key={ph} style={{ fontFamily:'var(--mono)', fontSize:10.5, padding:'3px 9px', borderRadius:20, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{ph}</span>
                   ))}
                 </div>
               )}
@@ -2473,8 +2473,8 @@ const AIIntentMatchingTab = () => {
                 {/* The bar is read against the threshold, so the threshold is
                     drawn on it — a percentage alone does not tell you whether
                     it was enough. */}
-                <div style={{ position:'relative', height:6, borderRadius:6, background:'rgba(255,255,255,0.07)', overflow:'hidden', marginBottom:4 }}>
-                  <div style={{ width:`${Math.round((testResult.confidence || 0) * 100)}%`, height:'100%', borderRadius:6, background: testResult.matched ? 'var(--green)' : '#fbbf24', transition:'width .2s' }} />
+                <div style={{ position:'relative', height:6, borderRadius:6, background:'rgba(15,23,42,0.07)', overflow:'hidden', marginBottom:4 }}>
+                  <div style={{ width:`${Math.round((testResult.confidence || 0) * 100)}%`, height:'100%', borderRadius:6, background: testResult.matched ? 'var(--green)' : '#b45309', transition:'width .2s' }} />
                 </div>
                 <div style={{ position:'relative', height:10, marginBottom:10 }}>
                   <span style={{ position:'absolute', left:`${Math.round(testResult.threshold * 100)}%`, top:-10, width:1, height:12, background:'var(--t3)' }} />
@@ -2488,7 +2488,7 @@ const AIIntentMatchingTab = () => {
                   </div>
                 )}
                 {!testResult.enabled && (
-                  <p style={{ fontSize:11, color:'#fbbf24', marginTop:10, lineHeight:1.5 }}>
+                  <p style={{ fontSize:11, color:'#b45309', marginTop:10, lineHeight:1.5 }}>
                     Intent matching is switched off, so this routing is a preview — live messages still go straight to the agent.
                   </p>
                 )}
@@ -2510,14 +2510,14 @@ const AIIntentMatchingTab = () => {
                 {[
                   ['Auto-matched',           stats.matched,     'var(--lime)'],
                   ['Fell through to AI',     stats.fellThrough, 'var(--cyan)'],
-                  ['Mismatched (corrected)', stats.mismatched,  '#fbbf24'],
+                  ['Mismatched (corrected)', stats.mismatched,  '#b45309'],
                 ].map(([label, value, colour]) => (
                   <div key={label}>
                     <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, marginBottom:5, flexWrap: 'wrap', rowGap: 10 }}>
                       <span style={{ color:'var(--t2)' }}>{label}</span>
                       <span style={{ color:colour, fontWeight:700, fontFamily:'var(--mono)' }}>{value.pct}%</span>
                     </div>
-                    <div style={{ height:4, borderRadius:4, background:'rgba(255,255,255,0.07)', overflow:'hidden' }}>
+                    <div style={{ height:4, borderRadius:4, background:'rgba(15,23,42,0.07)', overflow:'hidden' }}>
                       <div style={{ width:`${value.pct}%`, height:'100%', background:colour, borderRadius:4 }} />
                     </div>
                   </div>
@@ -2663,7 +2663,7 @@ const InstagramQuickflowsTab = () => {
 
       {!conn?.connected ? (
         <div style={{ ...card, padding:'40px 24px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
-          <div style={{ width:64, height:64, borderRadius:16, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:64, height:64, borderRadius:16, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <I n="insta" s={32} c="var(--t3)" />
           </div>
           <div>
@@ -2681,7 +2681,7 @@ const InstagramQuickflowsTab = () => {
               perfectly correct — and is otherwise impossible to place. */}
           {conn && !conn.configured && (
             <div style={{ maxWidth:520, textAlign:'left', padding:'12px 14px', borderRadius:10, background:'rgba(245,158,11,.07)', border:'1px solid rgba(245,158,11,.25)' }}>
-              <p style={{ fontSize:12.5, fontWeight:700, color:'#fbbf24', marginBottom:6 }}>
+              <p style={{ fontSize:12.5, fontWeight:700, color:'#b45309', marginBottom:6 }}>
                 Instagram is not configured on this server
               </p>
               {conn.setup?.missing?.length > 0 && (
@@ -2705,7 +2705,7 @@ const InstagramQuickflowsTab = () => {
                 <p style={{ fontSize:11, color:'var(--t3)' }}>Connected {new Date(conn.connectedAt).toLocaleDateString()}</p>
               </div>
             </div>
-            <Btn variant="outline" size="sm" onClick={disconnect} style={{ borderColor:'#f8717133', color:'#f87171' }}>Disconnect</Btn>
+            <Btn variant="outline" size="sm" onClick={disconnect} style={{ borderColor:'#f8717133', color:'#dc2626' }}>Disconnect</Btn>
           </div>
 
           {form && (
@@ -2719,7 +2719,7 @@ const InstagramQuickflowsTab = () => {
                 <div style={{ minWidth:180 }}>
                   <label style={labelStyle}>Trigger on</label>
                   <select value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} style={inputStyle}>
-                    {IG_SOURCES.map(([v, l]) => <option key={v} value={v} style={{ background:'#0a0b0e' }}>{l}</option>)}
+                    {IG_SOURCES.map(([v, l]) => <option key={v} value={v} style={{ background:'#ffffff' }}>{l}</option>)}
                   </select>
                 </div>
                 <div style={{ minWidth:160 }}>
@@ -2752,7 +2752,7 @@ const InstagramQuickflowsTab = () => {
               <div style={{ padding:32, textAlign:'center', color:'var(--t2)', fontSize:13 }}>No Instagram flows yet. Create one above.</div>
             ) : flows.map((f, i) => (
               <div key={f.id} style={{ padding:'14px 18px', borderBottom: i < flows.length-1 ? '1px solid var(--bd)' : 'none', display:'flex', gap:12, alignItems:'center', flexWrap:'wrap', opacity: f.isActive ? 1 : .55 }}>
-                <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:6, background:'rgba(220,39,67,0.1)', border:'1px solid rgba(220,39,67,0.25)', color:'#f472b6' }}>
+                <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:6, background:'rgba(220,39,67,0.1)', border:'1px solid rgba(220,39,67,0.25)', color:'#db2777' }}>
                   {IG_SOURCES.find(([v]) => v === f.source)?.[1] || f.source}
                 </span>
                 {f.keyword
@@ -2819,7 +2819,7 @@ const VoiceAITab = () => {
   if (!cfg.voiceAiEnabled) {
     return (
       <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-        <TabHeader icon="phone" color="var(--green)" bg="rgba(53,232,242,0.1)"
+        <TabHeader icon="phone" color="var(--green)" bg="rgba(13,148,136,0.1)"
           title="Voice AI - Inbound Calls" subtitle="An AI receptionist that answers calls and captures leads" />
         {banner && <Banner tone={banner.tone}>{banner.text}</Banner>}
         <div style={{ ...card, padding:'40px', display:'flex', flexDirection:'column', alignItems:'center', gap:'28px' }}>
@@ -2838,8 +2838,8 @@ const VoiceAITab = () => {
             </div>
             <div style={{ flex:1, minWidth:'300px' }}>
               <p style={{ fontSize:'14px', fontWeight:700, color:'var(--t1)', marginBottom:'16px', textAlign:'center' }}>How It Works</p>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(255,255,255,0.02)', padding:'20px', borderRadius:'12px', border:'1px solid var(--bd)' }}>
-                {[['phone', 'Call comes in', 'rgba(255,255,255,0.05)', 'var(--t2)'], ['spark', 'AI answers', '#581c87', '#e9d5ff'], ['users', 'Lead captured', 'var(--green)', '#000']].map(([icon, label, bg, fg], i, arr) => (
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(15,23,42,0.02)', padding:'20px', borderRadius:'12px', border:'1px solid var(--bd)' }}>
+                {[['phone', 'Call comes in', 'rgba(15,23,42,0.05)', 'var(--t2)'], ['spark', 'AI answers', '#581c87', '#e9d5ff'], ['users', 'Lead captured', 'var(--green)', '#000']].map(([icon, label, bg, fg], i, arr) => (
                   <div key={label} style={{ display:'contents' }}>
                     {i > 0 && <I n="arrow" s={14} c="var(--t3)" />}
                     <div style={{ textAlign:'center' }}>
@@ -2862,9 +2862,9 @@ const VoiceAITab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="phone" color="var(--green)" bg="rgba(53,232,242,0.1)"
+      <TabHeader icon="phone" color="var(--green)" bg="rgba(13,148,136,0.1)"
         title="Voice AI - Receptionist" subtitle="Configure how the AI answers your inbound calls" badge={<Pill>Active</Pill>}>
-        <Btn variant="outline" onClick={() => patch({ voiceAiEnabled: false })} style={{ borderColor:'#f8717133', color:'#f87171' }}>Deactivate</Btn>
+        <Btn variant="outline" onClick={() => patch({ voiceAiEnabled: false })} style={{ borderColor:'#f8717133', color:'#dc2626' }}>Deactivate</Btn>
       </TabHeader>
 
       {banner && <Banner tone={banner.tone}>{banner.text}</Banner>}
@@ -2936,7 +2936,7 @@ const VoiceAITab = () => {
               <div style={{ padding:'0 18px 14px', display:'flex', flexDirection:'column', gap:6 }}>
                 {(Array.isArray(c.transcript) ? c.transcript : []).map((t, idx) => (
                   <div key={idx} style={{ display:'flex', gap:8, fontSize:12 }}>
-                    <span style={{ minWidth:52, color: t.role === 'caller' ? '#9d6bff' : 'var(--green)', fontWeight:600 }}>{t.role === 'caller' ? 'Caller' : 'AI'}</span>
+                    <span style={{ minWidth:52, color: t.role === 'caller' ? '#7c3aed' : 'var(--green)', fontWeight:600 }}>{t.role === 'caller' ? 'Caller' : 'AI'}</span>
                     <span style={{ color:'var(--t2)' }}>{t.text}</span>
                   </div>
                 ))}
@@ -2970,7 +2970,7 @@ const FormPreview = ({ name, schema }) => {
   return (
     <div style={{ ...card, padding:16, display:'flex', flexDirection:'column', gap:12, minWidth:270 }}>
       <p style={{ fontSize:12, fontWeight:700, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.07em' }}>Preview</p>
-      <div style={{ border:'1px solid var(--bd)', borderRadius:14, background:'rgba(255,255,255,0.02)', overflow:'hidden', display:'flex', flexDirection:'column', minHeight:300 }}>
+      <div style={{ border:'1px solid var(--bd)', borderRadius:14, background:'rgba(15,23,42,0.02)', overflow:'hidden', display:'flex', flexDirection:'column', minHeight:300 }}>
         <div style={{ padding:'10px 14px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ color:'var(--t3)', fontSize:13 }}>✕</span>
           <span style={{ flex:1, textAlign:'center', fontSize:12.5, fontWeight:600, color:'var(--t1)' }}>{name?.trim() || 'Untitled form'}</span>
@@ -2979,7 +2979,7 @@ const FormPreview = ({ name, schema }) => {
         {/* one segment per question — fills as the customer answers */}
         <div style={{ display:'flex', gap:4, padding:'10px 14px 0' }}>
           {(fields.length ? fields : [null]).map((_, i) => (
-            <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i <= active && fields.length ? 'var(--green)' : 'rgba(255,255,255,0.10)' }} />
+            <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i <= active && fields.length ? 'var(--green)' : 'rgba(15,23,42,0.10)' }} />
           ))}
         </div>
 
@@ -2993,11 +2993,11 @@ const FormPreview = ({ name, schema }) => {
               {field.type === 'choice' && (field.options || []).length > 0 ? (
                 <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                   {(field.options || []).map((o, i) => (
-                    <div key={i} style={{ padding:'8px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(255,255,255,0.03)', fontSize:12, color:'var(--t2)' }}>{o}</div>
+                    <div key={i} style={{ padding:'8px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(15,23,42,0.03)', fontSize:12, color:'var(--t2)' }}>{o}</div>
                   ))}
                 </div>
               ) : (
-                <div style={{ padding:'9px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(255,255,255,0.03)', fontSize:12, color:'var(--t3)' }}>
+                <div style={{ padding:'9px 11px', borderRadius:8, border:'1px solid var(--bd)', background:'rgba(15,23,42,0.03)', fontSize:12, color:'var(--t3)' }}>
                   {{ email:'name@example.com', phone:'+91 98765 43210', number:'Enter a number' }[field.type] || 'Type your answer…'}
                 </div>
               )}
@@ -3189,7 +3189,7 @@ const WhatsAppFormsTab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="note" color="var(--t2)" bg="rgba(255,255,255,0.04)"
+      <TabHeader icon="note" color="var(--t2)" bg="rgba(15,23,42,0.04)"
         title="WhatsApp Forms" subtitle="Collect structured answers one question at a time, right inside the chat">
         {view === 'list' && <Btn onClick={openCreate} style={{ boxShadow:'var(--glow)' }}><I n="plus" s={14} c="#08090c"/> Create Form</Btn>}
       </TabHeader>
@@ -3229,7 +3229,7 @@ const WhatsAppFormsTab = () => {
                   <label key={t.id} onClick={() => applyTemplate(t)}
                     style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'9px 11px', borderRadius:8, cursor:'pointer',
                              border:`1px solid ${pickedTemplate === t.id ? 'var(--gbd)' : 'var(--bd)'}`,
-                             background: pickedTemplate === t.id ? 'var(--gbg)' : 'rgba(255,255,255,0.02)' }}>
+                             background: pickedTemplate === t.id ? 'var(--gbg)' : 'rgba(15,23,42,0.02)' }}>
                     <span style={{ width:14, height:14, borderRadius:'50%', flexShrink:0, marginTop:2,
                                    border:`1.5px solid ${pickedTemplate === t.id ? 'var(--green)' : 'var(--bd)'}`,
                                    background: pickedTemplate === t.id ? 'var(--green)' : 'transparent' }} />
@@ -3260,7 +3260,7 @@ const WhatsAppFormsTab = () => {
                   })}
                   placeholder="e.g. Customer Feedback" style={{ ...inputStyle, paddingRight:52 }} />
                 <span style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', fontSize:11,
-                               color: (draft.name || '').length >= FORM_NAME_MAX ? '#fbbf24' : 'var(--t3)' }}>
+                               color: (draft.name || '').length >= FORM_NAME_MAX ? '#b45309' : 'var(--t3)' }}>
                   {(draft.name || '').length}/{FORM_NAME_MAX}
                 </span>
               </div>
@@ -3285,7 +3285,7 @@ const WhatsAppFormsTab = () => {
               </button>
               {catOpen && (
                 <div style={{ position:'absolute', zIndex:20, top:'calc(100% + 4px)', left:0, right:0, borderRadius:9,
-                              border:'1px solid var(--bd)', background:'#0a0b0e', boxShadow:'0 12px 30px rgba(0,0,0,0.5)', padding:6,
+                              border:'1px solid var(--bd)', background:'#ffffff', boxShadow:'0 12px 30px rgba(15,23,42,0.15)', padding:6,
                               maxHeight:220, overflowY:'auto' }}>
                   {categoryOpts.map(cat => {
                     const on = (draft.categories || []).includes(cat);
@@ -3314,13 +3314,13 @@ const WhatsAppFormsTab = () => {
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             <label style={labelStyle}>Questions</label>
             {draft.schema.map((f, idx) => (
-              <div key={idx} style={{ border:'1px solid var(--bd)', borderRadius:8, padding:12, background:'rgba(255,255,255,0.02)', display:'flex', flexDirection:'column', gap:10 }}>
+              <div key={idx} style={{ border:'1px solid var(--bd)', borderRadius:8, padding:12, background:'rgba(15,23,42,0.02)', display:'flex', flexDirection:'column', gap:10 }}>
                 <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
                   <span style={{ fontSize:11, fontWeight:700, color:'var(--t3)', width:24 }}>Q{idx + 1}</span>
                   <input value={f.label} onChange={e => setField(idx, { label: e.target.value })}
                     placeholder="What should the customer be asked?" style={{ ...inputStyle, flex:1, minWidth:220 }} />
                   <select value={f.type || 'text'} onChange={e => setField(idx, { type: e.target.value })} style={{ ...inputStyle, width:150 }}>
-                    {FIELD_TYPES.map(([v, l]) => <option key={v} value={v} style={{ background:'#0a0b0e' }}>{l}</option>)}
+                    {FIELD_TYPES.map(([v, l]) => <option key={v} value={v} style={{ background:'#ffffff' }}>{l}</option>)}
                   </select>
                   <label style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--t2)', cursor:'pointer' }}>
                     <input type="checkbox" checked={f.required !== false} onChange={e => setField(idx, { required: e.target.checked })}
@@ -3329,7 +3329,7 @@ const WhatsAppFormsTab = () => {
                   </label>
                   {draft.schema.length > 1 && (
                     <button onClick={() => setDraft(d => ({ ...d, schema: d.schema.filter((_, i) => i !== idx) }))}
-                      style={{ padding:'6px 10px', borderRadius:7, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#f87171', cursor:'pointer', fontSize:11 }}>Remove</button>
+                      style={{ padding:'6px 10px', borderRadius:7, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#dc2626', cursor:'pointer', fontSize:11 }}>Remove</button>
                   )}
                 </div>
                 {f.type === 'choice' && (
@@ -3380,7 +3380,7 @@ const WhatsAppFormsTab = () => {
                   {Array.isArray(f.categories) && f.categories.length ? (
                     <span style={{ display:'inline-flex', gap:5, flexWrap:'wrap' }}>
                       {f.categories.map(c => (
-                        <span key={c} style={{ padding:'2px 8px', borderRadius:11, fontSize:10.5, fontWeight:600, background:'rgba(255,255,255,0.05)', border:'1px solid var(--bd)', color:'var(--t2)', whiteSpace:'nowrap' }}>{c}</span>
+                        <span key={c} style={{ padding:'2px 8px', borderRadius:11, fontSize:10.5, fontWeight:600, background:'rgba(15,23,42,0.05)', border:'1px solid var(--bd)', color:'var(--t2)', whiteSpace:'nowrap' }}>{c}</span>
                       ))}
                     </span>
                   ) : <span style={{ fontSize:12.5, color:'var(--t3)' }}>—</span>}
@@ -3433,7 +3433,7 @@ const SmartListsTab = () => {
   const [contactPhone, setContactPhone] = useState('');
   const [contactError, setContactError] = useState('');
 
-  const segColors = ['#8b5cf6','#f43f5e','#9d6bff','#f59e0b','#25d366','#ec4899'];
+  const segColors = ['#8b5cf6','#f43f5e','#7c3aed','#d97706','#25d366','#ec4899'];
   const viewingSegment = segments.find(s => s.id === viewingSegmentId) || null;
 
   const fetchSegments = useCallback(async () => {
@@ -3518,7 +3518,7 @@ const SmartListsTab = () => {
                 <input value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="e.g. +14155552671" style={inputStyle} />
               </div>
             </div>
-            {contactError && <p style={{ fontSize:12, color:'#f87171', margin:0 }}>⚠️ {contactError}</p>}
+            {contactError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {contactError}</p>}
             <div style={{ display:'flex', gap:8 }}>
               <Btn onClick={saveContact} style={{ boxShadow:'var(--glow)' }}>{editingContact ? 'Update' : 'Add'}</Btn>
               <Btn variant="ghost" onClick={cancelContactForm}>Cancel</Btn>
@@ -3560,7 +3560,7 @@ const SmartListsTab = () => {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="users" color="var(--t2)" bg="rgba(255,255,255,0.04)"
+      <TabHeader icon="users" color="var(--t2)" bg="rgba(15,23,42,0.04)"
         title="Contact Lists" subtitle="Hand-picked lists for targeted messaging. Membership is fixed: contacts are added and removed by hand, not by rules.">
         <Btn onClick={openCreateSeg} style={{ boxShadow:'var(--glow)' }}><I n="plus" s={14} c="#08090c" /> Create Segment</Btn>
       </TabHeader>
@@ -3576,7 +3576,7 @@ const SmartListsTab = () => {
             <label style={labelStyle}>Description (optional)</label>
             <input value={segDesc} onChange={e => setSegDesc(e.target.value)} placeholder="e.g. High-value customers" style={inputStyle} />
           </div>
-          {segError && <p style={{ fontSize:12, color:'#f87171', margin:0 }}>⚠️ {segError}</p>}
+          {segError && <p style={{ fontSize:12, color:'#dc2626', margin:0 }}>⚠️ {segError}</p>}
           <div style={{ display:'flex', gap:8 }}>
             <Btn onClick={saveSeg} style={{ boxShadow:'var(--glow)' }}>{editingSeg ? 'Update Segment' : 'Create Segment'}</Btn>
             <Btn variant="ghost" onClick={cancelSegForm}>Cancel</Btn>
@@ -3586,7 +3586,7 @@ const SmartListsTab = () => {
 
       {segments.length === 0 ? (
         <div style={{ ...card, padding:'60px 28px', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:14 }}>
-          <div style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:52, height:52, borderRadius:14, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <I n="users" s={24} c="var(--t2)" />
           </div>
           <div>
@@ -3689,7 +3689,7 @@ export default function AutomationView({ initialTab }) {
   };
 
   return (
-    <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', background:'#060B18' }}>
+    <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', background:'var(--bg)' }}>
       {/* This page builds its own header rather than using the shell's, so it
           had no hamburger — on a phone the nav drawer was unreachable from
           Automation, the AI Agent and Intent Matching, which are three separate
@@ -3706,7 +3706,7 @@ export default function AutomationView({ initialTab }) {
             <button key={tab.id} onClick={() => selectTab(tab.id)}
               style={{
                 display:'flex', alignItems:'center', gap:'8px', padding:'12px 16px', cursor:'pointer',
-                background: isActive ? 'rgba(53,232,242,0.1)' : 'transparent', border:'none',
+                background: isActive ? 'rgba(13,148,136,0.1)' : 'transparent', border:'none',
                 borderBottom: isActive ? '2px solid var(--green)' : '2px solid transparent',
                 color: isActive ? 'var(--green)' : 'var(--t2)', transition:'all .15s',
                 whiteSpace:'nowrap', borderRadius:'8px 8px 0 0', fontFamily:"'Manrope',sans-serif",

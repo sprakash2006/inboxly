@@ -8,18 +8,18 @@ import { notify, confirmDialog } from '../components/Feedback.jsx';
 
 const statusColor = s => ({
   AVAILABLE: { bg:'var(--gbg)',              bd:'var(--gbd)',              c:'var(--green)' },
-  ASSIGNED:  { bg:'rgba(14,165,233,.1)',     bd:'rgba(14,165,233,.25)',    c:'#9d6bff' },
-  BANNED:    { bg:'rgba(239,68,68,.08)',     bd:'rgba(239,68,68,.2)',      c:'#f87171' },
-}[s] || { bg:'rgba(255,255,255,.04)', bd:'var(--bd)', c:'var(--t2)' });
+  ASSIGNED:  { bg:'rgba(14,165,233,.1)',     bd:'rgba(14,165,233,.25)',    c:'#7c3aed' },
+  BANNED:    { bg:'rgba(239,68,68,.08)',     bd:'rgba(239,68,68,.2)',      c:'#dc2626' },
+}[s] || { bg:'rgba(15,23,42,.04)', bd:'var(--bd)', c:'var(--t2)' });
 
 const card = { background:'var(--surf)', border:'1px solid var(--bd)', borderRadius:'var(--rl)', boxShadow:'var(--card-shadow)' };
 
-const qualityColor = q => q === 'High' ? 'var(--green)' : q === 'Medium' ? '#fbbf24' : '#f87171';
+const qualityColor = q => q === 'High' ? 'var(--green)' : q === 'Medium' ? '#b45309' : '#dc2626';
 
 const Label = ({ children, hint, required }) => (
   <div style={{ marginBottom:6 }}>
     <label style={{ fontSize:12, fontWeight:600, color:'var(--t2)', display:'block', marginBottom:2 }}>
-      {children} {required && <span style={{ color:'#f87171' }}>*</span>}
+      {children} {required && <span style={{ color:'#dc2626' }}>*</span>}
     </label>
     {hint && <p style={{ fontSize:11, color:'var(--t3)' }}>{hint}</p>}
   </div>
@@ -27,13 +27,13 @@ const Label = ({ children, hint, required }) => (
 
 const FInput = ({ type='text', value, onChange, placeholder, style:ex={} }) => (
   <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', ...ex }}
+    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', ...ex }}
     onFocus={e => e.target.style.borderColor='var(--gbd)'}
     onBlur={e => e.target.style.borderColor='var(--bd)'} />
 );
 
 const Modal = ({ title, onClose, children, footer }) => (
-  <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
+  <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
     <div className="modal-card" style={{ ...card, width:480, maxHeight:'80vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--bd)', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
         <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--t1)' }}>{title}</span>
@@ -140,7 +140,7 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
               {number.phoneNumber}
             </span>
             {isPrimary && (
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.08em', padding: '2px 7px', borderRadius: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.08em', padding: '2px 7px', borderRadius: 5, background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
                 PRIMARY
               </span>
             )}
@@ -153,7 +153,7 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
           <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 6,
             background: isVerified ? 'var(--gbg)' : 'rgba(245,158,11,.08)',
             border: `1px solid ${isVerified ? 'var(--gbd)' : 'rgba(245,158,11,.28)'}`,
-            color: isVerified ? 'var(--success)' : '#fbbf24' }}>
+            color: isVerified ? 'var(--success)' : '#b45309' }}>
             VERIFICATION: {String(number.codeVerificationStatus || 'NOT_VERIFIED').toUpperCase()}
           </span>
           <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 6, background: `${qc}1f`, border: `1px solid ${qc}44`, color: qc }}>
@@ -162,13 +162,13 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
           <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 6,
             background: connected ? 'var(--sbg)' : 'rgba(245,158,11,.08)',
             border: `1px solid ${connected ? 'var(--sbd)' : 'rgba(245,158,11,.28)'}`,
-            color: connected ? 'var(--success)' : '#fbbf24' }}>
+            color: connected ? 'var(--success)' : '#b45309' }}>
             {String(number.status || 'UNKNOWN').toUpperCase()}
           </span>
           {onDisconnect && (
             <button onClick={() => onDisconnect(number)} disabled={disconnecting}
               style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: disconnecting ? 'wait' : 'pointer',
-                       background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.22)', color: '#f87171', fontFamily: "'Manrope',sans-serif" }}>
+                       background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.22)', color: '#dc2626', fontFamily: "'Manrope',sans-serif" }}>
               Disconnect
             </button>
           )}
@@ -177,7 +177,7 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(112px,1fr))', gap: 10, marginTop: 16 }}>
         {stats.map(([label, value, colour]) => (
-          <div key={label} style={{ padding: '11px 13px', borderRadius: 9, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)' }}>
+          <div key={label} style={{ padding: '11px 13px', borderRadius: 9, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)' }}>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--t3)', marginBottom: 5 }}>{label}</div>
             <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: colour, letterSpacing: '-.01em' }}>{value}</div>
           </div>
@@ -191,7 +191,7 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
             
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <select value={method} onChange={(e) => setMethod(e.target.value)} disabled={loading}
-                style={{ padding: '5px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12 }}>
+                style={{ padding: '5px 8px', borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12 }}>
                 <option value="SMS">SMS</option>
                 <option value="VOICE">Voice Call</option>
               </select>
@@ -204,7 +204,7 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
               <input type="text" maxLength={6} placeholder="6-digit OTP" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} disabled={loading}
-                style={{ width: 100, padding: '5px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12, textAlign: 'center', boxSizing:'border-box' }} />
+                style={{ width: 100, padding: '5px 8px', borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12, textAlign: 'center', boxSizing:'border-box' }} />
               
               {/* Disabled until the code is actually six digits: the handler
                   already refuses a short code, but letting the button fire and
@@ -214,13 +214,13 @@ const NumberCard = ({ number, isPrimary, onDisconnect, disconnecting, onRefresh 
                 style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600,
                          cursor: (loading || code.length !== 6) ? 'not-allowed' : 'pointer',
                          opacity: (loading || code.length !== 6) ? 0.5 : 1,
-                         background: 'rgba(14,165,233,.1)', border: '1px solid rgba(14,165,233,.25)', color: '#9d6bff', fontFamily: "'Manrope',sans-serif" }}>
+                         background: 'rgba(14,165,233,.1)', border: '1px solid rgba(14,165,233,.25)', color: '#7c3aed', fontFamily: "'Manrope',sans-serif" }}>
                 {loading ? 'Verifying…' : 'Verify'}
               </button>
             </div>
           </div>
           {message && (
-            <div style={{ marginTop: 8, fontSize: 12, color: message.error ? '#f87171' : 'var(--green)' }}>
+            <div style={{ marginTop: 8, fontSize: 12, color: message.error ? '#dc2626' : 'var(--green)' }}>
               {message.error || message.ok}
             </div>
           )}
@@ -615,7 +615,7 @@ export default function NumberSetupView() {
         <div style={{ ...card, padding:'22px 24px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:18 }}>
             <div style={{ width:52, height:52, borderRadius:14, background:'var(--gbg)', border:'1px solid var(--gbd)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <I n={number ? 'checkc' : 'alertc'} s={24} c={number ? 'var(--green)' : '#fbbf24'} />
+              <I n={number ? 'checkc' : 'alertc'} s={24} c={number ? 'var(--green)' : '#b45309'} />
             </div>
             <div style={{ flex:1 }}>
               <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:22, color:'var(--t1)', letterSpacing:'-.03em', marginBottom:6 }}>{number?.phoneNumber || 'No number connected'}</p>
@@ -624,7 +624,7 @@ export default function NumberSetupView() {
                   <span style={{ padding:'2px 9px', borderRadius:12, fontSize:11, fontWeight:700,
                     background: number.codeVerificationStatus === 'VERIFIED' ? 'var(--gbg)' : 'rgba(245,158,11,.08)',
                     border: `1px solid ${number.codeVerificationStatus === 'VERIFIED' ? 'var(--gbd)' : 'rgba(245,158,11,.28)'}`,
-                    color: number.codeVerificationStatus === 'VERIFIED' ? 'var(--green)' : '#fbbf24' }}>
+                    color: number.codeVerificationStatus === 'VERIFIED' ? 'var(--green)' : '#b45309' }}>
                     Verification: {number.codeVerificationStatus}
                   </span>
                 )}
@@ -635,7 +635,7 @@ export default function NumberSetupView() {
                   <span style={{ padding:'2px 9px', borderRadius:12, fontSize:11, fontWeight:700, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)' }}>{number.status}</span>
                 )}
                 {number?.messagingLimit && (
-                  <span style={{ padding:'2px 9px', borderRadius:12, fontSize:11, fontWeight:600, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{number.messagingLimit}</span>
+                  <span style={{ padding:'2px 9px', borderRadius:12, fontSize:11, fontWeight:600, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{number.messagingLimit}</span>
                 )}
               </div>
               {number?.displayName && <p style={{ fontSize:11, color:'var(--t3)', marginTop:5 }}>{number.displayName}</p>}
@@ -666,7 +666,7 @@ export default function NumberSetupView() {
                       cursor: disconnecting ? 'not-allowed' : 'pointer',
                       background:'rgba(239,68,68,0.08)',
                       border:'1px solid rgba(239,68,68,0.25)',
-                      color:'#f87171',
+                      color:'#dc2626',
                       fontFamily:"'Manrope',sans-serif",
                       display:'inline-flex',
                       alignItems:'center',
@@ -687,7 +687,7 @@ export default function NumberSetupView() {
             background: metaMsg.error ? 'rgba(239,68,68,.08)' : 'var(--gbg)',
             border: `1px solid ${metaMsg.error ? 'rgba(239,68,68,.25)' : 'var(--gbd)'}`,
             display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <p style={{ fontSize:12.5, color: metaMsg.error ? '#f87171' : 'var(--green)' }}>{metaMsg.error || metaMsg.ok}</p>
+            <p style={{ fontSize:12.5, color: metaMsg.error ? '#dc2626' : 'var(--green)' }}>{metaMsg.error || metaMsg.ok}</p>
             {/* What specifically is missing, or what still needs doing after a
                 connection that succeeded but is not yet usable. Each line names
                 an environment variable or a Meta dashboard setting. */}
@@ -738,7 +738,7 @@ export default function NumberSetupView() {
           {/* Get a Number */}
           <div style={{ ...card, padding:'20px' }}>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-              <I n="sparkl" s={18} c="#c4ff46" />
+              <I n="sparkl" s={18} c="#4d7c0f" />
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--t1)' }}>Get a Number</span>
             </div>
             <p style={{ fontSize:13, color:'var(--t2)', marginBottom:12, lineHeight:1.55 }}>We'll assign you a ready-to-use WhatsApp Business number instantly.</p>
@@ -755,7 +755,7 @@ export default function NumberSetupView() {
           {/* Connect Own */}
           <div style={{ ...card, padding:'20px' }}>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-              <I n="plug" s={18} c="#9d6bff" />
+              <I n="plug" s={18} c="#7c3aed" />
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'var(--t1)' }}>Connect Your Own</span>
             </div>
             <p style={{ fontSize:13, color:'var(--t2)', marginBottom:12, lineHeight:1.55 }}>Already have a WhatsApp Business number? Connect it using your Meta credentials.</p>
@@ -769,11 +769,11 @@ export default function NumberSetupView() {
         </div>}
 
         {/* Quality warning */}
-        <div style={{ ...card, borderLeft:'3px solid #fbbf24', padding:'16px 20px', background:'rgba(245,158,11,.04)' }}>
+        <div style={{ ...card, borderLeft:'3px solid #b45309', padding:'16px 20px', background:'rgba(245,158,11,.04)' }}>
           <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
-            <I n="alertt" s={18} c="#fbbf24" />
+            <I n="alertt" s={18} c="#b45309" />
             <div>
-              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'#fbbf24', marginBottom:5 }}>Keep your quality rating high</p>
+              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:'#b45309', marginBottom:5 }}>Keep your quality rating high</p>
               <p style={{ fontSize:12, color:'var(--t2)', lineHeight:1.6 }}>High opt-out rates and spam reports lower your quality rating, which can reduce your messaging limits or temporarily suspend your number. Always send relevant, opted-in messages.</p>
             </div>
           </div>
@@ -788,8 +788,8 @@ export default function NumberSetupView() {
                 <p style={{ fontSize:12, color:'var(--t2)' }}>Platform-wide inventory of WhatsApp numbers available for assignment</p>
               </div>
               <div style={{ display:'flex', gap:8 }}>
-                <Btn variant="outline" onClick={resetAllAssignments} disabled={resetting} style={{ flexShrink:0, borderColor:'rgba(239,68,68,.3)', color:'#f87171' }}>
-                  <I n="x" s={13} c={resetting ? 'var(--t3)' : '#f87171'} />
+                <Btn variant="outline" onClick={resetAllAssignments} disabled={resetting} style={{ flexShrink:0, borderColor:'rgba(239,68,68,.3)', color:'#dc2626' }}>
+                  <I n="x" s={13} c={resetting ? 'var(--t3)' : '#dc2626'} />
                   {resetting ? 'Resetting…' : 'Reset All'}
                 </Btn>
                 <Btn onClick={syncFromWaba} disabled={syncing} style={{ flexShrink:0 }}>
@@ -803,7 +803,7 @@ export default function NumberSetupView() {
             {syncResult && (
               <div style={{ marginBottom:16, padding:'10px 14px', borderRadius:8, background: syncResult.error ? 'rgba(239,68,68,.08)' : 'var(--gbg)', border:`1px solid ${syncResult.error ? 'rgba(239,68,68,.2)' : 'var(--gbd)'}` }}>
                 {syncResult.error ? (
-                  <p style={{ fontSize:12, color:'#f87171' }}>Sync failed — check admin API or Meta credentials.</p>
+                  <p style={{ fontSize:12, color:'#dc2626' }}>Sync failed — check admin API or Meta credentials.</p>
                 ) : (
                   <p style={{ fontSize:12, color:'var(--green)' }}>
                     Added {syncResult.added?.length ?? 0} number{(syncResult.added?.length ?? 0) !== 1 ? 's' : ''}.
@@ -819,10 +819,10 @@ export default function NumberSetupView() {
                 {[
                   { label:'Total',     val: adminPool.summary.total,     c:'var(--t1)' },
                   { label:'Available', val: adminPool.summary.available,  c:'var(--green)' },
-                  { label:'Assigned',  val: adminPool.summary.assigned,   c:'#9d6bff' },
-                  { label:'Banned',    val: adminPool.summary.banned,     c:'#f87171' },
+                  { label:'Assigned',  val: adminPool.summary.assigned,   c:'#7c3aed' },
+                  { label:'Banned',    val: adminPool.summary.banned,     c:'#dc2626' },
                 ].map(s => (
-                  <div key={s.label} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', borderRadius:10, padding:'12px 14px', textAlign:'center' }}>
+                  <div key={s.label} style={{ background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', borderRadius:10, padding:'12px 14px', textAlign:'center' }}>
                     <p style={{ fontSize:22, fontWeight:800, fontFamily:"'Space Grotesk',sans-serif", color:s.c, marginBottom:3 }}>{s.val}</p>
                     <p style={{ fontSize:11, color:'var(--t2)' }}>{s.label}</p>
                   </div>
@@ -838,9 +838,9 @@ export default function NumberSetupView() {
               </div>
             ) : adminPoolError ? (
               <div style={{ padding:'14px 16px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)' }}>
-                <p style={{ fontSize:12, color:'#f87171', marginBottom:6 }}>Failed to load pool</p>
+                <p style={{ fontSize:12, color:'#dc2626', marginBottom:6 }}>Failed to load pool</p>
                 <p style={{ fontSize:11, color:'var(--t3)', fontFamily:'monospace', wordBreak:'break-all' }}>{adminPoolError}</p>
-                <button onClick={loadAdminPool} style={{ marginTop:10, padding:'4px 12px', borderRadius:6, fontSize:12, fontWeight:600, cursor:'pointer', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171' }}>Retry</button>
+                <button onClick={loadAdminPool} style={{ marginTop:10, padding:'4px 12px', borderRadius:6, fontSize:12, fontWeight:600, cursor:'pointer', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626' }}>Retry</button>
               </div>
             ) : !adminPool ? null
             : adminPool.pool.length === 0 ? (
@@ -862,7 +862,7 @@ export default function NumberSetupView() {
                     {adminPool.pool.map(e => {
                       const sc = statusColor(e.status);
                       return (
-                        <tr key={e.id} style={{ borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+                        <tr key={e.id} style={{ borderBottom:'1px solid rgba(15,23,42,0.04)' }}>
                           <td style={{ padding:'10px 10px', color:'var(--t1)', fontFamily:'monospace', whiteSpace:'nowrap' }}>{e.phoneNumber}</td>
                           <td style={{ padding:'10px 10px', color:'var(--t2)' }}>{e.displayName || '—'}</td>
                           <td style={{ padding:'10px 10px' }}>
@@ -873,7 +873,7 @@ export default function NumberSetupView() {
                             <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
                               {e.status === 'AVAILABLE' && (
                                 <button onClick={() => openAssignDialog(e)}
-                                  style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer', background:'rgba(14,165,233,.1)', border:'1px solid rgba(14,165,233,.25)', color:'#9d6bff' }}>
+                                  style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer', background:'rgba(14,165,233,.1)', border:'1px solid rgba(14,165,233,.25)', color:'#7c3aed' }}>
                                   Assign
                                 </button>
                               )}
@@ -885,7 +885,7 @@ export default function NumberSetupView() {
                               )}
                               {e.status !== 'BANNED' ? (
                                 <button onClick={() => banEntry(e.id)}
-                                  style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer', background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', color:'#f87171' }}>
+                                  style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer', background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', color:'#dc2626' }}>
                                   Ban
                                 </button>
                               ) : (
@@ -918,7 +918,7 @@ export default function NumberSetupView() {
             Pick the workspace to connect this number to. The number will be created in their workspace and marked ASSIGNED in the pool.
           </p>
           {assignError && (
-            <div style={{ marginBottom:12, padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>
+            <div style={{ marginBottom:12, padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>
               {assignError}
             </div>
           )}
@@ -949,7 +949,7 @@ export default function NumberSetupView() {
                     <button
                       onClick={() => assignToWorkspace(w.id)}
                       disabled={assigning}
-                      style={{ padding:'5px 12px', borderRadius:6, fontSize:11, fontWeight:600, cursor: assigning ? 'not-allowed' : 'pointer', background:'rgba(14,165,233,.1)', border:'1px solid rgba(14,165,233,.25)', color:'#9d6bff', flexShrink:0, opacity: assigning ? 0.6 : 1 }}>
+                      style={{ padding:'5px 12px', borderRadius:6, fontSize:11, fontWeight:600, cursor: assigning ? 'not-allowed' : 'pointer', background:'rgba(14,165,233,.1)', border:'1px solid rgba(14,165,233,.25)', color:'#7c3aed', flexShrink:0, opacity: assigning ? 0.6 : 1 }}>
                       {assigning ? 'Assigning…' : 'Assign'}
                     </button>
                   </div>
@@ -975,7 +975,7 @@ export default function NumberSetupView() {
           </>
         }>
           {getError && (
-            <div style={{ marginBottom:14, padding:'10px 14px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', fontSize:12, color:'#f87171' }}>
+            <div style={{ marginBottom:14, padding:'10px 14px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', fontSize:12, color:'#dc2626' }}>
               {getError}
             </div>
           )}
@@ -1003,7 +1003,7 @@ export default function NumberSetupView() {
                 const sel = selPool === p.id;
                 return (
                   <div key={p.id} onClick={() => setSelPool(p.id)}
-                    style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:10, border:`1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--gbg)' : 'rgba(255,255,255,0.02)', cursor:'pointer', transition:'all .15s' }}>
+                    style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:10, border:`1.5px solid ${sel ? 'var(--green)' : 'var(--bd)'}`, background: sel ? 'var(--gbg)' : 'rgba(15,23,42,0.02)', cursor:'pointer', transition:'all .15s' }}>
                     <I n="smartphone" s={18} c={sel ? 'var(--green)' : 'var(--t2)'} />
                     <div style={{ flex:1 }}>
                       <p style={{ fontSize:14, fontWeight:700, color: sel ? 'var(--green)' : 'var(--t1)', fontFamily:'monospace' }}>{p.phoneNumber}</p>

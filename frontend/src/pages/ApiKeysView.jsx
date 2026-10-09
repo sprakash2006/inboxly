@@ -36,7 +36,7 @@ curl -X POST ${origin}/api/v1/public/messages \\
       <p style={{ fontSize:12.5, color:'var(--t2)', marginBottom:14, lineHeight:1.55 }}>
         Authenticate with the <code style={{ fontFamily:'var(--mono)', fontSize:12, color:'var(--t1)' }}>x-api-key</code> header. Every endpoint is scoped to this workspace.
       </p>
-      <pre style={{ margin:0, padding:'14px 16px', borderRadius:9, background:'rgba(0,0,0,0.35)', border:'1px solid var(--bd)', overflowX:'auto', fontFamily:'var(--mono)', fontSize:12, lineHeight:1.7, color:'var(--t1)', whiteSpace:'pre' }}>
+      <pre style={{ margin:0, padding:'14px 16px', borderRadius:9, background:'rgba(15,23,42,0.35)', border:'1px solid var(--bd)', overflowX:'auto', fontFamily:'var(--mono)', fontSize:12, lineHeight:1.7, color:'var(--t1)', whiteSpace:'pre' }}>
         {snippet}
       </pre>
       <div style={{ marginTop:14, display:'flex', gap:16, flexWrap:'wrap' }}>
@@ -57,7 +57,7 @@ const CopyBtn = ({ text }) => {
     setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <button onClick={copy} title="Copy" style={{ width:28, height:28, borderRadius:6, background: copied ? 'var(--gbg)' : 'rgba(255,255,255,0.04)', border:`1px solid ${copied ? 'var(--gbd)' : 'var(--bd)'}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color: copied ? 'var(--green)' : 'var(--t2)', transition:'all .15s' }}>
+    <button onClick={copy} title="Copy" style={{ width:28, height:28, borderRadius:6, background: copied ? 'var(--gbg)' : 'rgba(15,23,42,0.04)', border:`1px solid ${copied ? 'var(--gbd)' : 'var(--bd)'}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color: copied ? 'var(--green)' : 'var(--t2)', transition:'all .15s' }}>
       <I n={copied ? 'check' : 'copy'} s={12} c={copied ? 'var(--green)' : 'var(--t2)'} />
     </button>
   );
@@ -67,7 +67,7 @@ const SecretInput = ({ prefix }) => {
   const display = `${prefix}${'•'.repeat(24)}`;
   return (
     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-      <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(255,255,255,0.04)', padding:'5px 10px', borderRadius:6, border:'1px solid var(--bd)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{display}</span>
+      <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(15,23,42,0.04)', padding:'5px 10px', borderRadius:6, border:'1px solid var(--bd)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{display}</span>
     </div>
   );
 };
@@ -216,12 +216,12 @@ export default function ApiKeysView() {
 
   const envBadge = env => ({
     live: { bg:'var(--gbg)', bd:'var(--gbd)', c:'var(--green)' },
-    test: { bg:'rgba(196,255,70,.1)', bd:'rgba(196,255,70,.25)', c:'#d8ff8a' },
+    test: { bg:'rgba(101,163,13,.1)', bd:'rgba(101,163,13,.25)', c:'#4d7c0f' },
   }[env] || {});
 
   const inp = (val,fn,ph,type='text') => (
     <input type={type} value={val} onChange={e=>fn(e.target.value)} placeholder={ph}
-      style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
+      style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
       onFocus={e=>e.target.style.borderColor='var(--gbd)'}
       onBlur={e=>e.target.style.borderColor='var(--bd)'} />
   );
@@ -268,11 +268,11 @@ export default function ApiKeysView() {
                   </div>
                   {isAdmin && (
                     <div style={{ display:'flex', gap:6 }}>
-                      <button onClick={()=>rotate(k.id)} title="Rotate" style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)' }}>
+                      <button onClick={()=>rotate(k.id)} title="Rotate" style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)' }}>
                         <I n="rotate" s={12} c="var(--t2)" />
                       </button>
                       <button onClick={()=>revoke(k.id)} title="Revoke" style={{ width:28, height:28, borderRadius:6, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                        <I n="trash" s={12} c="#f87171" />
+                        <I n="trash" s={12} c="#dc2626" />
                       </button>
                     </div>
                   )}
@@ -284,7 +284,7 @@ export default function ApiKeysView() {
           })}
 
           {isAdmin && (
-            <div style={{ padding:'14px 20px', background:'rgba(255,255,255,0.015)' }}>
+            <div style={{ padding:'14px 20px', background:'rgba(15,23,42,0.015)' }}>
               {allScopes.length > 0 && (
                 <div style={{ marginBottom:12 }}>
                   <p style={{ fontSize:11, color:'var(--t3)', marginBottom:8, letterSpacing:'.03em', textTransform:'uppercase' }}>
@@ -306,7 +306,7 @@ export default function ApiKeysView() {
                           style={{
                             padding:'5px 10px', borderRadius:7, fontSize:12, cursor:'pointer',
                             fontFamily:"'Manrope',sans-serif",
-                            background: on ? 'rgba(53,232,242,0.1)' : 'rgba(255,255,255,0.03)',
+                            background: on ? 'rgba(13,148,136,0.1)' : 'rgba(15,23,42,0.03)',
                             color: on ? 'var(--green)' : 'var(--t3)',
                             border: on ? '1px solid var(--gbd)' : '1px solid var(--bd)',
                           }}
@@ -325,9 +325,9 @@ export default function ApiKeysView() {
               )}
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
               <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder="Key name (optional)"
-                style={{ flex:1, padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none' }}
+                style={{ flex:1, padding:'8px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none' }}
                 onKeyDown={e=>e.key==='Enter'&&generate()} />
-              <Btn size="sm" style={{ background:'rgba(53,232,242,0.1)', color:'var(--green)', border:'1px solid var(--gbd)' }} onClick={generate}>
+              <Btn size="sm" style={{ background:'rgba(13,148,136,0.1)', color:'var(--green)', border:'1px solid var(--gbd)' }} onClick={generate}>
                 <I n="plus" s={13} c="var(--green)" />
                 Generate New
               </Btn>
@@ -350,7 +350,7 @@ export default function ApiKeysView() {
               <label style={{ fontSize:12, fontWeight:600, color:'var(--t2)', display:'block', marginBottom:6 }}>Phone Number</label>
               {inp(testPhone,setTestPhone,'+91 98765 43210')}
               {testErrors.phone
-                ? <p style={{ fontSize:11.5, color:'#f87171', margin:'6px 0 0' }}>{testErrors.phone}</p>
+                ? <p style={{ fontSize:11.5, color:'#dc2626', margin:'6px 0 0' }}>{testErrors.phone}</p>
                 : <p style={{ fontSize:11, color:'var(--t3)', margin:'6px 0 0' }}>Include the country code. Spaces and dashes are fine.</p>}
             </div>
             <div>
@@ -359,7 +359,7 @@ export default function ApiKeysView() {
                   expects the template *name* (welcome_new_customer), which
                   wasn't obvious and made "test" style guesses fail. */}
               <input list="cfp-template-names" value={testTpl} onChange={e=>setTestTpl(e.target.value)} placeholder="welcome_new_customer"
-                style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
+                style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }}
                 onFocus={e=>e.target.style.borderColor='var(--gbd)'}
                 onBlur={e=>e.target.style.borderColor='var(--bd)'} />
               <datalist id="cfp-template-names">
@@ -371,7 +371,7 @@ export default function ApiKeysView() {
 
           {requiredVars > 0 && (
             <div style={{ margin:'12px 0 4px', padding:'12px 14px', borderRadius:9, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
-              <p style={{ fontSize:12, fontWeight:600, color:'#b9a3ff', marginBottom:10 }}>
+              <p style={{ fontSize:12, fontWeight:600, color:'#6d28d9', marginBottom:10 }}>
                 This template has {requiredVars} variable{requiredVars === 1 ? '' : 's'}. Provide a value for each placeholder.
               </p>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:10 }}>
@@ -379,11 +379,11 @@ export default function ApiKeysView() {
                   <div key={i}>
                     <label style={{ fontSize:11, fontWeight:700, color:'var(--t3)', display:'block', marginBottom:5, fontFamily:'monospace' }}>{`{{${i + 1}}}`}</label>
                     <input value={testVars[i] || ''} onChange={e=>setVar(i, e.target.value)} placeholder={i === 0 ? 'e.g. Priya' : 'Value'}
-                      style={{ width:'100%', padding:'8px 11px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12.5, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }} />
+                      style={{ width:'100%', padding:'8px 11px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12.5, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }} />
                   </div>
                 ))}
               </div>
-              {testErrors.variables && <p style={{ fontSize:11.5, color:'#f87171', margin:'8px 0 0' }}>{testErrors.variables}</p>}
+              {testErrors.variables && <p style={{ fontSize:11.5, color:'#dc2626', margin:'8px 0 0' }}>{testErrors.variables}</p>}
             </div>
           )}
 
@@ -392,10 +392,10 @@ export default function ApiKeysView() {
               Message Body {testTpl.trim() && <span style={{ fontWeight:500, color:'var(--t3)' }}>· preview only, the template text is sent</span>}
             </label>
             <textarea value={testBody} onChange={e=>setTestBody(e.target.value)} placeholder="Enter test message…"
-              style={{ width:'100%', minHeight:80, padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', resize:'vertical', boxSizing:'border-box', lineHeight:1.55 }} />
-            {testErrors.message && <p style={{ fontSize:11.5, color:'#f87171', margin:'6px 0 0' }}>{testErrors.message}</p>}
+              style={{ width:'100%', minHeight:80, padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', resize:'vertical', boxSizing:'border-box', lineHeight:1.55 }} />
+            {testErrors.message && <p style={{ fontSize:11.5, color:'#dc2626', margin:'6px 0 0' }}>{testErrors.message}</p>}
           </div>
-          {sendError && <p style={{ fontSize:12, color:'#f87171', margin:'0 0 12px' }}>{sendError}</p>}
+          {sendError && <p style={{ fontSize:12, color:'#dc2626', margin:'0 0 12px' }}>{sendError}</p>}
           <Btn onClick={sendTest} disabled={sending} style={{ width:'100%', justifyContent:'center', boxShadow:'var(--glow)' }}>
             {sending ? 'Sending…' : sent ? '✓ Sent!' : <>
               <I n="send" s={14} c="#08090c" />
@@ -406,15 +406,15 @@ export default function ApiKeysView() {
       </div>
 
       {newKey && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, backdropFilter:'blur(4px)' }}>
-          <div style={{ background:'var(--surf)', padding:28, borderRadius:16, border:'1px solid var(--bd)', width:'100%', maxWidth:460, boxShadow:'0 24px 48px rgba(0,0,0,0.3)' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, backdropFilter:'blur(4px)' }}>
+          <div style={{ background:'var(--surf)', padding:28, borderRadius:16, border:'1px solid var(--bd)', width:'100%', maxWidth:460, boxShadow:'0 24px 48px rgba(15,23,42,0.09)' }}>
             <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:18, color:'var(--t1)', marginBottom:12 }}>Save your API key</h2>
             <p style={{ fontSize:13, color:'var(--t2)', marginBottom:20, lineHeight:1.5 }}>
-              Please copy this API key now. For your security, <strong style={{ color:'#f87171' }}>it won't be shown again</strong>.
+              Please copy this API key now. For your security, <strong style={{ color:'#dc2626' }}>it won't be shown again</strong>.
             </p>
             
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:24 }}>
-              <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(255,255,255,0.04)', padding:'9px 12px', borderRadius:6, border:'1px solid var(--bd)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+              <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(15,23,42,0.04)', padding:'9px 12px', borderRadius:6, border:'1px solid var(--bd)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                 {newKey.rawKey}
               </span>
               <CopyBtn text={newKey.rawKey} />

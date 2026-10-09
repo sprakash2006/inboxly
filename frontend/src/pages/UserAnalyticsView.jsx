@@ -56,7 +56,7 @@ const GrowthChart = ({ growth }) => {
           <div key={g.label} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:6, minWidth:0 }}>
             <span style={{ fontFamily:'var(--mono)', fontSize:9.5, color:'var(--t3)' }}>{g.added || ''}</span>
             <div title={`${g.added} added in the week of ${g.label}`}
-              style={{ width:'100%', height:`${Math.max(2, (g.added / max) * 100)}%`, minHeight:2, borderRadius:'4px 4px 0 0', background:'linear-gradient(180deg, var(--cyan), rgba(53,232,242,0.25))' }} />
+              style={{ width:'100%', height:`${Math.max(2, (g.added / max) * 100)}%`, minHeight:2, borderRadius:'4px 4px 0 0', background:'linear-gradient(180deg, var(--cyan), rgba(13,148,136,0.25))' }} />
           </div>
         ))}
       </div>
@@ -95,8 +95,8 @@ const CohortGrid = ({ cohorts, columns }) => (
               fontVariantNumeric:'tabular-nums',
               // A future week is drawn as absence, not as zero — the difference
               // between "nobody came back" and "that week hasn't happened".
-              background: cell == null ? 'rgba(255,255,255,0.02)' : `rgba(53,232,242,${0.08 + (cell / 100) * 0.55})`,
-              color: cell == null ? 'var(--t3)' : cell > 45 ? '#06110f' : '#8fecf3',
+              background: cell == null ? 'rgba(15,23,42,0.02)' : `rgba(53,232,242,${0.08 + (cell / 100) * 0.55})`,
+              color: cell == null ? 'var(--t3)' : cell > 45 ? '#06110f' : '#0f766e',
               border: cell == null ? '1px dashed var(--bd)' : '1px solid transparent',
             }}>
               {cell == null ? '—' : `${cell}%`}
@@ -157,7 +157,7 @@ export default function UserAnalyticsView() {
             return (
               <button key={w} onClick={() => setWeeks(w)}
                 style={{ fontSize:12.5, fontWeight:600, padding:'7px 13px', borderRadius:8, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                         background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                         background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                          border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
                          color: on ? 'var(--green)' : 'var(--t2)' }}>{w}w</button>
             );
@@ -179,13 +179,13 @@ export default function UserAnalyticsView() {
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:12 }}>
               <StatCard title="Total contacts" value={audience.total.toLocaleString('en-IN')}
                 subtitle={`${audience.addedThisMonth.toLocaleString('en-IN')} added in the last 30 days`} />
-              <StatCard title="Opt-in rate" value={`${audience.optInRate}%`} color="#c4ff46" icon="checkc"
+              <StatCard title="Opt-in rate" value={`${audience.optInRate}%`} color="#4d7c0f" icon="checkc"
                 subtitle={`${audience.optedIn.toLocaleString('en-IN')} reachable contacts`} />
-              <StatCard title="30-day retention" value={audience.retention30 == null ? '—' : `${audience.retention30}%`} color="#9d6bff" icon="rotate"
+              <StatCard title="30-day retention" value={audience.retention30 == null ? '—' : `${audience.retention30}%`} color="#7c3aed" icon="rotate"
                 subtitle={audience.retention30 == null
                   ? 'Needs two months of history to compare'
                   : 'Conversations active this month vs last'} />
-              <StatCard title="Active conversations" value={audience.activeLast30.toLocaleString('en-IN')} color="#f59e0b" icon="msg"
+              <StatCard title="Active conversations" value={audience.activeLast30.toLocaleString('en-IN')} color="#d97706" icon="msg"
                 subtitle="Threads with a message in the last 30 days" />
             </div>
 
@@ -270,8 +270,8 @@ export default function UserAnalyticsView() {
                             </span>
                             <span style={{ fontFamily:'var(--mono)', fontSize:11.5, color:'var(--t2)', flexShrink:0 }}>{(a.chatsHandled ?? 0).toLocaleString()}</span>
                           </div>
-                          <div style={{ height:4, borderRadius:4, background:'rgba(255,255,255,0.07)', overflow:'hidden' }}>
-                            <div style={{ width:`${((a.chatsHandled ?? 0) / max) * 100}%`, height:'100%', borderRadius:4, background: isYou ? 'var(--grad-cta)' : 'rgba(157,107,255,0.6)' }} />
+                          <div style={{ height:4, borderRadius:4, background:'rgba(15,23,42,0.07)', overflow:'hidden' }}>
+                            <div style={{ width:`${((a.chatsHandled ?? 0) / max) * 100}%`, height:'100%', borderRadius:4, background: isYou ? 'var(--grad-cta)' : 'rgba(124,58,237,0.6)' }} />
                           </div>
                         </div>
                       </div>

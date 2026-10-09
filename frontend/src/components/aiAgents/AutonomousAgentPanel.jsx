@@ -30,7 +30,7 @@ const Section = ({ icon, title, count, hint, children }) => (
       <I n={icon} s={14} c="var(--t2)" />
       <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--t1)' }}>{title}</span>
       {count !== undefined && (
-        <span style={{ fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', color: 'var(--t2)' }}>{count}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 10, background: 'rgba(15,23,42,0.06)', color: 'var(--t2)' }}>{count}</span>
       )}
     </div>
     {hint && <p style={{ fontSize: 12, color: 'var(--t3)', margin: '0 0 12px', lineHeight: 1.5 }}>{hint}</p>}
@@ -104,15 +104,15 @@ export default function AutonomousAgentPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* ── switch and plan ── */}
       <div style={{ ...card, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(157,107,255,0.1)', border: '1px solid rgba(157,107,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <I n="brain" s={19} c="#9d6bff" />
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <I n="brain" s={19} c="#7c3aed" />
         </div>
         <div style={{ flex: '1 1 320px', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 17, color: 'var(--t1)', margin: 0 }}>Autonomous CRM agent</h2>
             {settings && (
               <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '.05em',
-                background: live ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${live ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: live ? 'var(--green)' : '#f59e0b' }}>
+                background: live ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${live ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: live ? 'var(--green)' : '#d97706' }}>
                 {!planAllows ? 'Not in plan' : enabled ? 'On' : 'Off'}
               </span>
             )}
@@ -139,7 +139,7 @@ export default function AutonomousAgentPanel() {
       </div>
 
       {!planAllows && (
-        <div style={{ ...card, padding: '12px 16px', fontSize: 12.5, color: '#fbbf24', background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.3)' }}>
+        <div style={{ ...card, padding: '12px 16px', fontSize: 12.5, color: '#b45309', background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.3)' }}>
           The autonomous agent is included in the paid plans. On this workspace's plan it books and changes nothing
           {canBill() ? ' — upgrade to turn it on.' : '; ask a workspace admin about upgrading.'}
         </div>
@@ -147,7 +147,7 @@ export default function AutonomousAgentPanel() {
 
       {message && (
         <div role="status" style={{ ...card, padding: '10px 14px', fontSize: 12.5,
-          color: message.tone === 'error' ? '#f87171' : 'var(--green)',
+          color: message.tone === 'error' ? '#dc2626' : 'var(--green)',
           border: `1px solid ${message.tone === 'error' ? 'rgba(239,68,68,.3)' : 'var(--gbd)'}`,
           background: message.tone === 'error' ? 'rgba(239,68,68,.06)' : 'var(--gbg)' }}>
           {message.text}
@@ -162,7 +162,7 @@ export default function AutonomousAgentPanel() {
       )}
 
       {isAdmin && queueError && (
-        <div style={{ ...card, padding: '12px 16px', fontSize: 12.5, color: '#f87171' }}>{queueError}</div>
+        <div style={{ ...card, padding: '12px 16px', fontSize: 12.5, color: '#dc2626' }}>{queueError}</div>
       )}
 
       {isAdmin && !queue && !queueError && (

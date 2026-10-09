@@ -523,7 +523,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
   const canSubmit = !saving && !inReview && nameValid && (isAuth ? !!otpButtonLabel.trim() : !!body.trim());
 
   const inputBase = {
-    width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)',
+    width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)',
     border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13,
     fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box',
   };
@@ -535,7 +535,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
     <div>
       <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Preview</label>
       <div style={{ background:'#ECE5DD', borderRadius:10, padding:14, minHeight:60 }}>
-        <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', maxWidth:'88%', boxShadow:'0 1px 3px rgba(0,0,0,0.1)', display:'inline-block' }}>
+        <div style={{ background:'#fff', borderRadius:'0 8px 8px 8px', padding:'10px 12px', maxWidth:'88%', boxShadow:'0 1px 3px rgba(15,23,42,0.04)', display:'inline-block' }}>
           {templateType === 'STANDARD' && headerKind === 'IMAGE' && (
             headerPreview
               ? <img src={headerPreview} alt="" style={{ display:'block', width:'100%', maxWidth:220, borderRadius:6, marginBottom:7 }} />
@@ -596,7 +596,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
         {templateType === 'CAROUSEL' && cards.length > 0 && (
           <div style={{ display:'flex', gap:8, marginTop:8, overflowX:'auto', paddingBottom:4 }}>
             {cards.map((c, i) => (
-              <div key={i} style={{ flex:'0 0 150px', background:'#fff', borderRadius:8, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div key={i} style={{ flex:'0 0 150px', background:'#fff', borderRadius:8, overflow:'hidden', boxShadow:'0 1px 3px rgba(15,23,42,0.04)' }}>
                 {c.preview
                   ? <img src={c.preview} alt="" style={{ display:'block', width:'100%', height:88, objectFit:'cover' }} />
                   : <div style={{ width:'100%', height:88, background:'#d9d2c9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10.5, color:'#7a736b' }}>Card {i + 1} image</div>}
@@ -619,8 +619,8 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
   );
 
   return (
-    <div onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={isEdit ? 'Edit Template' : 'New Message Template'} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
-      <div ref={modalRef} className="modal-card" style={{ ...card, ...(isAuth ? { border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(53,232,242,0.10)' } : {}), width: isAuth ? 900 : 620, maxHeight:'88vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+    <div onKeyDown={e => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label={isEdit ? 'Edit Template' : 'New Message Template'} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
+      <div ref={modalRef} className="modal-card" style={{ ...card, ...(isAuth ? { border: '1px solid var(--gbd)', boxShadow: 'var(--card-shadow), 0 0 40px rgba(13,148,136,0.10)' } : {}), width: isAuth ? 900 : 620, maxHeight:'88vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--bd)', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
           <div>
             <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, color:'var(--t1)' }}>{isEdit ? 'Edit Template' : 'New Message Template'}</p>
@@ -638,17 +638,17 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
         <div style={{ flex:1, overflow:'hidden', display:'flex', flexDirection: isAuth ? 'row' : 'column' }}>
         <div style={{ flex: isAuth ? '1 1 50%' : 1, overflowY:'auto', padding:'20px 24px', display:'flex', flexDirection:'column', gap:14, ...(isAuth ? { borderRight:'1px solid var(--bd)' } : {}) }}>
           {err && (
-            <div style={{ padding:'10px 13px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12, lineHeight:1.55 }}>{err}</div>
+            <div style={{ padding:'10px 13px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12, lineHeight:1.55 }}>{err}</div>
           )}
           {inReview && (
-            <div style={{ padding:'10px 13px', borderRadius:8, background:'rgba(251,191,36,.06)', border:'1px solid rgba(251,191,36,.25)', color:'#fbbf24', fontSize:12, lineHeight:1.55 }}>
+            <div style={{ padding:'10px 13px', borderRadius:8, background:'rgba(251,191,36,.06)', border:'1px solid rgba(251,191,36,.25)', color:'#b45309', fontSize:12, lineHeight:1.55 }}>
               This template is in review with Meta and cannot be edited until it is approved or rejected.
             </div>
           )}
 
           {/* Name */}
           <div>
-            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Template Name <span style={{ color:'#f87171' }}>*</span></label>
+            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Template Name <span style={{ color:'#dc2626' }}>*</span></label>
             <input value={name} onChange={e => setName(e.target.value)} placeholder="order_confirmation_v1" disabled={approvedOnMeta} style={{ ...inputBase, ...(approvedOnMeta ? { opacity:.6 } : {}) }} />
             <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>
               Submits as <code style={{ fontFamily:'monospace', color:'var(--t2)' }}>{slug || '—'}</code>. Lowercase letters, numbers, underscores only.
@@ -658,7 +658,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
           {/* WhatsApp number (only when the workspace has more than one — templates are per-number) */}
           {!isEdit && numbers.length > 1 && (
             <div>
-              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>WhatsApp Number <span style={{ color:'#f87171' }}>*</span></label>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>WhatsApp Number <span style={{ color:'#dc2626' }}>*</span></label>
               <select value={waNumberId} onChange={e => setWaNumberId(e.target.value)}
                 style={{ ...inputBase, appearance:'auto', colorScheme:'dark' }}>
                 <option value="">Select a number…</option>
@@ -673,13 +673,13 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
               there is nothing to choose there. */}
           {!forcedCategory && (
           <div>
-            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Category <span style={{ color:'#f87171' }}>*</span></label>
+            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Category <span style={{ color:'#dc2626' }}>*</span></label>
             <div className="rgrid-3" style={{ display:'grid', gridTemplateColumns:`repeat(${cats.length},1fr)`, gap:8 }} role="radiogroup" aria-label="Template category">
               {cats.map(c => (
                 <div key={c.id} onClick={() => { if (!approvedOnMeta) setCategory(c.id); }}
                   tabIndex={0} role="radio" aria-checked={category === c.id} aria-disabled={approvedOnMeta}
                   onKeyDown={e => { if (!approvedOnMeta && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setCategory(c.id); } }}
-                  style={{ padding:'10px 12px', borderRadius:8, border:`1.5px solid ${category === c.id ? 'var(--green)' : 'var(--bd)'}`, background: category === c.id ? 'var(--gbg)' : 'rgba(255,255,255,0.02)', cursor:'pointer', outline:'none' }}
+                  style={{ padding:'10px 12px', borderRadius:8, border:`1.5px solid ${category === c.id ? 'var(--green)' : 'var(--bd)'}`, background: category === c.id ? 'var(--gbg)' : 'rgba(15,23,42,0.02)', cursor:'pointer', outline:'none' }}
                   onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px var(--green)'; }}
                   onBlur={e => { e.currentTarget.style.boxShadow = 'none'; }}>
                   <p style={{ fontSize:13, fontWeight:600, color: category === c.id ? 'var(--green)' : 'var(--t1)', marginBottom:3 }}>{c.label}</p>
@@ -695,14 +695,14 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
               nothing to choose and the selector is hidden entirely. */}
           {!isAuth && (
           <div>
-            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Template Type <span style={{ color:'#f87171' }}>*</span></label>
+            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Template Type <span style={{ color:'#dc2626' }}>*</span></label>
             <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
               {allowedTypes.map(t => (
                 <button key={t} type="button" onClick={() => { setTemplateType(t); setErr(null); }}
                   style={{ flex:'1 1 150px', textAlign:'left', padding:'9px 12px', borderRadius:8, cursor:'pointer',
                            fontFamily:"'Manrope',sans-serif",
                            border:`1.5px solid ${templateType === t ? 'var(--green)' : 'var(--bd)'}`,
-                           background: templateType === t ? 'var(--gbg)' : 'rgba(255,255,255,0.02)' }}>
+                           background: templateType === t ? 'var(--gbg)' : 'rgba(15,23,42,0.02)' }}>
                   <p style={{ fontSize:13, fontWeight:600, color: templateType === t ? 'var(--green)' : 'var(--t1)', marginBottom:3 }}>{TEMPLATE_TYPE_META[t].label}</p>
                   <p style={{ fontSize:10.5, color:'var(--t3)', lineHeight:1.4 }}>{TEMPLATE_TYPE_META[t].hint}</p>
                 </button>
@@ -718,7 +718,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
 
           {/* Language */}
           <div>
-            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Language <span style={{ color:'#f87171' }}>*</span></label>
+            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Language <span style={{ color:'#dc2626' }}>*</span></label>
             <select value={language} onChange={e => setLanguage(e.target.value)} disabled={approvedOnMeta}
               style={{ ...inputBase, appearance:'auto', colorScheme:'dark', ...(approvedOnMeta ? { opacity:.6 } : {}) }}>
               {langs.map(l => <option key={l.code} value={l.code}>{l.label} ({l.code})</option>)}
@@ -731,8 +731,8 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
               What each one produces is shown in the preview below. */}
           {isAuth && (
             <div style={{ padding:'12px 14px', borderRadius:8, background:'rgba(251,191,36,.05)', border:'1px solid rgba(251,191,36,.2)' }}>
-              <p style={{ fontSize:12, fontWeight:700, color:'#fbbf24', marginBottom:6 }}>Passcode message</p>
-              <p style={{ fontSize:11, color:'#fbbf24', opacity:.85, marginBottom:14, lineHeight:1.55 }}>
+              <p style={{ fontSize:12, fontWeight:700, color:'#b45309', marginBottom:6 }}>Passcode message</p>
+              <p style={{ fontSize:11, color:'#b45309', opacity:.85, marginBottom:14, lineHeight:1.55 }}>
                 WhatsApp writes this message itself and fills in the code on every send — the wording is fixed and translated for you. Meta rejects authentication templates that carry their own text.
               </p>
 
@@ -762,7 +762,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
               </label>
 
               <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', margin:'14px 0 6px' }}>
-                Copy-code button label <span style={{ color:'#f87171' }}>*</span>
+                Copy-code button label <span style={{ color:'#dc2626' }}>*</span>
               </label>
               <input value={otpButtonLabel} maxLength={25}
                 onChange={e => setOtpButtonLabel(e.target.value)}
@@ -786,7 +786,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                     style={{ padding:'7px 13px', borderRadius:8, cursor:'pointer', fontSize:12.5, fontWeight:600,
                              fontFamily:"'Manrope',sans-serif",
                              border:`1px solid ${headerKind === fmt ? 'var(--gbd)' : 'var(--bd)'}`,
-                             background: headerKind === fmt ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                             background: headerKind === fmt ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                              color: headerKind === fmt ? 'var(--green)' : 'var(--t2)' }}>
                     {HEADER_FORMAT_META[fmt].label}
                   </button>
@@ -804,7 +804,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                     <img src={headerPreview} alt="Header preview"
                       style={{ width:72, height:72, objectFit:'cover', borderRadius:8, border:'1px solid var(--bd)' }} />
                   ) : (
-                    <div style={{ width:72, height:72, borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ width:72, height:72, borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                       <I n="file" s={22} c="var(--t3)" />
                     </div>
                   )}
@@ -820,7 +820,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                     </p>
                     {headerMedia && (
                       <button type="button" onClick={() => { setHeaderMedia(null); setHeaderPreview(null); }}
-                        style={{ marginTop:6, background:'none', border:'none', padding:0, cursor:'pointer', color:'#f87171', fontSize:11.5, fontWeight:600 }}>
+                        style={{ marginTop:6, background:'none', border:'none', padding:0, cursor:'pointer', color:'#dc2626', fontSize:11.5, fontWeight:600 }}>
                         Remove
                       </button>
                     )}
@@ -845,7 +845,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
               body is written by Meta and configured in the panel above. */}
           {!isAuth && (
           <div>
-            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Body Text <span style={{ color:'#f87171' }}>*</span></label>
+            <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Body Text <span style={{ color:'#dc2626' }}>*</span></label>
             <textarea value={body} onChange={e => setBody(e.target.value)} rows={4}
               placeholder="Hello {{1}}, your order #{{2}} has been confirmed!"
               style={{ ...inputBase, resize:'vertical', minHeight:90, lineHeight:1.55 }} />
@@ -858,10 +858,10 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
           {/* Variable examples */}
           {vars.length > 0 && (
             <div style={{ padding:'12px 14px', borderRadius:8, background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.18)' }}>
-              <p style={{ fontSize:12, fontWeight:600, color:'#b9a3ff', marginBottom:10 }}>
+              <p style={{ fontSize:12, fontWeight:600, color:'#6d28d9', marginBottom:10 }}>
                 Variable example values
               </p>
-              <p style={{ fontSize:11, color:'#b9a3ff', opacity:.8, marginBottom:10, lineHeight:1.5 }}>
+              <p style={{ fontSize:11, color:'#6d28d9', opacity:.8, marginBottom:10, lineHeight:1.5 }}>
                 Meta requires a sample value for each variable so reviewers can understand the message context.
               </p>
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
@@ -891,7 +891,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
           {/* Catalog configuration */}
           {templateType === 'CATALOG' && (
             <div>
-              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Catalog Button <span style={{ color:'#f87171' }}>*</span></label>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'var(--t2)', marginBottom:6 }}>Catalog Button <span style={{ color:'#dc2626' }}>*</span></label>
               <input value={catalogLabel} maxLength={25} onChange={e => setCatalogLabel(e.target.value)}
                 placeholder="View catalog" style={inputBase} />
               <p style={{ fontSize:11, color:'var(--t3)', marginTop:4, lineHeight:1.5 }}>
@@ -922,7 +922,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
             {buttons.length > 0 && (
               <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:10 }}>
                 {buttons.map((b, i) => (
-                  <div key={i} style={{ border:'1px solid var(--bd)', borderRadius:9, padding:'10px 12px', background:'rgba(255,255,255,0.02)', display:'flex', flexDirection:'column', gap:8 }}>
+                  <div key={i} style={{ border:'1px solid var(--bd)', borderRadius:9, padding:'10px 12px', background:'rgba(15,23,42,0.02)', display:'flex', flexDirection:'column', gap:8 }}>
                     <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
                       <span style={{ fontSize:10.5, fontWeight:700, color:'var(--t3)', textTransform:'uppercase', letterSpacing:'.06em', minWidth:76 }}>
                         {{ QUICK_REPLY:'Quick reply', URL:'Link', PHONE_NUMBER:'Call', COPY_CODE:'Copy code' }[b.type]}
@@ -930,9 +930,9 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                       <input value={b.text || ''} maxLength={25}
                         onChange={e => setButtons(list => list.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
                         placeholder="Button label" style={{ ...inputBase, flex:1, minWidth:130 }} />
-                      <span style={{ fontSize:10.5, color: (b.text || '').length >= 25 ? '#fbbf24' : 'var(--t3)' }}>{(b.text || '').length}/25</span>
+                      <span style={{ fontSize:10.5, color: (b.text || '').length >= 25 ? '#b45309' : 'var(--t3)' }}>{(b.text || '').length}/25</span>
                       <button type="button" onClick={() => setButtons(list => list.filter((_, j) => j !== i))}
-                        style={{ padding:'5px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#f87171', cursor:'pointer', fontSize:11 }}>Remove</button>
+                        style={{ padding:'5px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#dc2626', cursor:'pointer', fontSize:11 }}>Remove</button>
                     </div>
                     {b.type === 'URL' && (
                       <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
@@ -982,7 +982,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
             </div>
             <p style={{ fontSize:11, color:'var(--t3)', marginTop:6, lineHeight:1.5 }}>
               Up to 2 links, 1 call and 1 copy-code button. More than 3 buttons are hidden on WhatsApp desktop.
-              {buttons.length > 3 && <span style={{ color:'#fbbf24' }}> This template has {buttons.length}.</span>}
+              {buttons.length > 3 && <span style={{ color:'#b45309' }}> This template has {buttons.length}.</span>}
             </p>
           </div>
           )}
@@ -999,18 +999,18 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
 
               <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                 {cards.map((c, ci) => (
-                  <div key={ci} style={{ border:'1px solid var(--bd)', borderRadius:10, padding:'12px 13px', background:'rgba(255,255,255,0.02)', display:'flex', flexDirection:'column', gap:10 }}>
+                  <div key={ci} style={{ border:'1px solid var(--bd)', borderRadius:10, padding:'12px 13px', background:'rgba(15,23,42,0.02)', display:'flex', flexDirection:'column', gap:10 }}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                       <span style={{ fontSize:11, fontWeight:700, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.06em' }}>Card {ci + 1}</span>
                       <button type="button" onClick={() => setCards(l => l.filter((_, k) => k !== ci))}
-                        style={{ padding:'4px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#f87171', cursor:'pointer', fontSize:11 }}>Remove</button>
+                        style={{ padding:'4px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#dc2626', cursor:'pointer', fontSize:11 }}>Remove</button>
                     </div>
 
                     <div style={{ display:'flex', gap:12, alignItems:'flex-start', flexWrap:'wrap' }}>
                       {c.preview ? (
                         <img src={c.preview} alt="" style={{ width:64, height:64, objectFit:'cover', borderRadius:8, border:'1px solid var(--bd)' }} />
                       ) : (
-                        <div style={{ width:64, height:64, borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        <div style={{ width:64, height:64, borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                           <I n="file" s={20} c="var(--t3)" />
                         </div>
                       )}
@@ -1046,7 +1046,7 @@ const TemplateModal = ({ onClose, onSaved, template = null, seed = null, forcedC
                               placeholder="https://example.com" style={{ ...inputBase, flex:1, minWidth:150 }} />
                           )}
                           <button type="button" onClick={() => setCards(l => l.map((x, k) => k === ci ? { ...x, buttons: x.buttons.filter((_, m) => m !== bi) } : x))}
-                            style={{ padding:'5px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#f87171', cursor:'pointer', fontSize:11 }}>Remove</button>
+                            style={{ padding:'5px 9px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.22)', color:'#dc2626', cursor:'pointer', fontSize:11 }}>Remove</button>
                         </div>
                       ))}
                       {c.buttons.length < 2 && (

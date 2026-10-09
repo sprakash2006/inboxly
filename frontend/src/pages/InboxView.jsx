@@ -12,11 +12,11 @@ import { useRealtime, useThrottledCallback } from '../lib/realtime.js';
 import { mergeNewestPage, prependOlder, oldestMessageId } from '../lib/paging.js';
 
 const labelCfg = {
-  urgent:   { bg:'rgba(239,68,68,.08)',   bd:'rgba(239,68,68,.22)',   c:'#f87171' },
+  urgent:   { bg:'rgba(239,68,68,.08)',   bd:'rgba(239,68,68,.22)',   c:'#dc2626' },
   resolved: { bg:'var(--gbg)',            bd:'var(--gbd)',            c:'var(--green)' },
-  billing:  { bg:'rgba(245,158,11,.08)', bd:'rgba(245,158,11,.22)', c:'#fbbf24' },
+  billing:  { bg:'rgba(245,158,11,.08)', bd:'rgba(245,158,11,.22)', c:'#b45309' },
   // The channel tag on an Instagram thread.
-  Instagram: { bg:'rgba(225,48,108,.08)', bd:'rgba(225,48,108,.25)', c:'#f472b6' },
+  Instagram: { bg:'rgba(225,48,108,.08)', bd:'rgba(225,48,108,.25)', c:'#db2777' },
 };
 
 
@@ -56,8 +56,8 @@ const TIMELINE_COLOUR = {
   contact: 'var(--t3)',
   campaign: 'var(--wa-green)',
   ai: 'var(--accent)',
-  inbound: '#9d6bff',
-  human: '#c4ff46',
+  inbound: '#7c3aed',
+  human: '#4d7c0f',
   status: 'var(--t3)',
 };
 
@@ -87,7 +87,7 @@ const ThreadContext = ({ context, onHandBackToAI, busy }) => {
               ['Exchanges', `${aiSession.turns}`, 'var(--t1)'],
               ['Session', aiSession.status === 'ACTIVE' ? 'Open' : aiSession.status === 'EXPIRED' ? 'Expired' : 'Ended',
                 aiSession.status === 'ACTIVE' ? 'var(--success)' : 'var(--t2)'],
-              ...(aiSession.handedOver ? [['Handed over', 'to a teammate', '#c4ff46']] : []),
+              ...(aiSession.handedOver ? [['Handed over', 'to a teammate', '#4d7c0f']] : []),
             ].map(([k, v, colour]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12 }}>
                 <span style={{ color: 'var(--t2)' }}>{k}</span>
@@ -192,7 +192,7 @@ const MediaAttachment = ({ conversationId, message }) => {
   }
   return (
     <button onClick={load} disabled={state === 'loading'} title={error || undefined}
-      style={{ background:'none', border:'none', padding:0, cursor:'pointer', color: state === 'error' ? '#f87171' : 'var(--green)', fontSize:11, fontWeight:600 }}>
+      style={{ background:'none', border:'none', padding:0, cursor:'pointer', color: state === 'error' ? '#dc2626' : 'var(--green)', fontSize:11, fontWeight:600 }}>
       {state === 'loading' ? 'Loading…' : state === 'error' ? 'Unavailable' : message.type === 'AUDIO' ? 'Play' : 'View'}
     </button>
   );
@@ -207,7 +207,7 @@ const DeliveryTick = ({ status, error }) => {
     SENT:      { glyph: '✓',  color: 'var(--t3)',  label: 'Sent' },
     DELIVERED: { glyph: '✓✓', color: 'var(--t2)', label: 'Delivered' },
     READ:      { glyph: '✓✓', color: 'var(--green)', label: 'Read' },
-    FAILED:    { glyph: '!',        color: '#f87171',    label: 'Failed' },
+    FAILED:    { glyph: '!',        color: '#dc2626',    label: 'Failed' },
   }[status];
   if (!spec) return null;
   return (
@@ -232,10 +232,10 @@ const VIEW_PARAM = { Unassigned: 'unassigned', 'AI-handled': 'ai', Mine: 'mine' 
 
 const SkeletonRow = () => (
   <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--bd)', display:'flex', gap:10 }}>
-    <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(255,255,255,0.05)', flexShrink:0 }} />
+    <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(15,23,42,0.05)', flexShrink:0 }} />
     <div style={{ flex:1, display:'flex', flexDirection:'column', gap:7, paddingTop:3 }}>
-      <div style={{ width:'55%', height:10, borderRadius:4, background:'rgba(255,255,255,0.06)' }} />
-      <div style={{ width:'80%', height:9, borderRadius:4, background:'rgba(255,255,255,0.04)' }} />
+      <div style={{ width:'55%', height:10, borderRadius:4, background:'rgba(15,23,42,0.06)' }} />
+      <div style={{ width:'80%', height:9, borderRadius:4, background:'rgba(15,23,42,0.04)' }} />
     </div>
   </div>
 );
@@ -791,7 +791,7 @@ export default function InboxView() {
         {/* ── left panel ── */}
         <div style={{ width: mobile ? '100%' : 320, display: mobile && activeId ? 'none' : 'flex', borderRight: mobile ? 'none' : '1px solid var(--bd)', flexDirection:'column', flexShrink:0, background:'var(--surf)' }}>
           <div style={{ padding:'10px 12px', borderBottom:'1px solid var(--bd)' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', borderRadius:8, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
               <I n="search" s={13} c="var(--t2)" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search conversations…"
                 style={{ flex:1, background:'none', border:'none', outline:'none', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif" }} />
@@ -806,7 +806,7 @@ export default function InboxView() {
                   <button key={f} onClick={() => setFilter(f)}
                     style={{ fontSize:12, fontWeight:600, whiteSpace:'nowrap', padding:'5px 11px', borderRadius:100, cursor:'pointer',
                              fontFamily:"'Manrope',sans-serif",
-                             background: on ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+                             background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
                              border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
                              color: on ? 'var(--green)' : 'var(--t2)' }}>
                     {f}
@@ -817,10 +817,10 @@ export default function InboxView() {
           </div>
           <div style={{ flex:1, overflowY:'auto' }}>
             {listError && (
-              <div style={{ margin:'10px 12px', padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12, lineHeight:1.5, display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ margin:'10px 12px', padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12, lineHeight:1.5, display:'flex', alignItems:'center', gap:8 }}>
                 <span style={{ flex:1 }}>{listError}</span>
                 <button onClick={() => setListReload(n => n + 1)}
-                  style={{ background:'none', border:'1px solid rgba(239,68,68,.35)', borderRadius:6, color:'#f87171', cursor:'pointer', fontSize:11.5, padding:'3px 9px', fontFamily:"'Manrope',sans-serif" }}>
+                  style={{ background:'none', border:'1px solid rgba(239,68,68,.35)', borderRadius:6, color:'#dc2626', cursor:'pointer', fontSize:11.5, padding:'3px 9px', fontFamily:"'Manrope',sans-serif" }}>
                   Retry
                 </button>
               </div>
@@ -838,8 +838,8 @@ export default function InboxView() {
               const lastMsg = (msgs[c.id] || []).slice(-1)[0];
               return (
                 <div key={c.id} onClick={() => setActiveId(c.id)}
-                  style={{ padding:'12px 14px', borderBottom:'1px solid var(--bd)', cursor:'pointer', transition:'background .12s', borderLeft:`2px solid ${on ? 'var(--green)' : 'transparent'}`, background: on ? 'rgba(53,232,242,0.06)' : 'transparent' }}
-                  onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                  style={{ padding:'12px 14px', borderBottom:'1px solid var(--bd)', cursor:'pointer', transition:'background .12s', borderLeft:`2px solid ${on ? 'var(--green)' : 'transparent'}`, background: on ? 'rgba(13,148,136,0.06)' : 'transparent' }}
+                  onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(15,23,42,0.02)'; }}
                   onMouseLeave={e => { if (!on) e.currentTarget.style.background = 'transparent'; }}>
                   <div style={{ display:'flex', gap:10 }}>
                     <Avatar name={c.contact.name} size={36} />
@@ -859,11 +859,11 @@ export default function InboxView() {
                         {(() => {
                           const out = (c.messages || []).find(m => (m.direction || '').toUpperCase() === 'OUTBOUND');
                           const tag = c.status === 'RESOLVED' || c.status === 'CLOSED'
-                            ? ['RESOLVED', '#8b909b']
+                            ? ['RESOLVED', '#475569']
                             : c.assignedToUserId
-                              ? ['HUMAN', '#9d6bff']
+                              ? ['HUMAN', '#7c3aed']
                               : (c.aiSessions?.length > 0 || (out && out.senderUserId == null))
-                                ? ['AI', '#35e8f2']
+                                ? ['AI', '#0d9488']
                                 : null;
                           if (!tag) return null;
                           return (
@@ -936,8 +936,8 @@ export default function InboxView() {
                     aria-disabled={!canManageThread}
                     onClick={() => { if (canManageThread) setBot(!isBot); }}
                     onKeyDown={e => { if (canManageThread && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setBot(!isBot); } }}
-                    style={{ width:38, height:21, borderRadius:20, background: isBot ? 'var(--green)' : 'rgba(255,255,255,0.1)', cursor: !canManageThread ? 'not-allowed' : botBusy ? 'wait' : 'pointer', opacity: botBusy || !canManageThread ? 0.6 : 1, transition:'background .2s', position:'relative', border:'1px solid var(--bd)' }}>
-                    <div style={{ position:'absolute', top:2, left: isBot ? 19 : 2, width:15, height:15, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 4px rgba(0,0,0,0.4)' }} />
+                    style={{ width:38, height:21, borderRadius:20, background: isBot ? 'var(--green)' : 'rgba(15,23,42,0.1)', cursor: !canManageThread ? 'not-allowed' : botBusy ? 'wait' : 'pointer', opacity: botBusy || !canManageThread ? 0.6 : 1, transition:'background .2s', position:'relative', border:'1px solid var(--bd)' }}>
+                    <div style={{ position:'absolute', top:2, left: isBot ? 19 : 2, width:15, height:15, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 4px rgba(15,23,42,0.12)' }} />
                   </div>
                   {!mobile && <span style={{ fontSize:11, color:'var(--t2)' }}>{isBot ? 'Bot' : 'Human'}</span>}
                 </div>
@@ -949,7 +949,7 @@ export default function InboxView() {
                     value={context?.conversation?.assignedTo?.id || ''}
                     disabled={busyAction || !canManageThread}
                     onChange={e => assignTo(e.target.value)}
-                    style={{ padding:'6px 10px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:12, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark',
+                    style={{ padding:'6px 10px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:12, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark',
                              // The assignee names are arbitrary length, so this
                              // is the one control allowed to give up width when
                              // the column is tight.
@@ -970,7 +970,7 @@ export default function InboxView() {
                   title={detailsOpen ? 'Hide contact details' : 'Show contact details'}
                   aria-label={detailsOpen ? 'Hide contact details' : 'Show contact details'}
                   style={{ width:30, height:30, borderRadius:7, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-                           background: detailsOpen ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                           background: detailsOpen ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                            border:`1px solid ${detailsOpen ? 'var(--gbd)' : 'var(--bd)'}` }}>
                   <I n="user" s={14} c={detailsOpen ? 'var(--green)' : 'var(--t2)'} />
                 </button>
@@ -989,8 +989,8 @@ export default function InboxView() {
             </div>
 
             {tab === 'chat' && activeId && !isBot && (
-              <div role="status" style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', padding:'8px 16px', flexShrink:0, background:'rgba(245,158,11,.08)', borderBottom:'1px solid rgba(245,158,11,.25)', color:'#fbbf24', fontSize:12, lineHeight:1.5 }}>
-                <I n="user" s={13} c="#fbbf24" />
+              <div role="status" style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', padding:'8px 16px', flexShrink:0, background:'rgba(245,158,11,.08)', borderBottom:'1px solid rgba(245,158,11,.25)', color:'#b45309', fontSize:12, lineHeight:1.5 }}>
+                <I n="user" s={13} c="#b45309" />
                 <span style={{ flex:'1 1 240px', minWidth:0 }}>
                   Automation paused for this chat
                   {activePause?.reasonText ? <> — {activePause.reasonText}</> : null}
@@ -1015,9 +1015,9 @@ export default function InboxView() {
                 {/* messages */}
                 <div ref={scrollRef}
                   onScroll={(e) => { const el = e.currentTarget; nearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120; }}
-                  style={{ flex:1, overflowY:'auto', padding:'20px', display:'flex', flexDirection:'column', gap:10, background:'rgba(5,8,18,0.6)' }}>
+                  style={{ flex:1, overflowY:'auto', padding:'20px', display:'flex', flexDirection:'column', gap:10, background:'var(--surf2)' }}>
                   {msgsError && (
-                    <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#f87171', fontSize:12 }}>
+                    <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>
                       {msgsError} — retrying automatically.
                     </div>
                   )}
@@ -1058,7 +1058,7 @@ export default function InboxView() {
                               own message types. They used to be stored as an
                               empty body, so the thread showed nothing at all. */}
                           {m.type && m.type !== 'TEXT' && m.type !== 'BUTTON' && m.type !== 'INTERACTIVE' && (
-                            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4, padding:'5px 8px', borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4, padding:'5px 8px', borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)' }}>
                               <I n={MEDIA_ICON[m.type] || 'file'} s={12} c="var(--t2)" />
                               <span style={{ fontFamily:'var(--mono)', fontSize:9, letterSpacing:'.08em', color:'var(--t2)', textTransform:'uppercase' }}>
                                 {m.type === 'LOCATION' && m.locationLat != null
@@ -1086,10 +1086,10 @@ export default function InboxView() {
                   })}
                 </div>
                 {sendError && (
-                  <div style={{ padding:'8px 16px', borderTop:'1px solid var(--bd)', background:'rgba(239,68,68,.06)', color:'#f87171', fontSize:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div style={{ padding:'8px 16px', borderTop:'1px solid var(--bd)', background:'rgba(239,68,68,.06)', color:'#dc2626', fontSize:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span>{sendError}</span>
-                    <button aria-label="Close" onClick={() => setSendError(null)} style={{ background:'none', border:'none', cursor:'pointer', color:'#f87171', padding:0, display:'flex' }}>
-                      <I n="x" s={12} c="#f87171" />
+                    <button aria-label="Close" onClick={() => setSendError(null)} style={{ background:'none', border:'none', cursor:'pointer', color:'#dc2626', padding:0, display:'flex' }}>
+                      <I n="x" s={12} c="#dc2626" />
                     </button>
                   </div>
                 )}
@@ -1105,7 +1105,7 @@ export default function InboxView() {
                   {suggestions.map((sug, i) => (
                     <button key={i} onClick={() => setInput(sug)} title="Put this in the composer"
                       style={{ fontSize:12, padding:'5px 11px', borderRadius:100, cursor:'pointer', maxWidth:340, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                               fontFamily:"'Manrope',sans-serif", background:'rgba(53,232,242,0.08)', border:'1px solid var(--gbd)', color:'var(--t1)' }}>
+                               fontFamily:"'Manrope',sans-serif", background:'rgba(13,148,136,0.08)', border:'1px solid var(--gbd)', color:'var(--t1)' }}>
                       {sug}
                     </button>
                   ))}
@@ -1117,15 +1117,15 @@ export default function InboxView() {
                 {activeWindow && !activeWindow.open && (
                   <div style={{ padding:'9px 16px', borderTop:'1px solid var(--bd)', background:'rgba(245,158,11,.07)' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
-                      <I n="alertt" s={13} c="#fbbf24" />
-                      <span style={{ fontSize:12, color:'#fbbf24', lineHeight:1.45 }}>{activeWindow.description}</span>
+                      <I n="alertt" s={13} c="#b45309" />
+                      <span style={{ fontSize:12, color:'#b45309', lineHeight:1.45 }}>{activeWindow.description}</span>
                       {/* The way through the closed window. Telling someone to
                           send a template while offering no way to send one is
                           not a workable instruction. */}
                       {canSendTemplate && !isInstagram && <button onClick={() => setTemplatePickerOpen(o => !o)}
                         style={{ marginLeft:'auto', padding:'4px 10px', borderRadius:6, fontSize:11.5, fontWeight:600,
                                  cursor:'pointer', background:'rgba(245,158,11,.12)', border:'1px solid rgba(245,158,11,.35)',
-                                 color:'#fbbf24', fontFamily:"'Manrope',sans-serif" }}>
+                                 color:'#b45309', fontFamily:"'Manrope',sans-serif" }}>
                         {templatePickerOpen ? 'Close' : 'Send a template'}
                       </button>}
                     </div>
@@ -1139,7 +1139,7 @@ export default function InboxView() {
                         {templates.map(t => (
                           <button key={t.id} onClick={() => sendTemplate(t)} disabled={sendingTemplate === t.id}
                             style={{ textAlign:'left', padding:'7px 10px', borderRadius:7, cursor:'pointer',
-                                     background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)',
+                                     background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)',
                                      color:'var(--t1)', fontSize:12, fontFamily:"'Manrope',sans-serif" }}>
                             <span style={{ fontWeight:600 }}>{t.name}</span>
                             <span style={{ color:'var(--t3)', marginLeft:8, fontSize:11 }}>{t.category} · {t.language}</span>
@@ -1151,7 +1151,7 @@ export default function InboxView() {
                   </div>
                 )}
                 {activeWindow?.open && activeWindow.msRemaining < 2 * 3600_000 && (
-                  <div style={{ padding:'7px 16px', borderTop:'1px solid var(--bd)', background:'rgba(255,255,255,0.02)' }}>
+                  <div style={{ padding:'7px 16px', borderTop:'1px solid var(--bd)', background:'rgba(15,23,42,0.02)' }}>
                     <span style={{ fontSize:11, color:'var(--t3)' }}>{activeWindow.description}</span>
                   </div>
                 )}
@@ -1175,7 +1175,7 @@ export default function InboxView() {
                     title={activeWindow && !activeWindow.open ? 'Reply window closed' : 'Attach a photo, video or PDF'}
                     aria-label="Attach a file"
                     style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                             background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)',
+                             background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)',
                              cursor: (attaching || (activeWindow && !activeWindow.open)) ? 'not-allowed' : 'pointer',
                              opacity: (attaching || (activeWindow && !activeWindow.open)) ? 0.5 : 1,
                              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1186,11 +1186,11 @@ export default function InboxView() {
                       ? (isInstagram ? 'Reply window closed — wait for the customer to write again' : 'Reply window closed — send an approved template')
                       : 'Type a message…'}
                     disabled={sending || (activeWindow ? !activeWindow.open : false)}
-                    style={{ flex:1, padding:'10px 14px', borderRadius:9, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', transition:'border .15s', opacity: sending ? 0.6 : 1 }}
+                    style={{ flex:1, padding:'10px 14px', borderRadius:9, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', transition:'border .15s', opacity: sending ? 0.6 : 1 }}
                     onFocus={e => e.target.style.borderColor='var(--gbd)'}
                     onBlur={e => e.target.style.borderColor='var(--bd)'} />
                   <button aria-label="Send" onClick={send} disabled={!input.trim() || sending || (activeWindow ? !activeWindow.open : false)}
-                    style={{ width:38, height:38, borderRadius:9, background:'var(--green)', border:'none', cursor: (!input.trim() || sending) ? 'not-allowed' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 0 14px rgba(53,232,242,0.25)', opacity: (!input.trim() || sending) ? 0.5 : 1 }}>
+                    style={{ width:38, height:38, borderRadius:9, background:'var(--green)', border:'none', cursor: (!input.trim() || sending) ? 'not-allowed' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 0 14px rgba(13,148,136,0.25)', opacity: (!input.trim() || sending) ? 0.5 : 1 }}>
                     <I n="send" s={15} c="#08090c" />
                   </button>
                 </div>
@@ -1222,7 +1222,7 @@ export default function InboxView() {
                 {canManageThread && <div style={{ padding:'12px 16px', borderTop:'1px solid var(--bd)', display:'flex', gap:8, alignItems:'flex-end', background:'var(--surf)', flexShrink:0 }}>
                   <textarea value={noteDraft} onChange={e => setNoteDraft(e.target.value)} rows={2}
                     placeholder="Private note for your team…"
-                    style={{ flex:1, padding:'9px 12px', borderRadius:9, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', resize:'vertical' }} />
+                    style={{ flex:1, padding:'9px 12px', borderRadius:9, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', resize:'vertical' }} />
                   <Btn size="sm" onClick={addNote} disabled={savingNote || !noteDraft.trim()}>
                     {savingNote ? 'Saving…' : 'Add note'}
                   </Btn>

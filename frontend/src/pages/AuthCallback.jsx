@@ -62,7 +62,7 @@ export default function AuthCallback() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', flexDirection: 'column', gap: 14 }}>
       {error ? (
         <>
-          <p style={{ color: '#f87171', fontSize: 14 }}>{error}</p>
+          <p style={{ color: '#dc2626', fontSize: 14 }}>{error}</p>
           <button onClick={() => navigate('/login', { replace: true })}
             style={{ padding: '9px 18px', borderRadius: 8, background: 'var(--grad-cta)', color: 'var(--ink)', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
             Back to sign in

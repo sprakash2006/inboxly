@@ -165,7 +165,7 @@ export default function OAuthConsent({ search = '' }) {
       </p>
 
       {error && (
-        <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>
+        <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>
           {error}
         </div>
       )}

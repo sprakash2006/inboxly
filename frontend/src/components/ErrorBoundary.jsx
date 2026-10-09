@@ -52,11 +52,11 @@ export default class ErrorBoundary extends Component {
     return (
       <div role="alert" style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-        minHeight: fullPage ? '100vh' : 240, background: fullPage ? '#060B18' : 'transparent',
+        minHeight: fullPage ? '100vh' : 240, background: fullPage ? 'var(--bg)' : 'transparent',
         fontFamily: "'Manrope',sans-serif",
       }}>
         <div style={{ maxWidth: 420, textAlign: 'center', color: 'var(--t2, #9aa3b2)' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--t1, #eef0f3)', marginBottom: 8 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--t1, #0f172a)', marginBottom: 8 }}>
             {chunk ? 'A newer version is available' : 'Something went wrong'}
           </h2>
           <p style={{ fontSize: 13.5, lineHeight: 1.55, marginBottom: 18 }}>
@@ -67,12 +67,12 @@ export default class ErrorBoundary extends Component {
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
             {!chunk && (
               <button type="button" onClick={() => this.setState({ error: null })}
-                style={{ padding: '9px 18px', borderRadius: 9, border: '1px solid var(--bd, rgba(255,255,255,0.12))', background: 'rgba(255,255,255,0.04)', color: 'var(--t1, #eef0f3)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '9px 18px', borderRadius: 9, border: '1px solid var(--bd, rgba(15,23,42,0.12))', background: 'rgba(15,23,42,0.04)', color: 'var(--t1, #0f172a)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Try again
               </button>
             )}
             <button type="button" onClick={() => window.location.reload()}
-              style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: 'var(--grad-cta, #35e8f2)', color: 'var(--ink, #060a10)', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: 'var(--grad-cta, #14b8a6)', color: 'var(--ink, #060a10)', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               Reload
             </button>
           </div>

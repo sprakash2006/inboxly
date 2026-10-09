@@ -1,3 +1,4 @@
+import { Logo } from '../components/Logo.jsx';
 import { useState } from 'react';
 import { I } from '../components/Icons.jsx';
 import { Btn } from '../components/Btn.jsx';
@@ -50,10 +51,10 @@ const ChoiceCard = ({ option, selected, onSelect }) => (
   <button type="button" onClick={() => onSelect(option.id)}
     style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 14, cursor: 'pointer', textAlign: 'left', width: '100%',
              fontFamily: "'Manrope',sans-serif", transition: 'all .15s',
-             background: selected ? 'var(--gbg)' : 'rgba(255,255,255,0.03)',
+             background: selected ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
              border: `1px solid ${selected ? 'var(--gbd)' : 'var(--bd)'}` }}>
     <span style={{ width: 38, height: 38, borderRadius: 11, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                   background: selected ? 'rgba(53,232,242,0.14)' : 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)' }}>
+                   background: selected ? 'rgba(13,148,136,0.14)' : 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)' }}>
       <I n={option.icon} s={16} c={selected ? 'var(--green)' : 'var(--t2)'} />
     </span>
     <span style={{ flex: 1, minWidth: 0 }}>
@@ -147,10 +148,10 @@ export default function WorkspaceSetup({ onNav }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'radial-gradient(1000px 520px at 15% -10%, rgba(53,232,242,0.07), transparent 60%), var(--bg)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'radial-gradient(1000px 520px at 15% -10%, rgba(13,148,136,0.07), transparent 60%), var(--bg)' }}>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '18px clamp(18px,4vw,44px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span className="sp-pulse" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)' }} />
+          <Logo size={30} text={false} />
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 17, color: 'var(--t1)', letterSpacing: '-.02em' }}>Inboxly</span>
         </div>
         {/* An escape hatch that does not strand anyone: there is no workspace
@@ -167,7 +168,7 @@ export default function WorkspaceSetup({ onNav }) {
           <div style={{ display: 'flex', gap: 5, marginBottom: 24 }}>
             {STEPS.map((_, i) => (
               <span key={i} style={{ flex: 1, height: 3, borderRadius: 3, transition: 'background .25s',
-                background: i <= step ? 'var(--grad-cta)' : 'rgba(255,255,255,0.1)' }} />
+                background: i <= step ? 'var(--grad-cta)' : 'rgba(15,23,42,0.1)' }} />
             ))}
           </div>
 
@@ -180,7 +181,7 @@ export default function WorkspaceSetup({ onNav }) {
           {current.sub && <p style={{ fontSize: 14.5, color: 'var(--t2)', lineHeight: 1.6, marginBottom: 26 }}>{current.sub}</p>}
 
           {errMsg && (
-            <div style={{ padding: '11px 14px', borderRadius: 9, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 18 }}>
+            <div style={{ padding: '11px 14px', borderRadius: 9, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 18 }}>
               {errMsg}
             </div>
           )}
@@ -206,11 +207,11 @@ export default function WorkspaceSetup({ onNav }) {
                 <input id="ws-name" value={name} onChange={e => setName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') next(); }}
                   placeholder="Aarav's Store"
-                  style={{ width: '100%', padding: '13px 15px', borderRadius: 11, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 15, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '13px 15px', borderRadius: 11, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 15, fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => e.target.style.borderColor = 'var(--gbd)'}
                   onBlur={e => e.target.style.borderColor = 'var(--bd)'} />
               </div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', borderRadius: 11, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)' }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', borderRadius: 11, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)' }}>
                 <I n="phone" s={16} c="var(--green)" />
                 <p style={{ fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.6 }}>
                   You will connect a WhatsApp number next, from Number Setup — either one you already own through Meta’s

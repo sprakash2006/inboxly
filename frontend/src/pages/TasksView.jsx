@@ -114,13 +114,13 @@ export default function TasksView() {
           <span style={{ fontSize: 12.5, color: 'var(--t3)' }}>{tasks.length} tasks</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 2, border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display: 'flex', background: 'rgba(15,23,42,0.03)', borderRadius: 8, padding: 2, border: '1px solid rgba(15,23,42,0.08)' }}>
             {['PENDING', 'OVERDUE', 'COMPLETED'].map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 style={{
-                  background: filter === f ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  background: filter === f ? 'rgba(15,23,42,0.1)' : 'transparent',
                   color: filter === f ? 'var(--t1)' : 'var(--t3)',
                   border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .2s'
                 }}
@@ -139,10 +139,10 @@ export default function TasksView() {
 
       <div style={{ padding: '24px', flex: 1 }}>
 
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'rgba(15,23,42,0.02)', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(15,23,42,0.08)' }}>
               <th style={{ padding: '12px 16px', color: 'var(--t3)', fontWeight: 600, width: 40 }}></th>
               <th style={{ padding: '12px 16px', color: 'var(--t3)', fontWeight: 600 }}>Task</th>
               <th style={{ padding: '12px 16px', color: 'var(--t3)', fontWeight: 600 }}>Due Date</th>
@@ -156,7 +156,7 @@ export default function TasksView() {
             ) : tasks.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: 48, textAlign: 'center', color: 'var(--t3)' }}>
-                  <I n="check-circle" s={32} c="rgba(255,255,255,0.2)" />
+                  <I n="check-circle" s={32} c="rgba(15,23,42,0.2)" />
                   <div style={{ marginTop: 12, fontSize: 14 }}>No tasks found in this view.</div>
                 </td>
               </tr>
@@ -164,7 +164,7 @@ export default function TasksView() {
               tasks.map(t => {
                 const overdue = isTaskOverdue(t);
                 return (
-                  <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background .2s' }}>
+                  <tr key={t.id} style={{ borderBottom: '1px solid rgba(15,23,42,0.04)', transition: 'background .2s' }}>
                     <td style={{ padding: '12px 16px' }}>
                       <button 
                         onClick={() => toggleComplete(t)}
@@ -181,9 +181,9 @@ export default function TasksView() {
                       </div>
                       {t.description && <div style={{ fontSize: 12, color: 'var(--t3)', marginTop: 2 }}>{t.description}</div>}
                     </td>
-                    <td style={{ padding: '12px 16px', color: overdue ? '#f87171' : 'var(--t2)', fontWeight: overdue ? 600 : 400 }}>
+                    <td style={{ padding: '12px 16px', color: overdue ? '#dc2626' : 'var(--t2)', fontWeight: overdue ? 600 : 400 }}>
                       {fmtDate(t.dueDate)}
-                      {overdue && <span style={{ marginLeft: 6, fontSize: 11, background: 'rgba(239,68,68,0.1)', color: '#f87171', padding: '2px 6px', borderRadius: 4 }}>Overdue</span>}
+                      {overdue && <span style={{ marginLeft: 6, fontSize: 11, background: 'rgba(239,68,68,0.1)', color: '#dc2626', padding: '2px 6px', borderRadius: 4 }}>Overdue</span>}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       {t.assignedTo ? (

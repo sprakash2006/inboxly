@@ -43,14 +43,14 @@ const SectionCard = ({ icon, title, children }) => (
 );
 
 const Toggle = ({ on, onToggle, disabled=false }) => (
-  <div onClick={disabled ? undefined : onToggle} style={{ width:38, height:21, borderRadius:20, background: on ? 'var(--green)' : 'rgba(255,255,255,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
-    <div style={{ position:'absolute', top:2, left: on ? 19 : 2, width:15, height:15, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(0,0,0,0.4)' }} />
+  <div onClick={disabled ? undefined : onToggle} style={{ width:38, height:21, borderRadius:20, background: on ? 'var(--green)' : 'rgba(15,23,42,0.1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition:'background .2s', position:'relative', border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`, flexShrink:0 }}>
+    <div style={{ position:'absolute', top:2, left: on ? 19 : 2, width:15, height:15, borderRadius:'50%', background:'white', transition:'left .2s', boxShadow:'0 1px 3px rgba(15,23,42,0.12)' }} />
   </div>
 );
 
 const FInput = ({ value, onChange, placeholder, disabled=false, style:ex={} }) => (
   <input value={value} onChange={onChange} placeholder={placeholder} disabled={disabled}
-    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'text', ...ex }}
+    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'text', ...ex }}
     onFocus={e=>e.target.style.borderColor='var(--gbd)'}
     onBlur={e=>e.target.style.borderColor='var(--bd)'} />
 );
@@ -97,7 +97,7 @@ const INDUSTRIES = [
 
 
 const statusBadge = s => {
-  const cfg = { Paid:{ bg:'var(--gbg)', bd:'var(--gbd)', c:'var(--green)' }, Pending:{ bg:'rgba(245,158,11,.1)', bd:'rgba(245,158,11,.25)', c:'#fbbf24' }, Failed:{ bg:'rgba(239,68,68,.08)', bd:'rgba(239,68,68,.2)', c:'#f87171' } };
+  const cfg = { Paid:{ bg:'var(--gbg)', bd:'var(--gbd)', c:'var(--green)' }, Pending:{ bg:'rgba(245,158,11,.1)', bd:'rgba(245,158,11,.25)', c:'#b45309' }, Failed:{ bg:'rgba(239,68,68,.08)', bd:'rgba(239,68,68,.2)', c:'#dc2626' } };
   const v = cfg[s] || cfg.Pending;
   return <span style={{ padding:'2px 8px', borderRadius:10, fontSize:11, fontWeight:600, background:v.bg, border:`1px solid ${v.bd}`, color:v.c }}>{s}</span>;
 };
@@ -117,7 +117,7 @@ export default function SettingsView() {
   // ── workspace profile & branding ──
   // Seeded from the settings payload once it loads; `profileSaved` is the
   // transient confirmation the other sections already use.
-  const [profile, setProfile] = useState({ name: '', industry: '', timezone: 'Asia/Kolkata', defaultPhoneCountry: 'IN', brandColor: '#35e8f2', brandLogoUrl: '' });
+  const [profile, setProfile] = useState({ name: '', industry: '', timezone: 'Asia/Kolkata', defaultPhoneCountry: 'IN', brandColor: '#0d9488', brandLogoUrl: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState(null);
 
@@ -183,7 +183,7 @@ export default function SettingsView() {
         industry: d.industry || '',
         timezone: d.timezone || 'Asia/Kolkata',
         defaultPhoneCountry: d.defaultPhoneCountry || 'IN',
-        brandColor: d.brandColor || '#35e8f2',
+        brandColor: d.brandColor || '#0d9488',
         brandLogoUrl: d.brandLogoUrl || '',
       }); }}).catch(err=>console.warn('[SettingsView] Loading settings failed:', err?.message||err));
     wFetch('/members').then(r=>r.ok&&r.json()).then(d=>{ if(Array.isArray(d)) setMembers(d); }).catch(err=>console.warn('[SettingsView] Loading members failed:', err?.message||err));
@@ -386,7 +386,7 @@ export default function SettingsView() {
                   <input list="cfp-industries" value={profile.industry}
                     onChange={e => setProfile(p => ({ ...p, industry: e.target.value }))}
                     placeholder="D2C / Retail"
-                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }} />
+                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box' }} />
                   <datalist id="cfp-industries">
                     {INDUSTRIES.map(i => <option key={i} value={i} />)}
                   </datalist>
@@ -394,10 +394,10 @@ export default function SettingsView() {
                 <div>
                   <label style={labelStyle}>Time zone</label>
                   <select value={profile.timezone} onChange={e => setProfile(p => ({ ...p, timezone: e.target.value }))}
-                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', colorScheme:'dark' }}>
-                    {COMMON_TIMEZONES.map(tz => <option key={tz} value={tz} style={{ background:'#0a0b0e' }}>{tz}</option>)}
+                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', colorScheme:'dark' }}>
+                    {COMMON_TIMEZONES.map(tz => <option key={tz} value={tz} style={{ background:'#ffffff' }}>{tz}</option>)}
                     {!COMMON_TIMEZONES.includes(profile.timezone) && profile.timezone && (
-                      <option value={profile.timezone} style={{ background:'#0a0b0e' }}>{profile.timezone}</option>
+                      <option value={profile.timezone} style={{ background:'#ffffff' }}>{profile.timezone}</option>
                     )}
                   </select>
                   <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Used when a scheduled campaign says “9am”.</p>
@@ -405,14 +405,14 @@ export default function SettingsView() {
                 <div>
                   <label style={labelStyle}>Default phone country</label>
                   <select value={profile.defaultPhoneCountry} onChange={e => setProfile(p => ({ ...p, defaultPhoneCountry: e.target.value }))}
-                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', colorScheme:'dark' }}>
-                    {PHONE_COUNTRIES.map(([code, label]) => <option key={code} value={code} style={{ background:'#0a0b0e' }}>{label}</option>)}
+                    style={{ width:'100%', padding:'9px 12px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', boxSizing:'border-box', colorScheme:'dark' }}>
+                    {PHONE_COUNTRIES.map(([code, label]) => <option key={code} value={code} style={{ background:'#ffffff' }}>{label}</option>)}
                   </select>
                   <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Added to contact numbers entered without a country code.</p>
                 </div>
               </div>
               {profileMsg && (
-                <p style={{ fontSize:12, color: profileMsg.error ? '#f87171' : 'var(--green)', margin:0 }}>
+                <p style={{ fontSize:12, color: profileMsg.error ? '#dc2626' : 'var(--green)', margin:0 }}>
                   {profileMsg.error || profileMsg.ok}
                 </p>
               )}
@@ -435,13 +435,13 @@ export default function SettingsView() {
                 <div>
                   <label style={labelStyle}>Accent colour</label>
                   <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(profile.brandColor) ? profile.brandColor : '#35e8f2'}
+                    <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(profile.brandColor) ? profile.brandColor : '#0d9488'}
                       onChange={e => setProfile(p => ({ ...p, brandColor: e.target.value }))}
                       aria-label="Accent colour"
-                      style={{ width:42, height:38, padding:2, borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer' }} />
-                    <FInput value={profile.brandColor} onChange={e => setProfile(p => ({ ...p, brandColor: e.target.value }))} placeholder="#35e8f2" />
+                      style={{ width:42, height:38, padding:2, borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer' }} />
+                    <FInput value={profile.brandColor} onChange={e => setProfile(p => ({ ...p, brandColor: e.target.value }))} placeholder="#0d9488" />
                   </div>
-                  <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Six-digit hex, e.g. #35e8f2.</p>
+                  <p style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>Six-digit hex, e.g. #0d9488.</p>
                 </div>
                 <div>
                   <label style={labelStyle}>Logo URL</label>
@@ -450,10 +450,10 @@ export default function SettingsView() {
                 </div>
               </div>
 
-              <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderRadius:10, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
                 {profile.brandLogoUrl
-                  ? <img src={profile.brandLogoUrl} alt="" style={{ width:34, height:34, borderRadius:9, objectFit:'cover', background:'rgba(255,255,255,0.05)' }} />
-                  : <span style={{ width:34, height:34, borderRadius:9, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, color:'#08090c', background: /^#[0-9a-fA-F]{6}$/.test(profile.brandColor) ? profile.brandColor : '#35e8f2' }}>
+                  ? <img src={profile.brandLogoUrl} alt="" style={{ width:34, height:34, borderRadius:9, objectFit:'cover', background:'rgba(15,23,42,0.05)' }} />
+                  : <span style={{ width:34, height:34, borderRadius:9, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, color:'#08090c', background: /^#[0-9a-fA-F]{6}$/.test(profile.brandColor) ? profile.brandColor : '#0d9488' }}>
                       {(profile.name || 'W').slice(0,1).toUpperCase()}
                     </span>}
                 <div style={{ minWidth:0 }}>
@@ -463,7 +463,7 @@ export default function SettingsView() {
               </div>
 
               {profileMsg && (
-                <p style={{ fontSize:12, color: profileMsg.error ? '#f87171' : 'var(--green)', margin:0 }}>
+                <p style={{ fontSize:12, color: profileMsg.error ? '#dc2626' : 'var(--green)', margin:0 }}>
                   {profileMsg.error || profileMsg.ok}
                 </p>
               )}
@@ -485,7 +485,7 @@ export default function SettingsView() {
                   ['Active sessions', 'Sign out devices you no longer use', 'profile'],
                   ['Blocked numbers', 'Numbers that opted out and will never be messaged again', 'settings'],
                 ].map(([title, detail, dest]) => (
-                  <div key={title} style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 15px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid var(--bd)' }}>
+                  <div key={title} style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 15px', borderRadius:10, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)' }}>
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ fontSize:13, fontWeight:600, color:'var(--t1)' }}>{title}</div>
                       <div style={{ fontSize:11.5, color:'var(--t3)', marginTop:2 }}>{detail}</div>
@@ -519,17 +519,17 @@ export default function SettingsView() {
           <div style={{ marginBottom:14 }}>
             <label style={{ fontSize:12, fontWeight:600, color:'var(--t2)', display:'block', marginBottom:6 }}>Webhook URL</label>
             <FInput value={webhookUrl} onChange={e=>{ setWebhookUrl(e.target.value); setWebhookError(null); }} placeholder="https://your-server.com/webhook" disabled={!canManageIntegrations(currentUser)}
-              style={webhookError ? { borderColor:'#f87171' } : {}} />
-            {webhookError && <p style={{ fontSize:11.5, color:'#f87171', marginTop:6 }}>{webhookError}</p>}
+              style={webhookError ? { borderColor:'#dc2626' } : {}} />
+            {webhookError && <p style={{ fontSize:11.5, color:'#dc2626', marginTop:6 }}>{webhookError}</p>}
           </div>
           {settings.webhookVerifyToken && (
             <div style={{ marginBottom:14 }}>
               <label style={{ fontSize:12, fontWeight:600, color:'var(--t2)', display:'block', marginBottom:6 }}>Verify Token</label>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(255,255,255,0.04)', padding:'7px 12px', borderRadius:7, border:'1px solid var(--bd)', flex:1 }}>
+                <span style={{ fontSize:13, fontFamily:'monospace', color:'var(--t1)', background:'rgba(15,23,42,0.04)', padding:'7px 12px', borderRadius:7, border:'1px solid var(--bd)', flex:1 }}>
                   {showToken ? settings.webhookVerifyToken : '••••••••••••••••'}
                 </span>
-                <button aria-label={showToken ? 'Hide token' : 'Show token'} onClick={()=>setShowToken(!showToken)} style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <button aria-label={showToken ? 'Hide token' : 'Show token'} onClick={()=>setShowToken(!showToken)} style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
                   <I n={showToken?'eyeoff':'eye'} s={13} c="var(--t2)" />
                 </button>
               </div>
@@ -564,20 +564,20 @@ export default function SettingsView() {
         <SectionCard icon="users" title="Team Members">
           {canInvite && (
             <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:14 }}>
-              <Btn size="sm" style={{ background:'rgba(53,232,242,0.1)', color:'var(--green)', border:'1px solid var(--gbd)' }} onClick={()=>setShowInvite(!showInvite)}>
+              <Btn size="sm" style={{ background:'rgba(13,148,136,0.1)', color:'var(--green)', border:'1px solid var(--gbd)' }} onClick={()=>setShowInvite(!showInvite)}>
                 <I n="plus" s={13} c="var(--green)" />
                 Invite
               </Btn>
             </div>
           )}
           {canInvite && showInvite && (
-            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:14, padding:14, borderRadius:10, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)' }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:14, padding:14, borderRadius:10, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)' }}>
               <div style={{ display:'flex', gap:8 }}>
                 <FInput value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="colleague@company.com" style={{ flex:1 }} />
                 <select value={inviteRole} onChange={e=>setInviteRole(e.target.value)}
-                  style={{ padding:'9px 10px', borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark' }}>
+                  style={{ padding:'9px 10px', borderRadius:8, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:13, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark' }}>
                   {ASSIGNABLE_ROLES.map(r => (
-                    <option key={r} value={r} style={{ background:'#0a0b0e' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
+                    <option key={r} value={r} style={{ background:'#ffffff' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
                   ))}
                 </select>
                 <Btn size="sm" onClick={sendInvite} disabled={sendingInvite}>{sendingInvite ? 'Sending…' : 'Send Invite'}</Btn>
@@ -595,13 +595,13 @@ export default function SettingsView() {
                   Anyone with the link joins as {inviteRole === 'ADMIN' ? 'an Admin' : 'a Member'}. No email needed.
                 </span>
               </div>
-              {inviteError && <p style={{ fontSize:12, color:'#f87171' }}>{inviteError}</p>}
+              {inviteError && <p style={{ fontSize:12, color:'#dc2626' }}>{inviteError}</p>}
             </div>
           )}
           {lastInvite && (
             <div style={{ marginBottom:14, padding:'12px 14px', borderRadius:10, border:`1px solid ${lastInvite.emailQueued ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, background: lastInvite.emailQueued ? 'var(--gbg)' : 'rgba(245,158,11,0.08)' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10, marginBottom:8, flexWrap: 'wrap', rowGap: 10 }}>
-                <p style={{ fontSize:12.5, color: lastInvite.kind === 'LINK' ? 'var(--green)' : lastInvite.emailQueued ? 'var(--green)' : '#fbbf24', fontWeight:600 }}>
+                <p style={{ fontSize:12.5, color: lastInvite.kind === 'LINK' ? 'var(--green)' : lastInvite.emailQueued ? 'var(--green)' : '#b45309', fontWeight:600 }}>
                   {lastInvite.kind === 'LINK'
                     ? `Invite link ready — anyone who opens it joins as ${ROLE_LABELS[lastInvite.role] || lastInvite.role}.`
                     : lastInvite.emailQueued
@@ -620,7 +620,7 @@ export default function SettingsView() {
               </p>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                 <input readOnly value={lastInvite.url || ''} onFocus={e=>e.target.select()}
-                  style={{ flex:1, minWidth:0, padding:'8px 10px', borderRadius:7, background:'rgba(0,0,0,0.25)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:11.5, fontFamily:'ui-monospace, monospace', outline:'none' }} />
+                  style={{ flex:1, minWidth:0, padding:'8px 10px', borderRadius:7, background:'rgba(15,23,42,0.25)', border:'1px solid var(--bd)', color:'var(--t2)', fontSize:11.5, fontFamily:'ui-monospace, monospace', outline:'none' }} />
                 <Btn size="sm" variant="outline" onClick={async ()=>{
                   try { await navigator.clipboard.writeText(lastInvite.url); setCopiedInvite(true); setTimeout(()=>setCopiedInvite(false), 2000); } catch { /* clipboard blocked: the link is selectable above */ }
                 }}>{copiedInvite ? 'Copied ✓' : 'Copy link'}</Btn>
@@ -629,7 +629,7 @@ export default function SettingsView() {
           )}
           {invitations.length > 0 && (
             <div style={{ marginBottom:14, borderRadius:10, border:'1px solid var(--bd)', overflow:'hidden' }}>
-              <div style={{ padding:'8px 12px', background:'rgba(255,255,255,0.02)', borderBottom:'1px solid var(--bd)' }}>
+              <div style={{ padding:'8px 12px', background:'rgba(15,23,42,0.02)', borderBottom:'1px solid var(--bd)' }}>
                 <span style={{ fontSize:11, fontWeight:700, color:'var(--t2)', textTransform:'uppercase', letterSpacing:'.07em' }}>Pending Invitations</span>
               </div>
               {invitations.map((inv,i) => (
@@ -648,11 +648,11 @@ export default function SettingsView() {
                     {/* A link has no address to resend to — revoking and
                         creating a new one is the equivalent action. */}
                     {inv.kind !== 'LINK' && (
-                    <button onClick={()=>resendInvite(inv.id)} disabled={resendingId===inv.id} style={{ padding:'4px 10px', borderRadius:6, background: resentId===inv.id ? 'var(--gbg)' : 'rgba(255,255,255,0.04)', border: `1px solid ${resentId===inv.id ? 'var(--gbd)' : 'var(--bd)'}`, cursor: resendingId===inv.id ? 'not-allowed' : 'pointer', fontSize:11.5, fontWeight:600, color: resentId===inv.id ? 'var(--green)' : 'var(--t2)', opacity: resendingId===inv.id ? 0.6 : 1 }}>
+                    <button onClick={()=>resendInvite(inv.id)} disabled={resendingId===inv.id} style={{ padding:'4px 10px', borderRadius:6, background: resentId===inv.id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)', border: `1px solid ${resentId===inv.id ? 'var(--gbd)' : 'var(--bd)'}`, cursor: resendingId===inv.id ? 'not-allowed' : 'pointer', fontSize:11.5, fontWeight:600, color: resentId===inv.id ? 'var(--green)' : 'var(--t2)', opacity: resendingId===inv.id ? 0.6 : 1 }}>
                       {resendingId===inv.id ? 'Sending…' : resentId===inv.id ? 'Sent ✓' : 'Resend'}
                     </button>
                     )}
-                    <button onClick={()=>revokeInvite(inv.id)} style={{ padding:'4px 10px', borderRadius:6, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.18)', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#f87171' }}>
+                    <button onClick={()=>revokeInvite(inv.id)} style={{ padding:'4px 10px', borderRadius:6, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.18)', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#dc2626' }}>
                       Revoke
                     </button>
                   </div>
@@ -661,7 +661,7 @@ export default function SettingsView() {
             </div>
           )}
           {memberError && (
-            <p style={{ fontSize:12, color:'#f87171', marginBottom:12, padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)' }}>{memberError}</p>
+            <p style={{ fontSize:12, color:'#dc2626', marginBottom:12, padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)' }}>{memberError}</p>
           )}
           {members.length === 0 ? (
             <p style={{ fontSize:13, color:'var(--t2)', textAlign:'center', padding:'16px 0' }}>No members yet.</p>
@@ -694,7 +694,7 @@ export default function SettingsView() {
                       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                         <Avatar name={m.user.name} size={30} />
                         <span style={{ fontSize:13, fontWeight:600, color:'var(--t1)' }}>{m.user.name}</span>
-                        {isSelf && <span style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:5, background:'rgba(255,255,255,0.05)', border:'1px solid var(--bd)', color:'var(--t3)' }}>You</span>}
+                        {isSelf && <span style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:5, background:'rgba(15,23,42,0.05)', border:'1px solid var(--bd)', color:'var(--t3)' }}>You</span>}
                         {m.isOwner && <span style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:5, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)' }}>Owner</span>}
                       </div>
                     </td>
@@ -704,9 +704,9 @@ export default function SettingsView() {
                         <div style={{ display:'flex', alignItems:'center', gap:7 }}>
                           <select value={memberRoles[m.userId] || m.role} onChange={e=>setRole(m.userId,e.target.value)}
                             disabled={lockRole} title={lockRole ? roleReason : undefined}
-                            style={{ padding:'5px 8px', borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark', opacity: lockRole ? 0.5 : 1, cursor: lockRole ? 'not-allowed' : 'pointer' }}>
+                            style={{ padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t1)', fontSize:12, fontFamily:"'Manrope',sans-serif", outline:'none', colorScheme:'dark', opacity: lockRole ? 0.5 : 1, cursor: lockRole ? 'not-allowed' : 'pointer' }}>
                             {ASSIGNABLE_ROLES.map(r => (
-                              <option key={r} value={r} style={{ background:'#0a0b0e' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
+                              <option key={r} value={r} style={{ background:'#ffffff' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
                             ))}
                           </select>
                           {lockRole && <span title={roleReason} style={{ display:'flex' }}><I n="lock" s={12} c="var(--t3)" /></span>}
@@ -720,7 +720,7 @@ export default function SettingsView() {
                         <button onClick={()=>delMember(m)} disabled={lockDelete}
                           title={lockDelete ? 'The only admin cannot be removed — promote another member to admin first.' : 'Remove from workspace'}
                           style={{ width:28, height:28, borderRadius:6, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.18)', cursor: lockDelete ? 'not-allowed' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', opacity: lockDelete ? 0.35 : 1 }}>
-                          <I n="trash" s={12} c="#f87171" />
+                          <I n="trash" s={12} c="#dc2626" />
                         </button>
                       )}
                     </td>
@@ -745,14 +745,14 @@ export default function SettingsView() {
         {/* ── Billing ── */}
         {tab === 'billing' && (
         <SectionCard icon="credit" title="Billing">
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 16px', borderRadius:10, background:'rgba(53,232,242,0.06)', border:'1px solid var(--gbd)', marginBottom:18, flexWrap: 'wrap', rowGap: 10 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 16px', borderRadius:10, background:'rgba(13,148,136,0.06)', border:'1px solid var(--gbd)', marginBottom:18, flexWrap: 'wrap', rowGap: 10 }}>
             <div>
               <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--t1)', marginBottom:3 }}>Growth Plan</p>
               <p style={{ fontSize:12, color:'var(--t2)' }}>Manage your subscription</p>
             </div>
             {canUpgrade && <Btn style={{ boxShadow:'var(--glow)' }}>Upgrade</Btn>}
           </div>
-          {(invoiceError || invoiceListError) && <p style={{ fontSize:12, color:'#f87171', marginBottom:10 }}>{invoiceError || invoiceListError}</p>}
+          {(invoiceError || invoiceListError) && <p style={{ fontSize:12, color:'#dc2626', marginBottom:10 }}>{invoiceError || invoiceListError}</p>}
           {invoices.length === 0 ? (
             <p style={{ fontSize:13, color:'var(--t2)', textAlign:'center', padding:'16px 0' }}>No invoices yet.</p>
           ) : (
@@ -775,7 +775,7 @@ export default function SettingsView() {
                   <td style={{ padding:'10px 12px' }}>
                     {/* This button previously had no click handler at all. */}
                     <button onClick={()=>downloadInvoice(inv.id)} disabled={downloadingInvoice===inv.id} title="Download invoice"
-                      style={{ width:28, height:28, borderRadius:6, background:'rgba(255,255,255,0.04)', border:'1px solid var(--bd)', cursor: downloadingInvoice===inv.id ? 'wait' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', opacity: downloadingInvoice===inv.id ? 0.5 : 1 }}>
+                      style={{ width:28, height:28, borderRadius:6, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor: downloadingInvoice===inv.id ? 'wait' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t2)', opacity: downloadingInvoice===inv.id ? 0.5 : 1 }}>
                       <I n="download" s={12} c="var(--t2)" />
                     </button>
                   </td>
@@ -794,7 +794,7 @@ export default function SettingsView() {
         <SectionCard icon="bell" title="In-App Notifications">
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             {NOTIF_OPTS.map(opt => (
-              <div key={opt.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', borderRadius:9, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)' }}>
+              <div key={opt.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', borderRadius:9, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)' }}>
                 <span style={{ fontSize:13, fontWeight:500, color:'var(--t1)' }}>{opt.label}</span>
                 <Toggle on={notifs[opt.id]} disabled={!isAdmin} onToggle={()=>setNotifs(p=>({...p,[opt.id]:!p[opt.id]}))} />
               </div>
@@ -811,7 +811,7 @@ export default function SettingsView() {
           </p>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             {EMAIL_NOTIF_OPTS.map(opt => (
-              <div key={opt.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:14, padding:'12px 14px', borderRadius:9, background:'rgba(255,255,255,0.02)', border:'1px solid var(--bd)' }}>
+              <div key={opt.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:14, padding:'12px 14px', borderRadius:9, background:'rgba(15,23,42,0.02)', border:'1px solid var(--bd)' }}>
                 <div style={{ minWidth:0 }}>
                   <span style={{ fontSize:13, fontWeight:500, color:'var(--t1)', display:'block' }}>{opt.label}</span>
                   {opt.hint && <span style={{ fontSize:11, color:'var(--t3)' }}>{opt.hint}</span>}

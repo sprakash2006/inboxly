@@ -29,7 +29,7 @@ const rateLabel = (plan, costRates, key) => {
 };
 
 const inputStyle = {
-  width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)',
+  width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)',
   border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13,
   fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box',
 };
@@ -126,7 +126,7 @@ function PlanEditor({ plan, knownFeatures, onClose, onSaved }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-card" style={{ ...card, width: 560, maxHeight: '88vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -139,7 +139,7 @@ function PlanEditor({ plan, knownFeatures, onClose, onSaved }) {
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {err && <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12.5 }}>{err}</div>}
+          {err && <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12.5 }}>{err}</div>}
 
           <div className="rgrid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             <Field label="Plan key" hint={isNew ? 'Uppercase, e.g. STARTER — permanent' : 'Cannot be changed'}>
@@ -245,7 +245,7 @@ const selectStyle = { ...inputStyle, cursor: 'pointer', colorScheme: 'dark' };
 // background/color set directly on each <option>, though, which is the only
 // reliable way to keep the option list legible instead of falling back to
 // light system text on a white popup.
-const optionStyle = { background: '#0b1220', color: '#e8eaf0' };
+const optionStyle = { background: '#ffffff', color: '#0f172a' };
 
 const StatCard = ({ label, value, color = 'var(--t1)' }) => (
   <div style={{ ...card, padding: 16 }}>
@@ -280,12 +280,12 @@ const AUDIT_ICON = {
 };
 
 const AUDIT_TONE = {
-  impersonate: '#9d6bff',
-  suspend: '#f87171',
-  'number.ban': '#f87171',
-  'plan.delete': '#f87171',
+  impersonate: '#7c3aed',
+  suspend: '#dc2626',
+  'number.ban': '#dc2626',
+  'plan.delete': '#dc2626',
   reinstate: 'var(--success)',
-  'wallet.adjust': '#c4ff46',
+  'wallet.adjust': '#4d7c0f',
 };
 
 function AuditTab() {
@@ -327,9 +327,9 @@ function AuditTab() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12 }}>
           {[
             ['Actions logged', summary.total, 'var(--t1)', 'note'],
-            ['Impersonations', summary.impersonations, '#9d6bff', 'eye'],
-            ['Suspensions', summary.suspensions, '#f87171', 'ban'],
-            ['Wallet adjustments', summary.walletAdjustments, '#c4ff46', 'credit'],
+            ['Impersonations', summary.impersonations, '#7c3aed', 'eye'],
+            ['Suspensions', summary.suspensions, '#dc2626', 'ban'],
+            ['Wallet adjustments', summary.walletAdjustments, '#4d7c0f', 'credit'],
           ].map(([label, value, colour, icon]) => (
             <div key={label} style={{ ...card, padding: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -357,7 +357,7 @@ function AuditTab() {
           <select value={action} onChange={e => setAction(e.target.value)} style={{ ...inputStyle, width: 190, colorScheme: 'dark' }}>
             <option value="">All actions</option>
             {actions.map(a => (
-              <option key={a.action} value={a.action} style={{ background: '#0a0b0e' }}>{a.action} ({a.count})</option>
+              <option key={a.action} value={a.action} style={{ background:'#ffffff' }}>{a.action} ({a.count})</option>
             ))}
           </select>
           <Btn variant="outline" size="sm" onClick={load}>Refresh</Btn>
@@ -376,7 +376,7 @@ function AuditTab() {
           const tone = AUDIT_TONE[entry.action] || 'var(--accent)';
           return (
             <div key={entry.id} style={{ padding: '13px 18px', borderBottom: i < entries.length - 1 ? '1px solid var(--bd)' : 'none', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <span style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)' }}>
+              <span style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)' }}>
                 <I n={AUDIT_ICON[entry.action] || 'note'} s={14} c={tone} />
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -386,7 +386,7 @@ function AuditTab() {
                   {entry.targetLabel && <span style={{ color: 'var(--t1)' }}>{entry.targetLabel}</span>}
                 </div>
                 {entry.reason && (
-                  <div style={{ fontSize: 11.5, color: '#fbbf24', marginTop: 3 }}>reason: {entry.reason}</div>
+                  <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 3 }}>reason: {entry.reason}</div>
                 )}
                 {entry.meta && Object.keys(entry.meta).length > 0 && (
                   <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--t3)', marginTop: 3, overflowWrap: 'anywhere' }}>
@@ -420,8 +420,8 @@ function RevenueTab() {
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="MRR" value={money(data.mrr)} color="var(--green)" />
-        <StatCard label="ARR (est.)" value={money(data.arr)} color="#9d6bff" />
-        <StatCard label="Active subscriptions" value={data.activeSubscriptions} color="#c4ff46" />
+        <StatCard label="ARR (est.)" value={money(data.arr)} color="#7c3aed" />
+        <StatCard label="Active subscriptions" value={data.activeSubscriptions} color="#4d7c0f" />
       </div>
 
       <div style={{ ...card, overflowX: 'auto' }}>
@@ -505,10 +505,10 @@ function TransactionsTab({ workspaces }) {
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: 12, marginBottom: 20 }}>
             <StatCard label="Total credited" value={money(s.totalCredit)} color="var(--green)" />
-            <StatCard label="Total debited" value={money(s.totalDebit)} color="#f87171" />
-            <StatCard label="Net" value={money(s.net)} color={s.net >= 0 ? 'var(--green)' : '#f87171'} />
-            <StatCard label="Credit txns" value={s.creditCount} color="#9d6bff" />
-            <StatCard label="Debit txns" value={s.debitCount} color="#c4ff46" />
+            <StatCard label="Total debited" value={money(s.totalDebit)} color="#dc2626" />
+            <StatCard label="Net" value={money(s.net)} color={s.net >= 0 ? 'var(--green)' : '#dc2626'} />
+            <StatCard label="Credit txns" value={s.creditCount} color="#7c3aed" />
+            <StatCard label="Debit txns" value={s.debitCount} color="#4d7c0f" />
           </div>
 
           {s.byReason.length > 0 && (
@@ -517,7 +517,7 @@ function TransactionsTab({ workspaces }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {s.byReason.map(r => (
                   <div key={`${r.reason}-${r.type}`} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid var(--bd)', fontSize: 12.5 }}>
-                    <span style={{ color: 'var(--t1)' }}>{r.reason} <span style={{ fontSize: 10, fontWeight: 700, color: r.type === 'CREDIT' ? 'var(--green)' : '#f87171' }}>{r.type}</span></span>
+                    <span style={{ color: 'var(--t1)' }}>{r.reason} <span style={{ fontSize: 10, fontWeight: 700, color: r.type === 'CREDIT' ? 'var(--green)' : '#dc2626' }}>{r.type}</span></span>
                     <span style={{ color: 'var(--t2)' }}>{money(r.amount)} · {r.count}×</span>
                   </div>
                 ))}
@@ -540,10 +540,10 @@ function TransactionsTab({ workspaces }) {
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{new Date(t.createdAt).toLocaleString('en-IN')}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12.5, fontWeight: 600, color: 'var(--t1)' }}>{t.workspaceName}</td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 700, color: t.type === 'CREDIT' ? 'var(--green)' : '#f87171' }}>{t.type}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, color: t.type === 'CREDIT' ? 'var(--green)' : '#dc2626' }}>{t.type}</span>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{t.reason}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12.5, fontWeight: 600, color: t.type === 'CREDIT' ? 'var(--green)' : '#f87171' }}>{t.type === 'CREDIT' ? '+' : '−'}{money(t.amount)}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12.5, fontWeight: 600, color: t.type === 'CREDIT' ? 'var(--green)' : '#dc2626' }}>{t.type === 'CREDIT' ? '+' : '−'}{money(t.amount)}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{money(t.balanceAfter)}</td>
                     <td style={{ padding: '12px 16px', fontSize: 11, color: 'var(--t3)' }}>{t.reference || '—'}</td>
                   </tr>
@@ -608,8 +608,8 @@ function CampaignsTab({ workspaces }) {
             <StatCard label="Recipients" value={t.totalContacts.toLocaleString()} />
             <StatCard label="Sent" value={t.sent.toLocaleString()} />
             <StatCard label="Delivered" value={t.delivered.toLocaleString()} color="var(--green)" />
-            <StatCard label="Read" value={t.read.toLocaleString()} color="#9d6bff" />
-            <StatCard label="Failed" value={t.failed.toLocaleString()} color={t.failed > 0 ? '#f87171' : 'var(--t1)'} />
+            <StatCard label="Read" value={t.read.toLocaleString()} color="#7c3aed" />
+            <StatCard label="Failed" value={t.failed.toLocaleString()} color={t.failed > 0 ? '#dc2626' : 'var(--t1)'} />
           </div>
 
           <div style={{ ...card, overflowX: 'auto' }}>
@@ -630,7 +630,7 @@ function CampaignsTab({ workspaces }) {
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{c.sent.toLocaleString()}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{c.delivered.toLocaleString()}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{c.read.toLocaleString()}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: c.failed > 0 ? '#f87171' : 'var(--t2)' }}>{c.failed.toLocaleString()}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, color: c.failed > 0 ? '#dc2626' : 'var(--t2)' }}>{c.failed.toLocaleString()}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
                   </tr>
                 ))}
@@ -716,9 +716,9 @@ function NumbersTab({ workspaces }) {
     else { const d = await res.json().catch(() => ({})); notify(d.error || 'Reset failed'); }
   };
 
-  const statusColor = (st) => st === 'AVAILABLE' ? 'var(--green)' : st === 'BANNED' ? '#f87171' : '#9d6bff';
-  const statusBg = (st) => st === 'AVAILABLE' ? 'var(--gbg)' : st === 'BANNED' ? 'rgba(239,68,68,.08)' : 'rgba(157,107,255,.1)';
-  const statusBd = (st) => st === 'AVAILABLE' ? 'var(--gbd)' : st === 'BANNED' ? 'rgba(239,68,68,.25)' : 'rgba(157,107,255,.25)';
+  const statusColor = (st) => st === 'AVAILABLE' ? 'var(--green)' : st === 'BANNED' ? '#dc2626' : '#7c3aed';
+  const statusBg = (st) => st === 'AVAILABLE' ? 'var(--gbg)' : st === 'BANNED' ? 'rgba(239,68,68,.08)' : 'rgba(124,58,237,.1)';
+  const statusBd = (st) => st === 'AVAILABLE' ? 'var(--gbd)' : st === 'BANNED' ? 'rgba(239,68,68,.25)' : 'rgba(124,58,237,.25)';
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, color: 'var(--t2)', fontSize: 13 }}>Loading number pool…</div>;
 
@@ -734,7 +734,7 @@ function NumbersTab({ workspaces }) {
           ))}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Btn variant="outline" size="sm" onClick={doResetAll} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#f87171' }}>Reset all assignments</Btn>
+          <Btn variant="outline" size="sm" onClick={doResetAll} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#dc2626' }}>Reset all assignments</Btn>
           <Btn size="sm" onClick={doSync} disabled={syncing}><I n="refresh" s={13} c="#08090c" /> {syncing ? 'Syncing…' : 'Sync from WABA'}</Btn>
         </div>
       </div>
@@ -777,7 +777,7 @@ function NumbersTab({ workspaces }) {
                       <Btn variant="outline" size="sm" onClick={() => doReset(e.id)} disabled={busyId === e.id}>Reset</Btn>
                     )}
                     {e.status !== 'BANNED' ? (
-                      <Btn variant="outline" size="sm" onClick={() => doBan(e.id)} disabled={busyId === e.id} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#f87171' }}>Ban</Btn>
+                      <Btn variant="outline" size="sm" onClick={() => doBan(e.id)} disabled={busyId === e.id} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#dc2626' }}>Ban</Btn>
                     ) : (
                       <Btn variant="outline" size="sm" onClick={() => doUnban(e.id)} disabled={busyId === e.id}>Unban</Btn>
                     )}
@@ -850,9 +850,9 @@ function WorkspaceAnalyticsTab() {
 
   return (
     <div>
-      {loadError && <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13 }}>{loadError}</div>}
+      {loadError && <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13 }}>{loadError}</div>}
       {truncated && (
-        <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', color: '#fbbf24', fontSize: 12.5 }}>
+        <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.25)', color: '#b45309', fontSize: 12.5 }}>
           Showing the newest {rows.length.toLocaleString()} workspaces; the totals and sort cover only these.
         </div>
       )}
@@ -860,7 +860,7 @@ function WorkspaceAnalyticsTab() {
         <StatCard label="Workspaces" value={rows.length} />
         <StatCard label="Total sent" value={totals.sent.toLocaleString()} />
         <StatCard label="Total delivered" value={totals.delivered.toLocaleString()} color="var(--green)" />
-        <StatCard label="Avg delivery rate" value={`${avgDeliveryRate}%`} color="#9d6bff" />
+        <StatCard label="Avg delivery rate" value={`${avgDeliveryRate}%`} color="#7c3aed" />
       </div>
 
       <div style={{ ...card, overflowX: 'auto' }}>
@@ -891,7 +891,7 @@ function WorkspaceAnalyticsTab() {
                 <td style={{ padding: '12px 16px' }}>
                   {w.messages.sent > 0 ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 60, height: 4, borderRadius: 4, background: 'rgba(255,255,255,0.06)' }}><div style={{ height: '100%', width: `${Math.min(w.deliveryRate, 100)}%`, borderRadius: 4, background: 'var(--green)' }} /></div>
+                      <div style={{ width: 60, height: 4, borderRadius: 4, background: 'rgba(15,23,42,0.06)' }}><div style={{ height: '100%', width: `${Math.min(w.deliveryRate, 100)}%`, borderRadius: 4, background: 'var(--green)' }} /></div>
                       <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600 }}>{w.deliveryRate}%</span>
                     </div>
                   ) : <span style={{ fontSize: 12, color: 'var(--t3)' }}>—</span>}
@@ -1036,7 +1036,7 @@ function UsersTab() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--t1)' }}>{u.name}</span>
                         {u.superAdmin && <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--green)', textTransform: 'uppercase' }}>Super Admin</span>}
-                        {u.disabledAt && <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'rgba(248,113,113,.1)', border: '1px solid rgba(248,113,113,.3)', color: '#f87171', textTransform: 'uppercase' }}>Disabled</span>}
+                        {u.disabledAt && <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'rgba(248,113,113,.1)', border: '1px solid rgba(248,113,113,.3)', color: '#dc2626', textTransform: 'uppercase' }}>Disabled</span>}
                       </div>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{u.email}</td>
@@ -1045,7 +1045,7 @@ function UsersTab() {
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                         {u.workspaces.length === 0 && <span style={{ fontSize: 11, color: 'var(--t3)' }}>—</span>}
                         {u.workspaces.map(w => (
-                          <span key={w.id} style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{w.name} · {w.role}</span>
+                          <span key={w.id} style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 12, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{w.name} · {w.role}</span>
                         ))}
                       </div>
                     </td>
@@ -1115,7 +1115,7 @@ function PaymentsTab({ workspaces }) {
   const rows = data?.payments || [];
 
   const kindLabel = (k) => k === 'PLAN_SUBSCRIPTION' ? 'Plan subscription' : k === 'ADDON' ? 'Add-on' : 'Wallet recharge';
-  const kindColor = (k) => (k === 'PLAN_SUBSCRIPTION' || k === 'ADDON') ? '#c4ff46' : 'var(--green)';
+  const kindColor = (k) => (k === 'PLAN_SUBSCRIPTION' || k === 'ADDON') ? '#4d7c0f' : 'var(--green)';
 
   return (
     <div>
@@ -1136,8 +1136,8 @@ function PaymentsTab({ workspaces }) {
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: 12, marginBottom: 20 }}>
             <StatCard label="Total collected" value={money(s.total)} color="var(--green)" />
-            <StatCard label="Plan & add-on revenue" value={money(s.planRevenue)} color="#c4ff46" />
-            <StatCard label="Wallet recharges" value={money(s.walletRevenue)} color="#9d6bff" />
+            <StatCard label="Plan & add-on revenue" value={money(s.planRevenue)} color="#4d7c0f" />
+            <StatCard label="Wallet recharges" value={money(s.walletRevenue)} color="#7c3aed" />
             <StatCard label="Payments" value={s.count} />
           </div>
 
@@ -1244,7 +1244,7 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-card" style={{ ...card, width: 620, maxHeight: '82vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -1254,7 +1254,7 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
               <span style={{ marginLeft: 10, padding: '2px 9px', borderRadius: 20, fontSize: 10.5, fontWeight: 600,
                 background: data.workspace.suspended ? 'rgba(239,68,68,.08)' : 'var(--gbg)',
                 border: `1px solid ${data.workspace.suspended ? 'rgba(239,68,68,.25)' : 'var(--gbd)'}`,
-                color: data.workspace.suspended ? '#f87171' : 'var(--green)' }}>
+                color: data.workspace.suspended ? '#dc2626' : 'var(--green)' }}>
                 {data.workspace.suspended ? 'Suspended' : 'Active'}
               </span>
             )}
@@ -1265,20 +1265,20 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {err && <div style={{ margin: 18, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12.5 }}>{err}</div>}
+          {err && <div style={{ margin: 18, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12.5 }}>{err}</div>}
           {!data && !err && <div style={{ textAlign: 'center', padding: 40, color: 'var(--t2)', fontSize: 13 }}>Loading members…</div>}
 
           {data && (
-            <div style={{ margin: 18, padding: 14, borderRadius: 10, border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ margin: 18, padding: 14, borderRadius: 10, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em' }}>Invite to this workspace</span>
 
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="colleague@company.com" type="email"
-                  style={{ flex: 1, minWidth: 190, padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
+                  style={{ flex: 1, minWidth: 190, padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none' }} />
                 <select value={role} onChange={(e) => setRole(e.target.value)}
-                  style={{ padding: '9px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }}>
+                  style={{ padding: '9px 10px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontFamily: "'Manrope',sans-serif", outline: 'none', colorScheme: 'dark' }}>
                   {ASSIGNABLE_ROLES.map(r => (
-                    <option key={r} value={r} style={{ background: '#0a0b0e' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
+                    <option key={r} value={r} style={{ background:'#ffffff' }} title={ROLE_DESCRIPTIONS[r]}>{ROLE_LABELS[r]}</option>
                   ))}
                 </select>
                 <button onClick={() => invite('email')} disabled={!email.trim() || busy}
@@ -1286,12 +1286,12 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
                   {busy === 'email' ? 'Sending…' : 'Send invite'}
                 </button>
                 <button onClick={() => invite('link')} disabled={!!busy}
-                  style={{ padding: '9px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12.5, fontWeight: 700, cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.6 : 1, fontFamily: "'Manrope',sans-serif" }}>
+                  style={{ padding: '9px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12.5, fontWeight: 700, cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.6 : 1, fontFamily: "'Manrope',sans-serif" }}>
                   {busy === 'link' ? 'Creating…' : 'Create link'}
                 </button>
               </div>
 
-              {inviteErr && <p style={{ fontSize: 12, color: '#f87171' }}>{inviteErr}</p>}
+              {inviteErr && <p style={{ fontSize: 12, color: '#dc2626' }}>{inviteErr}</p>}
 
               {issued && (
                 <div style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--gbg)', border: '1px solid var(--gbd)' }}>
@@ -1304,9 +1304,9 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
                   </p>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <input readOnly value={issued.url || ''} onFocus={(e) => e.target.select()}
-                      style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 7, background: 'rgba(0,0,0,0.25)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 11.5, fontFamily: 'ui-monospace, monospace', outline: 'none' }} />
+                      style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 7, background: 'rgba(15,23,42,0.25)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 11.5, fontFamily: 'ui-monospace, monospace', outline: 'none' }} />
                     <button onClick={async () => { try { await navigator.clipboard.writeText(issued.url); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked: the link is shown */ } }}
-                      style={{ padding: '7px 12px', borderRadius: 7, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      style={{ padding: '7px 12px', borderRadius: 7, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       {copied ? 'Copied ✓' : 'Copy link'}
                     </button>
                   </div>
@@ -1325,7 +1325,7 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
                         {' · expires '}{new Date(inv.expiresAt).toLocaleDateString('en-IN')}
                       </span>
                       <button onClick={() => revokeInvite(inv.id)}
-                        style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.18)', cursor: 'pointer', fontSize: 11.5, fontWeight: 600, color: '#f87171', flexShrink: 0 }}>
+                        style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.18)', cursor: 'pointer', fontSize: 11.5, fontWeight: 600, color: '#dc2626', flexShrink: 0 }}>
                         Revoke
                       </button>
                     </div>
@@ -1352,7 +1352,7 @@ function WorkspaceMembersModal({ workspaceId, onClose }) {
                     <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--t2)' }}>{m.email}</td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{ padding: '3px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                        background: m.role === 'ADMIN' ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                        background: m.role === 'ADMIN' ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                         border: `1px solid ${m.role === 'ADMIN' ? 'var(--gbd)' : 'var(--bd)'}`,
                         color: m.role === 'ADMIN' ? 'var(--green)' : 'var(--t2)' }}>{m.role}</span>
                     </td>
@@ -1458,14 +1458,14 @@ export default function SuperAdminView({ tab }) {
 
   const statCards = stats ? [
     { label: 'Workspaces', value: stats.workspaces, icon: 'users', color: 'var(--green)' },
-    { label: 'Users', value: stats.users, icon: 'user', color: '#9d6bff' },
-    { label: 'Connected Numbers', value: stats.connectedNumbers, icon: 'phone', color: '#c4ff46' },
-    { label: 'Campaigns', value: stats.campaigns, icon: 'send', color: '#f59e0b' },
-    { label: 'Contacts', value: stats.contacts, icon: 'users', color: '#9d6bff' },
+    { label: 'Users', value: stats.users, icon: 'user', color: '#7c3aed' },
+    { label: 'Connected Numbers', value: stats.connectedNumbers, icon: 'phone', color: '#4d7c0f' },
+    { label: 'Campaigns', value: stats.campaigns, icon: 'send', color: '#d97706' },
+    { label: 'Contacts', value: stats.contacts, icon: 'users', color: '#7c3aed' },
     { label: 'Messages Sent', value: stats.messagesSent, icon: 'send', color: 'var(--green)' },
     { label: 'Delivered', value: stats.messagesDelivered, icon: 'check', color: '#25d366' },
-    { label: 'Suspended', value: stats.suspendedWorkspaces, icon: 'alertc', color: '#f87171' },
-    { label: 'Open Tickets', value: stats.openTickets, icon: 'msg', color: '#fbbf24' },
+    { label: 'Suspended', value: stats.suspendedWorkspaces, icon: 'alertc', color: '#dc2626' },
+    { label: 'Open Tickets', value: stats.openTickets, icon: 'msg', color: '#b45309' },
   ] : [];
 
   const TAB_LABELS = {
@@ -1482,7 +1482,7 @@ export default function SuperAdminView({ tab }) {
         <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: 16, color: 'var(--t1)' }}>
           Platform Admin <span style={{ color: 'var(--t3)', fontWeight: 600 }}>· {TAB_LABELS[tab] || ''}</span>
           {tab === 'support' && openTicketCount > 0 && (
-            <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, background: 'rgba(251,191,36,.1)', color: '#fbbf24', verticalAlign: 'middle' }}>{openTicketCount} open</span>
+            <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, background: 'rgba(251,191,36,.1)', color: '#b45309', verticalAlign: 'middle' }}>{openTicketCount} open</span>
           )}
         </h1>
         <div style={{ marginLeft: 'auto' }}>
@@ -1492,7 +1492,7 @@ export default function SuperAdminView({ tab }) {
 
       <div className="dash-page" style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        {err && <div style={{ padding: '12px 16px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 13, marginBottom: 16 }}>{err}</div>}
+        {err && <div style={{ padding: '12px 16px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{err}</div>}
         {loading && <div style={{ textAlign: 'center', padding: 40, color: 'var(--t2)', fontSize: 13 }}>Loading platform data…</div>}
 
         {!loading && tab === 'overview' && (
@@ -1543,7 +1543,7 @@ export default function SuperAdminView({ tab }) {
                       <span style={{ padding: '3px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600,
                         background: w.suspended ? 'rgba(239,68,68,.08)' : 'var(--gbg)',
                         border: `1px solid ${w.suspended ? 'rgba(239,68,68,.25)' : 'var(--gbd)'}`,
-                        color: w.suspended ? '#f87171' : 'var(--green)' }}>
+                        color: w.suspended ? '#dc2626' : 'var(--green)' }}>
                         {w.suspended ? 'Suspended' : 'Active'}
                       </span>
                     </td>
@@ -1552,7 +1552,7 @@ export default function SuperAdminView({ tab }) {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <Btn variant="outline" size="sm" onClick={() => toggleSuspend(w)}
-                        style={w.suspended ? {} : { borderColor: 'rgba(239,68,68,.35)', color: '#f87171' }}>
+                        style={w.suspended ? {} : { borderColor: 'rgba(239,68,68,.35)', color: '#dc2626' }}>
                         {w.suspended ? 'Reinstate' : 'Suspend'}
                       </Btn>
                     </td>
@@ -1585,7 +1585,7 @@ export default function SuperAdminView({ tab }) {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: 16, color: 'var(--t1)' }}>{p.name}</span>
-                        {!p.isActive && <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', color: 'var(--t3)', textTransform: 'uppercase' }}>Inactive</span>}
+                        {!p.isActive && <span style={{ fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: 'rgba(15,23,42,0.06)', color: 'var(--t3)', textTransform: 'uppercase' }}>Inactive</span>}
                       </div>
                       <span style={{ fontSize: 10.5, color: 'var(--t3)', fontWeight: 600, letterSpacing: '.05em' }}>{p.key}</span>
                     </div>
@@ -1626,7 +1626,7 @@ export default function SuperAdminView({ tab }) {
                     <span style={{ fontSize: 11, color: 'var(--t3)' }}>{p.subscriberCount ?? 0} subscriber{(p.subscriberCount ?? 0) === 1 ? '' : 's'}</span>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <Btn variant="outline" size="sm" onClick={() => setEditingPlan(p)}><I n="pencil" s={13} c="var(--t2)" /> Edit</Btn>
-                      <Btn variant="outline" size="sm" onClick={() => deletePlan(p)} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#f87171' }}><I n="trash" s={13} c="#f87171" /></Btn>
+                      <Btn variant="outline" size="sm" onClick={() => deletePlan(p)} style={{ borderColor: 'rgba(239,68,68,.35)', color: '#dc2626' }}><I n="trash" s={13} c="#dc2626" /></Btn>
                     </div>
                   </div>
                 </div>
@@ -1647,15 +1647,15 @@ export default function SuperAdminView({ tab }) {
                   <div style={{ minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)' }}>{t.subject}</p>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--t3)', textTransform: 'uppercase' }}>{t.category}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 12, background: 'rgba(15,23,42,0.05)', color: 'var(--t3)', textTransform: 'uppercase' }}>{t.category}</span>
                     </div>
                     <p style={{ fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.5, marginBottom: 6 }}>{t.message}</p>
                     <p style={{ fontSize: 11, color: 'var(--t3)' }}>{t.workspace?.name || '—'} · {new Date(t.createdAt).toLocaleString('en-IN')}</p>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end', flexShrink: 0 }}>
                     <span style={{ padding: '3px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                      background: t.status === 'OPEN' ? 'rgba(251,191,36,.1)' : t.status === 'RESOLVED' || t.status === 'CLOSED' ? 'var(--gbg)' : 'rgba(157,107,255,.1)',
-                      color: t.status === 'OPEN' ? '#fbbf24' : t.status === 'RESOLVED' || t.status === 'CLOSED' ? 'var(--green)' : '#9d6bff' }}>{t.status}</span>
+                      background: t.status === 'OPEN' ? 'rgba(251,191,36,.1)' : t.status === 'RESOLVED' || t.status === 'CLOSED' ? 'var(--gbg)' : 'rgba(124,58,237,.1)',
+                      color: t.status === 'OPEN' ? '#b45309' : t.status === 'RESOLVED' || t.status === 'CLOSED' ? 'var(--green)' : '#7c3aed' }}>{t.status}</span>
                     <div style={{ display: 'flex', gap: 6 }}>
                       {t.status !== 'IN_PROGRESS' && t.status !== 'RESOLVED' && t.status !== 'CLOSED' && <Btn variant="ghost" size="sm" onClick={() => updateTicket(t, 'IN_PROGRESS')}>Start</Btn>}
                       {t.status !== 'RESOLVED' && t.status !== 'CLOSED' && <Btn variant="outline" size="sm" onClick={() => updateTicket(t, 'RESOLVED')}>Resolve</Btn>}

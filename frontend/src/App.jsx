@@ -21,7 +21,7 @@ const CampaignAI = lazy(() => import('./pages/CampaignAI.jsx'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent.jsx'));
 
 const PageFallback = () => (
-  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#060B18' }}>
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
     <div style={{ width: 24, height: 24, border: '2px solid var(--green)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
   </div>
 );

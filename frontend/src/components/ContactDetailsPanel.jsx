@@ -35,7 +35,7 @@ const Field = ({ label, value, mono = false }) => (
 );
 
 const inputStyle = {
-  width: '100%', padding: '7px 10px', borderRadius: 7, background: 'rgba(255,255,255,0.04)',
+  width: '100%', padding: '7px 10px', borderRadius: 7, background: 'rgba(15,23,42,0.04)',
   border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12.5,
   fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box',
 };
@@ -153,7 +153,7 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
     // without this the last rows of the panel sit underneath it.
     paddingBottom: 86,
     ...(asDrawer
-      ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 60, boxShadow: '-8px 0 32px rgba(0,0,0,0.45)' }
+      ? { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 60, boxShadow: '-8px 0 32px rgba(15,23,42,0.135)' }
       : {}),
   };
 
@@ -161,7 +161,7 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
 
   return (
     <>
-      {asDrawer && <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 59 }} />}
+      {asDrawer && <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 59 }} />}
       <div style={shell}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--surf)', zIndex: 1 }}>
           <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 13.5, color: 'var(--t1)' }}>Contact Details</p>
@@ -178,13 +178,13 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
         {loading && <p style={{ padding: '24px 16px', fontSize: 12, color: 'var(--t2)', textAlign: 'center' }}>Loading…</p>}
 
         {!loading && err && !contact && (
-          <p style={{ padding: '24px 16px', fontSize: 12, color: '#f87171', textAlign: 'center' }}>{err}</p>
+          <p style={{ padding: '24px 16px', fontSize: 12, color: '#dc2626', textAlign: 'center' }}>{err}</p>
         )}
 
         {!loading && contact && (
           <>
             {err && (
-              <div style={{ margin: '10px 16px 0', padding: '8px 11px', borderRadius: 7, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 11.5 }}>{err}</div>
+              <div style={{ margin: '10px 16px 0', padding: '8px 11px', borderRadius: 7, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 11.5 }}>{err}</div>
             )}
 
             {/* identity */}
@@ -198,7 +198,7 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
               )}
               <span style={{
                 padding: '2px 9px', borderRadius: 12, fontSize: 10.5, fontWeight: 600,
-                background: contact.optedOut ? 'rgba(255,255,255,0.04)' : 'var(--gbg)',
+                background: contact.optedOut ? 'rgba(15,23,42,0.04)' : 'var(--gbg)',
                 border: `1px solid ${contact.optedOut ? 'var(--bd)' : 'var(--gbd)'}`,
                 color: contact.optedOut ? 'var(--t2)' : 'var(--green)',
               }}>
@@ -246,7 +246,7 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 9 }}>
                 {(contact.tags || []).length === 0 && <span style={{ fontSize: 11.5, color: 'var(--t3)' }}>No tags yet.</span>}
                 {(contact.tags || []).map(t => (
-                  <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 6px 2px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>
+                  <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 6px 2px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(15,23,42,0.06)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>
                     {t}
                     <button onClick={() => removeTag(t)} disabled={saving} aria-label={`Remove tag ${t}`}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--t3)', display: 'flex', padding: 0 }}>
@@ -276,11 +276,11 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
                   <span style={{ fontSize: 11.5, color: 'var(--t3)' }}>Not in any group.</span>
                 )}
                 {(contact.segments || []).map(sg => (
-                  <span key={sg.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 6px 2px 9px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${sg.color || '#9d6bff'}14`, border: `1px solid ${sg.color || '#9d6bff'}33`, color: sg.color || '#9d6bff' }}>
+                  <span key={sg.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 6px 2px 9px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${sg.color || '#7c3aed'}14`, border: `1px solid ${sg.color || '#7c3aed'}33`, color: sg.color || '#7c3aed' }}>
                     {sg.name}
                     <button onClick={() => removeFromGroup(sg.id)} disabled={saving} aria-label={`Remove from ${sg.name}`}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex', padding: 0, opacity: .7 }}>
-                      <I n="x" s={10} c={sg.color || '#9d6bff'} />
+                      <I n="x" s={10} c={sg.color || '#7c3aed'} />
                     </button>
                   </span>
                 ))}
@@ -298,7 +298,7 @@ export default function ContactDetailsPanel({ contactId, onClose, onContactUpdat
                   <p style={{ fontSize: 10.5, color: 'var(--t3)', marginBottom: 4 }}>Clusters</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {contact.clusters.map(cl => (
-                      <span key={cl.id} style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 600, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{cl.name}</span>
+                      <span key={cl.id} style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 600, background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>{cl.name}</span>
                     ))}
                   </div>
                 </div>

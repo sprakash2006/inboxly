@@ -1,6 +1,6 @@
 const fieldStyle = {
   width: '100%', padding: '9px 12px', borderRadius: 8,
-  background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)',
+  background: 'var(--surf-solid)', border: '1px solid var(--bdm)',
   color: 'var(--t1)', fontSize: 13, fontFamily: "'Plus Jakarta Sans',sans-serif",
   outline: 'none', boxSizing: 'border-box',
 };
@@ -15,11 +15,11 @@ const withFocusRing = (handler, paint) => (e) => {
 };
 
 const focusRing = (onFocus) => withFocusRing(onFocus, 'var(--gbd)');
-const blurRing = (onBlur) => withFocusRing(onBlur, 'var(--bd)');
+const blurRing = (onBlur) => withFocusRing(onBlur, 'var(--bdm)');
 
 export const FLabel = ({ children, required }) => (
   <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--t2)', letterSpacing: '.04em', marginBottom: 6 }}>
-    {children} {required && <span style={{ color: '#f87171' }}>*</span>}
+    {children} {required && <span style={{ color: '#dc2626' }}>*</span>}
   </label>
 );
 
@@ -38,9 +38,9 @@ export const FSelect = ({ value, onChange, options = [], children, disabled, pla
     style={{ ...fieldStyle, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? .6 : 1 }}
     onFocus={focusRing(onFocus)} onBlur={blurRing(onBlur)}
     {...rest}>
-    {placeholder && <option value="" style={{ background: '#1e293b', color: '#f8fafc' }}>{placeholder}</option>}
+    {placeholder && <option value="" style={{ background: '#ffffff', color: '#0f172a' }}>{placeholder}</option>}
     {options.map(o => (
-      <option key={o.value} value={o.value} style={{ background: '#1e293b', color: '#f8fafc' }}>
+      <option key={o.value} value={o.value} style={{ background: '#ffffff', color: '#0f172a' }}>
         {o.label}
       </option>
     ))}

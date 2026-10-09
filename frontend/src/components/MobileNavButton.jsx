@@ -19,7 +19,7 @@ export default function MobileNavButton() {
   if (!mobile) return null;
   return (
     <button onClick={openMobileNav} aria-label="Open navigation"
-      style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--t1)' }}>
+      style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 9, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--t1)' }}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>

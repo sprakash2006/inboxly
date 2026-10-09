@@ -11,7 +11,7 @@ import { can } from '../lib/permissions.js';
 const STAGES = [
   { key: 'QUALIFICATION', label: 'Qualification', tone: 'blue', color: '#3b82f6' },
   { key: 'NEEDS_ANALYSIS', label: 'Needs Analysis', tone: 'violet', color: '#8b5cf6' },
-  { key: 'PROPOSAL', label: 'Proposal', tone: 'amber', color: '#f59e0b' },
+  { key: 'PROPOSAL', label: 'Proposal', tone: 'amber', color: '#d97706' },
   { key: 'NEGOTIATION', label: 'Negotiation', tone: 'amber', color: '#ec4899' },
   { key: 'CLOSED_WON', label: 'Closed Won', tone: 'green', color: '#10b981' },
   { key: 'CLOSED_LOST', label: 'Closed Lost', tone: 'red', color: '#ef4444' },
@@ -48,11 +48,11 @@ const toDateInput = d => (d ? new Date(d).toISOString().slice(0, 10) : '');
 const card = { background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 'var(--rl)', boxShadow: 'var(--card-shadow)' };
 
 const ErrorBanner = ({ children, onDismiss }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#f87171', fontSize: 12.5 }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#dc2626', fontSize: 12.5 }}>
     <span>{children}</span>
     {onDismiss && (
       <button onClick={onDismiss} aria-label="Dismiss" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
-        <I n="x" s={14} c="#f87171" />
+        <I n="x" s={14} c="#dc2626" />
       </button>
     )}
   </div>
@@ -236,7 +236,7 @@ const DealDetailModal = ({ dealId, members, onClose, onSaved, onDeleted, stages 
                       : 'Note added'}
                   </div>
                   {a.feedType === 'ACTIVITY' && (
-                    <div style={{ fontSize: 12.5, color: 'var(--t1)', marginTop: 4, background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ fontSize: 12.5, color: 'var(--t1)', marginTop: 4, background: 'rgba(15,23,42,0.03)', padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(15,23,42,0.05)' }}>
                       {a.content}
                     </div>
                   )}
@@ -466,12 +466,12 @@ export default function DealsView({ initialTab }) {
                   }}
                   style={{ width: 268, flexShrink: 0, display: 'flex', flexDirection: 'column',
                     borderRadius: 'var(--rl)', padding: 10,
-                    background: isOver ? 'rgba(30,191,94,0.06)' : 'rgba(255,255,255,0.015)',
+                    background: isOver ? 'rgba(30,191,94,0.06)' : 'rgba(15,23,42,0.015)',
                     border: `1px solid ${isOver ? 'var(--gbd)' : 'var(--bd)'}`,
                     transition: 'background .15s ease, border-color .15s ease' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, padding: '2px 3px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: stageObj.color || '#38bdf8', flexShrink: 0 }} />
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: stageObj.color || '#0284c7', flexShrink: 0 }} />
                       <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--t1)' }}>{stageObj.label}</span>
                       <span style={{ fontSize: 11, color: 'var(--t3)', fontWeight: 600 }}>{items.length}</span>
                     </div>
@@ -510,7 +510,7 @@ export default function DealsView({ initialTab }) {
           <div style={{ ...card, overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)' }}>
+                <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)' }}>
                   <ColHead>Deal</ColHead>
                   <ColHead>Contact</ColHead>
                   <ColHead>Stage</ColHead>

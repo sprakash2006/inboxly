@@ -73,7 +73,7 @@ export default function Login({ onNav, mode = 'login' }) {
 
   const inp = (focused) => ({
     width: '100%', padding: '11px 14px', borderRadius: '9px', outline: 'none',
-    background: 'rgba(255,255,255,0.035)', fontFamily: "'Manrope',sans-serif",
+    background: 'rgba(15,23,42,0.035)', fontFamily: "'Manrope',sans-serif",
     fontSize: '14px', color: 'var(--t1)', transition: 'border .18s',
     border: focused ? '1px solid var(--gbd)' : '1px solid var(--bd)',
   });
@@ -88,17 +88,17 @@ export default function Login({ onNav, mode = 'login' }) {
         }
       `}</style>
       {/* Left panel */}
-      <div className="auth-brand-panel" style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '44px 52px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg,#0a0b0e 0%,#0a0f1e 60%,#0a0b0e 100%)', borderRight: '1px solid var(--bd)' }}>
+      <div className="auth-brand-panel" style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '44px 52px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(160deg,#f0fdfa 0%,#ecfeff 55%,#f5f3ff 100%)', borderRight: '1px solid var(--bd)' }}>
         {/* Same drifting aurora as the landing page, so signing in feels like
             the same product rather than a bolted-on form. */}
-        <div className="aurora-a" style={{ position: 'absolute', top: '-120px', left: '-120px', width: '460px', height: '460px', background: 'radial-gradient(circle,rgba(53,232,242,0.13) 0%,transparent 62%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+        <div className="aurora-a" style={{ position: 'absolute', top: '-120px', left: '-120px', width: '460px', height: '460px', background: 'radial-gradient(circle,rgba(13,148,136,0.13) 0%,transparent 62%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div className="aurora-b" style={{ position: 'absolute', bottom: '-90px', right: '-70px', width: '400px', height: '400px', background: 'radial-gradient(circle,rgba(14,165,233,0.10) 0%,transparent 62%)', filter: 'blur(34px)', pointerEvents: 'none' }} />
 
         <div onClick={() => onNav('landing')} style={{ display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer', position: 'relative', zIndex: 1 }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#0a0b0e" />
-              <path d="M5.5 7.5h5M5.5 10h3" stroke="#35e8f2" strokeWidth="1.3" strokeLinecap="round" />
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
+              <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.3" strokeLinecap="round" />
             </svg>
           </div>
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '17px', color: 'var(--t1)' }}>
@@ -118,12 +118,12 @@ export default function Login({ onNav, mode = 'login' }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {[
               { icon: 'send', label: 'Launch campaigns in minutes', color: 'var(--green)' },
-              { icon: 'bot', label: 'An AI agent that answers about your campaign', color: '#9d6bff' },
-              { icon: 'chart', label: 'Delivery and spend, per campaign', color: '#c4ff46' },
-              { icon: 'wflow', label: 'Workflows, forms and auto-replies', color: '#F59E0B' },
+              { icon: 'bot', label: 'An AI agent that answers about your campaign', color: '#7c3aed' },
+              { icon: 'chart', label: 'Delivery and spend, per campaign', color: '#4d7c0f' },
+              { icon: 'wflow', label: 'Workflows, forms and auto-replies', color: '#d97706' },
             ].map(f => (
               <div key={f.label} className="glass" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 13px', borderRadius: 'var(--r)' }}>
-                <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <I n={f.icon} s={15} c={f.color} />
                 </div>
                 <span style={{ fontSize: '13px', color: 'var(--t2)' }}>{f.label}</span>
@@ -136,7 +136,7 @@ export default function Login({ onNav, mode = 'login' }) {
           <p style={{ fontSize: '11px', color: 'var(--t3)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '.08em' }}>Trusted by 2,000+ businesses</p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {['Shopify', 'WooCommerce', 'Razorpay', 'HubSpot', 'Zapier'].map(b => (
-              <span key={b} style={{ fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>{b}</span>
+              <span key={b} style={{ fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>{b}</span>
             ))}
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function Login({ onNav, mode = 'login' }) {
 
       {/* Right panel */}
       <div className="auth-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 28px', position: 'relative' }}>
-        <div className="aurora-b" style={{ position: 'absolute', top: '10%', right: '-10%', width: '420px', height: '420px', background: 'radial-gradient(circle,rgba(53,232,242,0.07) 0%,transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+        <div className="aurora-b" style={{ position: 'absolute', top: '10%', right: '-10%', width: '420px', height: '420px', background: 'radial-gradient(circle,rgba(13,148,136,0.07) 0%,transparent 62%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
         <div className="glass auth-card" style={{ width: '100%', maxWidth: '420px', padding: '34px 32px', borderRadius: 'var(--rxl)', position: 'relative' }}>
           <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: '26px', color: 'var(--t1)', marginBottom: '6px' }}>
             {isRegister ? 'Create your account' : 'Sign in to your account'}
@@ -157,9 +157,9 @@ export default function Login({ onNav, mode = 'login' }) {
           </p>
 
           <button
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '11px 16px', borderRadius: '9px', background: 'rgba(255,255,255,0.035)', border: '1px solid var(--bd)', color: 'var(--t1)', fontFamily: "'Manrope',sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'background .18s, border .18s', marginBottom: '22px' }}
-            onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'var(--bdm)'; }}
-            onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.035)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '11px 16px', borderRadius: '9px', background: 'rgba(15,23,42,0.035)', border: '1px solid var(--bd)', color: 'var(--t1)', fontFamily: "'Manrope',sans-serif", fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'background .18s, border .18s', marginBottom: '22px' }}
+            onMouseOver={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.06)'; e.currentTarget.style.borderColor = 'var(--bdm)'; }}
+            onMouseOut={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.035)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}
             onClick={() => window.location.href = inviteToken ? `/api/v1/auth/google?invite=${encodeURIComponent(inviteToken)}` : '/api/v1/auth/google'}
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@ export default function Login({ onNav, mode = 'login' }) {
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {errMsg && status === 'error' && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: '#f87171' }}>
+              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: '#dc2626' }}>
                 {errMsg}
               </div>
             )}

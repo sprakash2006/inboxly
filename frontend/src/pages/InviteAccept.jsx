@@ -102,7 +102,7 @@ export default function InviteAccept() {
   const btnStyle = (primary) => ({
     width: '100%', padding: '11px', borderRadius: 9, border: primary ? 'none' : '1px solid var(--bd)',
     cursor: 'pointer', fontFamily: "'Manrope',sans-serif", fontSize: 14, fontWeight: 700,
-    color: primary ? '#0a0b0e' : 'var(--t1)', background: primary ? 'var(--green)' : 'rgba(255,255,255,0.035)',
+    color: primary ? '#0a0b0e' : 'var(--t1)', background: primary ? 'var(--green)' : 'rgba(15,23,42,0.035)',
     boxShadow: primary ? 'var(--glow)' : 'none',
   });
 
@@ -118,8 +118,8 @@ export default function InviteAccept() {
   if (state === 'invalid') {
     return shell(
       <>
-        <I n="alertt" s={28} c="#f87171" />
-        <p style={{ color: '#f87171', fontSize: 14, fontWeight: 600 }}>{error}</p>
+        <I n="alertt" s={28} c="#dc2626" />
+        <p style={{ color: '#dc2626', fontSize: 14, fontWeight: 600 }}>{error}</p>
         <button onClick={() => navigate('/login', { replace: true })} style={btnStyle(true)}>Back to sign in</button>
       </>
     );
@@ -127,7 +127,7 @@ export default function InviteAccept() {
 
   const isLink = invite?.kind === 'LINK';
   const inviteSummary = invite && (
-    <div style={{ width: '100%', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', textAlign: 'left' }}>
+    <div style={{ width: '100%', padding: '14px 16px', borderRadius: 10, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', textAlign: 'left' }}>
       <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.6 }}>
         <strong style={{ color: 'var(--t1)' }}>{invite.inviterName}</strong>
         {isLink ? ' shared a link to join ' : <> invited <strong style={{ color: 'var(--t1)' }}>{invite.email}</strong> to join </>}
@@ -144,7 +144,7 @@ export default function InviteAccept() {
   if (state === 'mismatch') {
     return shell(
       <>
-        <I n="alertc" s={28} c="#fbbf24" />
+        <I n="alertc" s={28} c="#b45309" />
         <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--t1)' }}>Wrong account</p>
         <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.6 }}>
           This invite was sent to <strong style={{ color: 'var(--t1)' }}>{invite?.email}</strong>, but you're signed in as{' '}
@@ -206,7 +206,7 @@ export default function InviteAccept() {
         </p>
       )}
       {error && (
-        <div style={{ width: '100%', padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 13, color: '#f87171' }}>
+        <div style={{ width: '100%', padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 13, color: '#dc2626' }}>
           {error}
         </div>
       )}

@@ -39,11 +39,11 @@ const td = { padding: '11px 16px', fontSize: 12.5, color: 'var(--t2)' };
 const sectionTitle = { fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, color: 'var(--t1)', margin: '20px 0 10px' };
 
 const ErrorBanner = ({ children, onDismiss }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#f87171', fontSize: 12.5 }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#dc2626', fontSize: 12.5 }}>
     <span>{children}</span>
     {onDismiss && (
       <button onClick={onDismiss} aria-label="Dismiss" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
-        <I n="x" s={14} c="#f87171" />
+        <I n="x" s={14} c="#dc2626" />
       </button>
     )}
   </div>
@@ -306,7 +306,7 @@ const LeadDetailModal = ({ leadId, members, onClose, onChanged, onDeleted }) => 
             {(lead.crmActivities || []).length === 0 && <div style={{ fontSize: 12, color: 'var(--t3)' }}>No activity yet.</div>}
             {(lead.crmActivities || []).map(a => (
               <div key={a.id} style={{ fontSize: 12.5 }}>
-                <div style={{ color: 'var(--t1)', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)' }}>{a.content}</div>
+                <div style={{ color: 'var(--t1)', background: 'rgba(15,23,42,0.03)', padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(15,23,42,0.05)' }}>{a.content}</div>
                 <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 3 }}>
                   {new Date(a.createdAt).toLocaleString('en-IN')}{a.createdByUser?.name ? ` · ${a.createdByUser.name}` : ''}
                 </div>
@@ -389,7 +389,7 @@ export default function LeadsView() {
         <div style={{ ...card, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)' }}>
+              <tr style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)' }}>
                 <th style={th}>Lead</th>
                 <th style={th}>Status</th>
                 <th style={th}>Source</th>

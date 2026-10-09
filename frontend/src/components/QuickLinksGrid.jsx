@@ -26,10 +26,10 @@ export default function QuickLinksGrid({ currentPage }) {
       {links.map(l => (
         <button key={l.id} onClick={() => go(l.nav, l.subTab)} style={{
           display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'left', padding: 16, borderRadius: 12,
-          background: 'rgba(255,255,255,0.02)', border: '1px solid var(--bd)', cursor: 'pointer', transition: 'all .15s ease',
+          background: 'rgba(15,23,42,0.02)', border: '1px solid var(--bd)', cursor: 'pointer', transition: 'all .15s ease',
         }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(53,232,242,0.06)'; e.currentTarget.style.borderColor = 'var(--gbd)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'var(--bd)'; e.currentTarget.style.transform = 'none'; }}>
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(13,148,136,0.06)'; e.currentTarget.style.borderColor = 'var(--gbd)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.02)'; e.currentTarget.style.borderColor = 'var(--bd)'; e.currentTarget.style.transform = 'none'; }}>
           <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--gbg)', border: '1px solid var(--gbd)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <I n={l.icon} s={16} c="var(--green)" />
           </div>

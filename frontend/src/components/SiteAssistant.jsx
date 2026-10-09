@@ -57,9 +57,9 @@ const Bubble = ({ role, content, error }) => {
         maxWidth: '86%',
         padding: '10px 13px',
         borderRadius: mine ? '12px 12px 3px 12px' : '12px 12px 12px 3px',
-        background: mine ? 'var(--green)' : 'rgba(255,255,255,0.045)',
+        background: mine ? 'var(--green)' : 'rgba(15,23,42,0.045)',
         border: mine ? 'none' : `1px solid ${error ? 'rgba(248,113,113,0.32)' : 'var(--bd)'}`,
-        color: mine ? '#08090c' : error ? '#f87171' : 'var(--t1)',
+        color: mine ? '#08090c' : error ? '#dc2626' : 'var(--t1)',
         fontSize: 13.5,
         lineHeight: 1.62,
         // The model answers in plain prose but uses "- " lists, and its line
@@ -79,7 +79,7 @@ const Typing = () => (
   <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
     <div style={{
       padding: '12px 15px', borderRadius: '12px 12px 12px 3px',
-      background: 'rgba(255,255,255,0.045)', border: '1px solid var(--bd)',
+      background: 'rgba(15,23,42,0.045)', border: '1px solid var(--bd)',
       display: 'flex', gap: 4, alignItems: 'center',
     }}>
       {/* .dot-typing is already in index.css, used by the landing hero. */}
@@ -217,7 +217,7 @@ export default function SiteAssistant() {
           width: 52, height: 52, borderRadius: '50%',
           background: 'var(--green)', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 30px rgba(53,232,242,0.38), inset 0 1px 0 rgba(255,255,255,0.25)',
+          boxShadow: '0 8px 30px rgba(13,148,136,0.38), inset 0 1px 0 rgba(15,23,42,0.25)',
           transition: 'transform .18s ease',
         }}
         onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
@@ -242,21 +242,21 @@ export default function SiteAssistant() {
           width: 386, maxWidth: 'calc(100vw - 32px)',
           height: 560, maxHeight: 'calc(100vh - 44px)',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          background: 'var(--surf-solid, #0c0d11)',
+          background: 'var(--surf-solid, #ffffff)',
           border: '1px solid var(--glass-bd)',
           borderRadius: 'var(--rxl)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 24px 70px rgba(0,0,0,0.62)',
+          boxShadow: 'inset 0 1px 0 rgba(15,23,42,0.08), 0 24px 70px rgba(15,23,42,0.186)',
         }}
       >
         {/* header */}
         <header style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '13px 14px', borderBottom: '1px solid var(--bd)',
-          background: 'rgba(255,255,255,0.025)', flexShrink: 0,
+          background: 'rgba(15,23,42,0.025)', flexShrink: 0,
         }}>
           <div style={{
             width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-            background: 'rgba(53,232,242,0.14)', border: '1px solid var(--gbd, rgba(53,232,242,0.3))',
+            background: 'rgba(13,148,136,0.14)', border: '1px solid var(--gbd, rgba(13,148,136,0.3))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <I n="bot" s={15} c="var(--green)" />
@@ -318,7 +318,7 @@ export default function SiteAssistant() {
         <div style={{
           flexShrink: 0, borderTop: '1px solid var(--bd)', padding: 11,
           display: 'flex', gap: 8, alignItems: 'flex-end',
-          background: 'rgba(255,255,255,0.02)',
+          background: 'rgba(15,23,42,0.02)',
         }}>
           <textarea
             ref={inputRef}
@@ -332,7 +332,7 @@ export default function SiteAssistant() {
             style={{
               flex: 1, resize: 'none', minHeight: 38, maxHeight: 110,
               padding: '9px 12px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)',
+              background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)',
               color: 'var(--t1)', fontSize: 13.5, lineHeight: 1.5,
               fontFamily: "'Manrope',sans-serif", outline: 'none',
             }}
@@ -343,7 +343,7 @@ export default function SiteAssistant() {
             aria-label="Send question"
             style={{
               flexShrink: 0, width: 38, height: 38, borderRadius: 10, border: 'none',
-              background: draft.trim() && !sending ? 'var(--green)' : 'rgba(255,255,255,0.06)',
+              background: draft.trim() && !sending ? 'var(--green)' : 'rgba(15,23,42,0.06)',
               cursor: draft.trim() && !sending ? 'pointer' : 'not-allowed',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background .15s ease',
@@ -366,17 +366,17 @@ const ASSISTANT_CSS = `
     cursor: pointer; transition: background .15s, border-color .15s;
   }
   .cfp-assistant-icon:hover:not(:disabled) {
-    background: rgba(255,255,255,0.06); border-color: var(--bd);
+    background: rgba(15,23,42,0.06); border-color: var(--bd);
   }
   .cfp-assistant-suggestion {
     text-align: left; padding: 9px 12px; border-radius: 9px;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--bd);
+    background: rgba(15,23,42,0.03); border: 1px solid var(--bd);
     color: var(--t2); font-size: 12.5px; line-height: 1.45; cursor: pointer;
     font-family: 'Manrope', sans-serif;
     transition: background .15s, color .15s, border-color .15s;
   }
   .cfp-assistant-suggestion:hover {
-    background: rgba(53,232,242,0.08); border-color: var(--gbd, rgba(53,232,242,0.3)); color: var(--t1);
+    background: rgba(13,148,136,0.08); border-color: var(--gbd, rgba(13,148,136,0.3)); color: var(--t1);
   }
   /* On a phone the panel takes the screen: a 386px card floating over a
      360px viewport is just a broken layout with a shadow. */

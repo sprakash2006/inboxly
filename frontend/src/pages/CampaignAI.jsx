@@ -47,7 +47,7 @@ const SHELL = { maxWidth: 1120, margin: '0 auto', padding: '0 clamp(18px,4vw,32p
 // ─── hero ────────────────────────────────────────────────────────────────────
 
 const Chip = ({ children }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, fontWeight: 600, color: 'var(--t2)', padding: '7px 13px', borderRadius: 100, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)' }}>
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, fontWeight: 600, color: 'var(--t2)', padding: '7px 13px', borderRadius: 100, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)' }}>
     <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)', flexShrink: 0 }} />
     {children}
   </span>
@@ -69,15 +69,15 @@ const GroundedDemo = () => {
         </div>
       </div>
 
-      <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 12, background: 'rgba(6,9,16,0.55)' }}>
+      <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 12, background: '#efeae2' }}>
         {/* the campaign that was sent */}
-        <div style={{ alignSelf: 'flex-start', maxWidth: '92%', borderRadius: '4px 14px 14px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', padding: '11px 13px' }}>
+        <div style={{ alignSelf: 'flex-start', maxWidth: '92%', borderRadius: '4px 14px 14px 14px', background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', padding: '11px 13px' }}>
           <p style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.45, color: 'var(--t1)' }}>{d.campaign}</p>
           <div style={{ marginTop: 9, paddingTop: 8, borderTop: '1px solid var(--bd)', textAlign: 'center', color: 'var(--green)', fontWeight: 700, fontSize: 12.5 }}>{d.cta}</div>
         </div>
 
         {/* what the customer asked */}
-        <div style={{ alignSelf: 'flex-end', maxWidth: '84%', borderRadius: '14px 4px 14px 14px', background: 'rgba(53,232,242,0.14)', border: '1px solid var(--gbd)', padding: '9px 12px' }}>
+        <div style={{ alignSelf: 'flex-end', maxWidth: '84%', borderRadius: '14px 4px 14px 14px', background: 'rgba(13,148,136,0.14)', border: '1px solid var(--gbd)', padding: '9px 12px' }}>
           <p style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--t1)' }}>{d.question}</p>
         </div>
 
@@ -86,12 +86,12 @@ const GroundedDemo = () => {
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 7 }}>
             <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: 'var(--lime)', fontWeight: 600 }}>✓ GROUNDED IN CAMPAIGN</span>
             {d.facts.map(([k, v]) => (
-              <span key={k} style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.06em', padding: '2px 7px', borderRadius: 5, background: 'rgba(53,232,242,0.10)', border: '1px solid var(--gbd)', color: 'var(--t2)' }}>
+              <span key={k} style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.06em', padding: '2px 7px', borderRadius: 5, background: 'rgba(13,148,136,0.10)', border: '1px solid var(--gbd)', color: 'var(--t2)' }}>
                 <span style={{ color: 'var(--green)', fontWeight: 700 }}>{k}</span> {v}
               </span>
             ))}
           </div>
-          <div style={{ borderRadius: '4px 14px 14px 14px', background: 'rgba(53,232,242,0.06)', border: '1px solid var(--gbd)', padding: '11px 13px' }}>
+          <div style={{ borderRadius: '4px 14px 14px 14px', background: 'rgba(13,148,136,0.06)', border: '1px solid var(--gbd)', padding: '11px 13px' }}>
             <p style={{ fontSize: 12.5, lineHeight: 1.55, color: 'var(--t1)' }}>{d.answer}</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ const Comparison = () => {
               page scroll sideways on a phone. */}
           <div style={{ overflowX: 'auto' }}>
             <Glass lit={false} style={{ borderRadius: 'var(--rxl)', overflow: 'hidden', minWidth: 560 }}>
-              <div className="ca-row" style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)' }}>
+              <div className="ca-row" style={{ borderBottom: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)' }}>
                 {columns.map((c, i) => (
                   <div key={c} style={{ ...cell, fontFamily: MONO, fontSize: 10, letterSpacing: '.13em', textTransform: 'uppercase', fontWeight: 600, color: i === 1 ? 'var(--green)' : 'var(--t3)' }}>{c}</div>
                 ))}
@@ -281,7 +281,7 @@ const Limits = () => (
         {CAMPAIGN_AI.limits.map((text, i) => (
           <Reveal key={text} delay={(i % 2) * 70}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '16px 18px', borderRadius: 'var(--rl)', background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.20)', height: '100%' }}>
-              <I n="alertt" s={16} c="#fbbf24" />
+              <I n="alertt" s={16} c="#b45309" />
               <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--t2)' }}>{text}</p>
             </div>
           </Reveal>
@@ -354,7 +354,7 @@ const Related = () => (
           {CAMPAIGN_AI.related.map(r => (
             <a key={r} href={RELATED_HREF[r] || '/'}
               onClick={e => { e.preventDefault(); navigate(RELATED_HREF[r] || '/'); }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 600, color: 'var(--t2)', textDecoration: 'none', padding: '10px 16px', borderRadius: 100, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', transition: 'all .15s' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 600, color: 'var(--t2)', textDecoration: 'none', padding: '10px 16px', borderRadius: 100, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', transition: 'all .15s' }}
               onMouseOver={e => { e.currentTarget.style.color = 'var(--t1)'; e.currentTarget.style.borderColor = 'var(--gbd)'; }}
               onMouseOut={e => { e.currentTarget.style.color = 'var(--t2)'; e.currentTarget.style.borderColor = 'var(--bd)'; }}>
               {r} <I n="arrow" s={12} c="currentColor" />

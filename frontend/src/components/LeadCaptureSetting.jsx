@@ -13,14 +13,14 @@ const Switch = ({ on, onToggle, disabled }) => (
     onKeyDown={(e) => { if (!disabled && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onToggle(); } }}
     style={{
       width: 38, height: 21, borderRadius: 20, flexShrink: 0, position: 'relative',
-      background: on ? 'var(--green)' : 'rgba(255,255,255,0.1)',
+      background: on ? 'var(--green)' : 'rgba(15,23,42,0.1)',
       border: `1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}`,
       cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
       transition: 'background .2s',
     }}>
     <div style={{
       position: 'absolute', top: 2, left: on ? 19 : 2, width: 15, height: 15, borderRadius: '50%',
-      background: on ? '#06210F' : 'var(--t3)', transition: 'left .2s',
+      background: on ? '#ffffff' : 'var(--t3)', transition: 'left .2s',
     }} />
   </div>
 );
@@ -62,7 +62,7 @@ export const LeadCaptureSetting = ({ isAdmin }) => {
   return (
     <div>
       {err && (
-        <div style={{ marginBottom: 12, padding: '9px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#f87171', fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '9px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#dc2626', fontSize: 12 }}>
           {err}
         </div>
       )}
@@ -89,7 +89,7 @@ export const LeadCaptureSetting = ({ isAdmin }) => {
 
       {on && (
         <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--t3)' }}>
-          <I n="alertc" s={13} c="#f59e0b" />
+          <I n="alertc" s={13} c="#d97706" />
           <span>
             Replies to campaigns will start appearing under Leads. Existing conversations are not
             backfilled — only replies received from now on are captured.

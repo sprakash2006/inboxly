@@ -277,7 +277,7 @@ const CATEGORY_ICONS = {
   'Accounting Software':     'file',
 };
 
-const LOGO_COLORS = ['#35e8f2', '#9d6bff', '#c4ff46', '#F59E0B', '#F472B6', '#c4ff46', '#60A5FA', '#FB923C'];
+const LOGO_COLORS = ['#0d9488', '#7c3aed', '#4d7c0f', '#d97706', '#db2777', '#4d7c0f', '#2563eb', '#ea580c'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getWorkspaceId() {
@@ -312,8 +312,8 @@ function FieldInput({ field, value, onChange }) {
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={field.placeholder}
-          style={{ width: '100%', padding: field.password ? '9px 36px 9px 12px' : '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
-          onFocus={e => e.target.style.borderColor = 'rgba(53,232,242,0.5)'}
+          style={{ width: '100%', padding: field.password ? '9px 36px 9px 12px' : '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+          onFocus={e => e.target.style.borderColor = 'rgba(13,148,136,0.5)'}
           onBlur={e => e.target.style.borderColor = 'var(--bd)'}
         />
         {field.password && (
@@ -388,7 +388,7 @@ function ConnectModal({ intg, onClose, onSave }) {
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 480, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -397,7 +397,7 @@ function ConnectModal({ intg, onClose, onSave }) {
             <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Connect {intg.name}</p>
             <p style={{ fontSize: 11.5, color: 'var(--t2)', marginTop: 2 }}>{intg.category}</p>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
@@ -425,7 +425,7 @@ function ConnectModal({ intg, onClose, onSave }) {
                   You'll be redirected to {cfg.provider} to grant Inboxly access to your account. No passwords are stored — only an OAuth token.
                 </p>
               </div>
-              <div style={{ width: '100%', padding: '12px 16px', borderRadius: 10, background: 'rgba(53,232,242,0.06)', border: '1px solid var(--gbd)', display: 'flex', gap: 10, textAlign: 'left', alignItems: 'flex-start' }}>
+              <div style={{ width: '100%', padding: '12px 16px', borderRadius: 10, background: 'rgba(13,148,136,0.06)', border: '1px solid var(--gbd)', display: 'flex', gap: 10, textAlign: 'left', alignItems: 'flex-start' }}>
                 <I n="shield" s={16} c="var(--green)" />
                 <p style={{ fontSize: 12, color: 'var(--t2)', lineHeight: 1.6 }}>
                   We only request the minimum permissions needed. You can revoke access from your {cfg.provider} account settings at any time.
@@ -436,18 +436,18 @@ function ConnectModal({ intg, onClose, onSave }) {
 
           {cfg.type === 'webhook' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(53,232,242,0.06)', border: '1px solid var(--gbd)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(13,148,136,0.06)', border: '1px solid var(--gbd)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <I n="alertc" s={16} c="var(--green)" />
                 <p style={{ fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.65 }}>{cfg.hint}</p>
               </div>
               <div>
                 <p style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--t2)', marginBottom: 8 }}>Your Webhook URL</p>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <code style={{ flex: 1, padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 11.5, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <code style={{ flex: 1, padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 11.5, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {wUrl}
                   </code>
                   <button onClick={copyUrl}
-                    style={{ padding: '9px 14px', borderRadius: 8, background: copied ? 'rgba(53,232,242,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${copied ? 'var(--gbd)' : 'var(--bd)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: copied ? 'var(--green)' : 'var(--t2)', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', transition: 'all .2s' }}>
+                    style={{ padding: '9px 14px', borderRadius: 8, background: copied ? 'rgba(13,148,136,0.15)' : 'rgba(15,23,42,0.05)', border: `1px solid ${copied ? 'var(--gbd)' : 'var(--bd)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: copied ? 'var(--green)' : 'var(--t2)', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', transition: 'all .2s' }}>
                     <I n={copied ? 'check' : 'copy'} s={13} c={copied ? 'var(--green)' : 'var(--t2)'} />
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
@@ -461,12 +461,12 @@ function ConnectModal({ intg, onClose, onSave }) {
 
           {cfg.type === 'info' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)' }}>
+              <div style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)' }}>
                 <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.65 }}>{cfg.message}</p>
               </div>
               {cfg.linkUrl && (
                 <a href={cfg.linkUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 14px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                   <I n="globe" s={14} c="var(--t2)" />
                   {cfg.linkLabel}
                   <I n="arrow" s={13} c="var(--t3)" />
@@ -478,14 +478,14 @@ function ConnectModal({ intg, onClose, onSave }) {
 
         {/* Footer */}
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Cancel
           </button>
           {cfg.type !== 'info' && (
             <button
               onClick={handleSave}
               disabled={!canSave() || saving}
-              style={{ padding: '8px 20px', borderRadius: 8, background: canSave() && !saving ? 'var(--green)' : 'rgba(53,232,242,0.3)', border: '1px solid var(--gbd)', color: '#08090c', fontSize: 13, fontWeight: 700, cursor: canSave() && !saving ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 7, transition: 'opacity .15s', boxShadow: canSave() && !saving ? 'var(--glow)' : 'none' }}>
+              style={{ padding: '8px 20px', borderRadius: 8, background: canSave() && !saving ? 'var(--green)' : 'rgba(13,148,136,0.3)', border: '1px solid var(--gbd)', color: '#08090c', fontSize: 13, fontWeight: 700, cursor: canSave() && !saving ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 7, transition: 'opacity .15s', boxShadow: canSave() && !saving ? 'var(--glow)' : 'none' }}>
               {saving ? (
                 <><span style={{ width: 14, height: 14, border: '2px solid rgba(6,10,16,0.3)', borderTopColor: '#08090c', borderRadius: '50%', display: 'inline-block', animation: 'spin .6s linear infinite' }} />Connecting…</>
               ) : (
@@ -502,7 +502,7 @@ function ConnectModal({ intg, onClose, onSave }) {
 // ─── Upgrade Modal (paid integration, plan doesn't include it) ────────────────
 function UpgradeModal({ intg, onClose }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', gap: 14 }}>
           <LogoBadge name={intg.name} size={36} />
@@ -510,20 +510,20 @@ function UpgradeModal({ intg, onClose }) {
             <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Upgrade to connect {intg.name}</p>
             <p style={{ fontSize: 11.5, color: 'var(--t2)', marginTop: 2 }}>{intg.category}</p>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
         <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <I n="sparkl" s={16} c="#fbbf24" />
+            <I n="sparkl" s={16} c="#b45309" />
             <p style={{ fontSize: 12.5, color: 'var(--t2)', lineHeight: 1.65 }}>
               {intg.name} is a paid integration and isn't included in your current plan. Upgrade to Pro to unlock it and every other paid integration.
             </p>
           </div>
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Not now
           </button>
           <button onClick={() => window.dispatchEvent(new CustomEvent('app:nav', { detail: 'payments' }))}
@@ -541,7 +541,7 @@ function UpgradeModal({ intg, onClose }) {
 function InfoModal({ intg, isConnected, locked, onClose, onConnectClick, onUpgradeClick }) {
   const catIcon = CATEGORY_ICONS[intg.category] || 'plug';
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,12,0.78)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: 500, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -549,7 +549,7 @@ function InfoModal({ intg, isConnected, locked, onClose, onConnectClick, onUpgra
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>{intg.name}</p>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: intg.pricing === 'free' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${intg.pricing === 'free' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: intg.pricing === 'free' ? 'var(--green)' : '#fbbf24' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: intg.pricing === 'free' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${intg.pricing === 'free' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: intg.pricing === 'free' ? 'var(--green)' : '#b45309' }}>
                 {intg.pricing}
               </span>
               {isConnected && (
@@ -563,7 +563,7 @@ function InfoModal({ intg, isConnected, locked, onClose, onConnectClick, onUpgra
               <span style={{ fontSize: 11, color: 'var(--t3)' }}>{intg.category}</span>
             </div>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Close" onClick={onClose} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <I n="x" s={12} c="var(--t2)" />
           </button>
         </div>
@@ -586,7 +586,7 @@ function InfoModal({ intg, isConnected, locked, onClose, onConnectClick, onUpgra
             </div>
           </div>
 
-          <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--bd)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(15,23,42,0.02)', border: '1px solid var(--bd)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <I n="alertc" s={15} c="var(--t3)" />
             <p style={{ fontSize: 12, color: 'var(--t3)', lineHeight: 1.6 }}>
               {intg.pricing === 'paid'
@@ -600,18 +600,18 @@ function InfoModal({ intg, isConnected, locked, onClose, onConnectClick, onUpgra
 
         {/* Footer */}
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--bd)', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
             Close
           </button>
           {!isConnected && locked && (
             <button onClick={onUpgradeClick}
-              style={{ padding: '8px 20px', borderRadius: 8, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
-              <I n="sparkl" s={13} c="#fbbf24" />
+              style={{ padding: '8px 20px', borderRadius: 8, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#b45309', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <I n="sparkl" s={13} c="#b45309" />
               Upgrade to Connect
             </button>
           )}
           {!isConnected && isUnavailable(intg) && (
-            <span style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)', fontSize: 13, fontWeight: 600 }}>
               Not available yet
             </span>
           )}
@@ -633,7 +633,7 @@ function IntegrationCard({ intg, isConnected, locked, onAction, onDisconnect }) 
   const catIcon = CATEGORY_ICONS[intg.category] || 'plug';
   return (
     <div style={{ ...card, padding: 18, display: 'flex', flexDirection: 'column', gap: 13, transition: 'border-color .15s', position: 'relative' }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = isConnected ? 'var(--gbd)' : 'rgba(53,232,242,0.3)'}
+      onMouseEnter={e => e.currentTarget.style.borderColor = isConnected ? 'var(--gbd)' : 'rgba(13,148,136,0.3)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--bd)'}
     >
       {isConnected && (
@@ -647,7 +647,7 @@ function IntegrationCard({ intg, isConnected, locked, onAction, onDisconnect }) 
         <div style={{ flex: 1, minWidth: 0, paddingRight: isConnected ? 80 : 0 }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)' }}>{intg.name}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: intg.pricing === 'free' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${intg.pricing === 'free' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: intg.pricing === 'free' ? 'var(--green)' : '#fbbf24' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: intg.pricing === 'free' ? 'var(--gbg)' : 'rgba(245,158,11,0.1)', border: `1px solid ${intg.pricing === 'free' ? 'var(--gbd)' : 'rgba(245,158,11,0.3)'}`, color: intg.pricing === 'free' ? 'var(--green)' : '#b45309' }}>
               {intg.pricing}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--t3)' }}>
@@ -665,7 +665,7 @@ function IntegrationCard({ intg, isConnected, locked, onAction, onDisconnect }) 
           if (a === 'Connect' && isUnavailable(intg)) {
             return (
               <span key={a} title="This integration is not available yet"
-                style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
+                style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t3)' }}>
                 Coming soon
               </span>
             );
@@ -674,12 +674,12 @@ function IntegrationCard({ intg, isConnected, locked, onAction, onDisconnect }) 
           const isLockedConnect = isPrimary && locked;
           return (
             <button key={a} onClick={() => onAction(a, intg)}
-              style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'opacity .15s, background .15s', background: isLockedConnect ? 'rgba(245,158,11,0.12)' : isPrimary ? 'var(--green)' : 'rgba(255,255,255,0.05)', color: isLockedConnect ? '#fbbf24' : isPrimary ? '#08090c' : 'var(--t2)', border: isLockedConnect ? '1px solid rgba(245,158,11,0.3)' : isPrimary ? '1px solid var(--gbd)' : '1px solid var(--bd)', boxShadow: isPrimary && !isLockedConnect ? 'var(--glow)' : 'none' }}
+              style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'opacity .15s, background .15s', background: isLockedConnect ? 'rgba(245,158,11,0.12)' : isPrimary ? 'var(--green)' : 'rgba(15,23,42,0.05)', color: isLockedConnect ? '#b45309' : isPrimary ? '#08090c' : 'var(--t2)', border: isLockedConnect ? '1px solid rgba(245,158,11,0.3)' : isPrimary ? '1px solid var(--gbd)' : '1px solid var(--bd)', boxShadow: isPrimary && !isLockedConnect ? 'var(--glow)' : 'none' }}
               onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
               {a === 'Watch Video' && <I n="play" s={11} c="var(--t2)" />}
-              {isLockedConnect && <I n="sparkl" s={11} c="#fbbf24" />}
+              {isLockedConnect && <I n="sparkl" s={11} c="#b45309" />}
               {isPrimary && !isLockedConnect && <I n="plug" s={11} c="#08090c" />}
               {isLockedConnect ? 'Upgrade' : a}
             </button>
@@ -687,11 +687,11 @@ function IntegrationCard({ intg, isConnected, locked, onAction, onDisconnect }) 
         })}
         {isConnected && (
           <button onClick={() => onDisconnect(connectionKey(intg))}
-            style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', display: 'flex', alignItems: 'center', gap: 5, transition: 'opacity .15s' }}
+            style={{ padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', color: '#dc2626', display: 'flex', alignItems: 'center', gap: 5, transition: 'opacity .15s' }}
             onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
-            <I n="ban" s={11} c="#f87171" />
+            <I n="ban" s={11} c="#dc2626" />
             Disconnect
           </button>
         )}
@@ -867,7 +867,7 @@ export default function IntegrationsView() {
             Connect your favourite apps · <span style={{ color: 'var(--green)', fontWeight: 600 }}>{connectedCount} connected</span>
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--bd)', width: 220 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', width: 220 }}>
           <I n="search" s={13} c="var(--t2)" />
           <input
             value={search}
@@ -887,21 +887,21 @@ export default function IntegrationsView() {
 
         {loadError && (
           <div style={{ padding: '11px 15px', borderRadius: 8, border: '1px solid rgba(239,68,68,.25)', background: 'rgba(239,68,68,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <span style={{ fontSize: 12.5, color: '#f87171' }}>{loadError}</span>
-            <button onClick={loadAll} style={{ padding: '5px 12px', borderRadius: 7, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
+            <span style={{ fontSize: 12.5, color: '#dc2626' }}>{loadError}</span>
+            <button onClick={loadAll} style={{ padding: '5px 12px', borderRadius: 7, background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
               Retry
             </button>
           </div>
         )}
         {oauthBanner && (
           <div style={{ padding: '11px 15px', borderRadius: 8, border: `1px solid ${oauthBanner.error ? 'rgba(239,68,68,.25)' : 'var(--gbd)'}`, background: oauthBanner.error ? 'rgba(239,68,68,.06)' : 'var(--gbg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12.5, color: oauthBanner.error ? '#f87171' : 'var(--green)' }}>{oauthBanner.error || oauthBanner.ok}</span>
+            <span style={{ fontSize: 12.5, color: oauthBanner.error ? '#dc2626' : 'var(--green)' }}>{oauthBanner.error || oauthBanner.ok}</span>
             <span onClick={() => setOauthBanner(null)} style={{ cursor: 'pointer', color: 'var(--t3)', fontSize: 16, lineHeight: 1 }}>×</span>
           </div>
         )}
         {saveError && (
           <div style={{ padding: '11px 15px', borderRadius: 8, border: '1px solid rgba(239,68,68,.25)', background: 'rgba(239,68,68,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12.5, color: '#f87171' }}>{saveError}</span>
+            <span style={{ fontSize: 12.5, color: '#dc2626' }}>{saveError}</span>
             <span onClick={() => setSaveError(null)} style={{ cursor: 'pointer', color: 'var(--t3)', fontSize: 16, lineHeight: 1 }}>×</span>
           </div>
         )}
@@ -913,7 +913,7 @@ export default function IntegrationsView() {
             const count = cat === 'All' ? INTEGRATIONS.length : INTEGRATIONS.filter(i => i.category === cat).length;
             return (
               <button key={cat} onClick={() => setActiveCategory(cat)}
-                style={{ padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: on ? 700 : 500, cursor: 'pointer', transition: 'all .15s', background: on ? 'var(--green)' : 'rgba(255,255,255,0.04)', color: on ? '#08090c' : 'var(--t2)', border: on ? '1px solid var(--gbd)' : '1px solid var(--bd)' }}>
+                style={{ padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: on ? 700 : 500, cursor: 'pointer', transition: 'all .15s', background: on ? 'var(--green)' : 'rgba(15,23,42,0.04)', color: on ? '#08090c' : 'var(--t2)', border: on ? '1px solid var(--gbd)' : '1px solid var(--bd)' }}>
                 {cat}
                 <span style={{ marginLeft: 5, opacity: 0.65, fontSize: 11 }}>{count}</span>
               </button>
@@ -931,8 +931,8 @@ export default function IntegrationsView() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
             {INTEGRATIONS.filter(i => i.pricing === 'free').length} Free
           </span>
-          <span style={{ fontSize: 11, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', display: 'inline-block' }} />
+          <span style={{ fontSize: 11, color: '#b45309', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#b45309', display: 'inline-block' }} />
             {INTEGRATIONS.filter(i => i.pricing === 'paid').length} Paid
           </span>
         </div>

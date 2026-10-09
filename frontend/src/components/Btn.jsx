@@ -17,22 +17,22 @@ const variantStyle = (variant, h, disabled) => {
     // ink — its most repeated single element.
     case 'primary': return {
       background: h ? 'var(--grad-cta-hot)' : 'var(--grad-cta)', color: 'var(--ink)',
-      boxShadow: h ? '0 6px 24px rgba(53,232,242,0.32), inset 0 1px 0 rgba(255,255,255,0.28)'
-                   : 'inset 0 1px 0 rgba(255,255,255,0.22)',
+      boxShadow: h ? '0 6px 20px rgba(13,148,136,0.28), inset 0 1px 0 rgba(255,255,255,0.4)'
+                   : '0 1px 2px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.35)',
       transform: h && !disabled ? 'translateY(-1px)' : 'none',
     };
     case 'ghost': return {
-      background: h ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
-      color: 'var(--t1)', border: '1px solid var(--bd)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+      background: h ? 'var(--surf2)' : 'var(--surf-solid)',
+      color: 'var(--t1)', border: '1px solid var(--bdm)',
+      boxShadow: '0 1px 2px rgba(15,23,42,0.05)',
     };
     case 'outline': return {
-      background: h ? 'rgba(255,255,255,0.04)' : 'transparent',
+      background: h ? 'rgba(15,23,42,0.04)' : 'transparent',
       color: 'var(--t2)', border: '1px solid var(--bd)',
     };
     case 'danger': return {
       background: h ? 'rgba(239,68,68,0.24)' : 'rgba(239,68,68,0.14)',
-      color: '#fca5a5', border: '1px solid rgba(239,68,68,0.45)',
+      color: '#dc2626', border: '1px solid rgba(239,68,68,0.45)',
     };
     default: return {};
   }

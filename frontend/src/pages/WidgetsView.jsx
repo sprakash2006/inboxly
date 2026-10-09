@@ -21,7 +21,7 @@ const TYPES = [
 ];
 
 const inputBase = {
-  width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)',
+  width: '100%', padding: '9px 12px', borderRadius: 8, background: 'rgba(15,23,42,0.04)',
   border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 13,
   fontFamily: "'Manrope',sans-serif", outline: 'none', boxSizing: 'border-box',
 };
@@ -99,7 +99,7 @@ const Preview = ({ form, widgetId }) => {
 
   const c = form.config;
   const width = c.size === 'small' ? 300 : c.size === 'large' ? 360 : 330;
-  const accent = c.primaryColor || '#35e8f2';
+  const accent = c.primaryColor || '#0d9488';
   const showAi = form.type !== 'WHATSAPP';
   const showWa = form.type !== 'AI';
 
@@ -114,11 +114,11 @@ const Preview = ({ form, widgetId }) => {
         alignItems: c.position === 'bottom-left' ? 'flex-start' : 'flex-end',
         justifyContent: 'flex-end', gap: 10,
       }}>
-        <div style={{ width, maxWidth: '100%', background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 8px 28px rgba(0,0,0,.16)' }}>
+        <div style={{ width, maxWidth: '100%', background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 8px 28px rgba(15,23,42,0.048)' }}>
           <div style={{ background: accent, color: '#fff', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 9 }}>
             {c.logoUrl
-              ? <img src={c.logoUrl} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', background: 'rgba(255,255,255,.2)' }} />
-              : <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,.25)' }} />}
+              ? <img src={c.logoUrl} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', background: 'rgba(15,23,42,.2)' }} />
+              : <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,23,42,.25)' }} />}
             <div style={{ minWidth: 0 }}>
               <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.title || 'Chat with us'}</p>
               <p style={{ fontSize: 10.5, opacity: .85 }}>{c.businessName || 'Your business'}</p>
@@ -186,7 +186,7 @@ const Preview = ({ form, widgetId }) => {
           <p style={{ textAlign: 'center', fontSize: 9.5, color: '#9aa0a6', padding: 5 }}>Powered by Inboxly</p>
         </div>
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 16px', borderRadius: 999, background: accent, color: '#fff', fontSize: 13, fontWeight: 600, boxShadow: '0 5px 18px rgba(0,0,0,.2)' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 16px', borderRadius: 999, background: accent, color: '#fff', fontSize: 13, fontWeight: 600, boxShadow: '0 5px 18px rgba(15,23,42,0.06)' }}>
           {c.buttonText || 'Chat with us'}
         </div>
       </div>
@@ -283,7 +283,7 @@ const KnowledgePanel = () => {
       </p>
 
       {status && (
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', padding: '10px 13px', borderRadius: 9, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bd)', marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', padding: '10px 13px', borderRadius: 9, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', marginBottom: 14 }}>
           {[['Sources', status.sources], ['Passages indexed', status.chunks], ['Semantic search', status.semantic ? 'On' : 'Off (keyword only)']].map(([k, v]) => (
             <div key={k}>
               <p style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>{k}</p>
@@ -291,14 +291,14 @@ const KnowledgePanel = () => {
             </div>
           ))}
           {!status.ready && (
-            <p style={{ fontSize: 11.5, color: '#fbbf24', alignSelf: 'center' }}>
+            <p style={{ fontSize: 11.5, color: '#b45309', alignSelf: 'center' }}>
               Nothing indexed yet — the assistant cannot answer until you add a source and re-index.
             </p>
           )}
         </div>
       )}
 
-      {err && <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12, marginBottom: 12 }}>{err}</div>}
+      {err && <div style={{ padding: '9px 12px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12, marginBottom: 12 }}>{err}</div>}
       {msg && <div style={{ padding: '9px 12px', borderRadius: 8, background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--green)', fontSize: 12, marginBottom: 12 }}>{msg}</div>}
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
@@ -306,7 +306,7 @@ const KnowledgePanel = () => {
           <button key={id} type="button" onClick={() => setTab(id)}
             style={{ padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, fontFamily: "'Manrope',sans-serif",
                      border: `1px solid ${tab === id ? 'var(--gbd)' : 'var(--bd)'}`,
-                     background: tab === id ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                     background: tab === id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                      color: tab === id ? 'var(--green)' : 'var(--t2)' }}>{label}</button>
         ))}
       </div>
@@ -352,11 +352,11 @@ const KnowledgePanel = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {sources.map(s => (
-            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)' }}>
+            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)' }}>
               <I n={s.kind === 'url' ? 'globe' : s.kind === 'file' ? 'file' : 'note'} s={14} c="var(--t2)" />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 12.5, color: 'var(--t1)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</p>
-                <p style={{ fontSize: 10.5, color: s.status === 'ERROR' ? '#f87171' : 'var(--t3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 10.5, color: s.status === 'ERROR' ? '#dc2626' : 'var(--t3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {s.status === 'ERROR' ? s.error : `${s.chars.toLocaleString()} characters${s.url ? ` · ${s.url}` : ''}`}
                 </p>
               </div>
@@ -367,8 +367,8 @@ const KnowledgePanel = () => {
                 </button>
               )}
               <button onClick={() => act(`/widgets/knowledge/${s.id}`, 'DELETE')} disabled={busy} title="Remove"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', display: 'flex', padding: 3 }}>
-                <I n="trash" s={13} c="#f87171" />
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 3 }}>
+                <I n="trash" s={13} c="#dc2626" />
               </button>
             </div>
           ))}
@@ -393,7 +393,7 @@ const emptyForm = (numbers) => ({
   config: {
     businessName: '', logoUrl: '', title: 'Chat with us',
     welcomeMessage: 'Hi! Ask me anything about our services, or talk to our team on WhatsApp.',
-    assistantName: 'Assistant', avatarUrl: '', primaryColor: '#35e8f2',
+    assistantName: 'Assistant', avatarUrl: '', primaryColor: '#0d9488',
     position: 'bottom-right', size: 'medium', buttonText: 'Chat with us',
     whatsappButtonText: 'Talk to Us on WhatsApp',
     suggestedQuestions: ['What services do you offer?', 'What are your pricing plans?', 'How can I get started?'],
@@ -472,7 +472,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
 
       <div className="dash-page" style={{ flex: 1, overflowY: 'auto', padding: '20px 28px' }}>
         {err && (
-          <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12, marginBottom: 16 }}>{err}</div>
+          <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12, marginBottom: 16 }}>{err}</div>
         )}
 
         <div className="rail-split" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 380px', gap: 20, alignItems: 'start' }}>
@@ -489,7 +489,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                     <div key={t.id} onClick={() => setForm(f => ({ ...f, type: t.id }))}
                       style={{ padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
                                border: `1.5px solid ${form.type === t.id ? 'var(--green)' : 'var(--bd)'}`,
-                               background: form.type === t.id ? 'var(--gbg)' : 'rgba(255,255,255,0.02)' }}>
+                               background: form.type === t.id ? 'var(--gbg)' : 'rgba(15,23,42,0.02)' }}>
                       <p style={{ fontSize: 12.5, fontWeight: 600, color: form.type === t.id ? 'var(--green)' : 'var(--t1)', marginBottom: 3 }}>
                         {t.label}
                         {t.recommended && <span style={{ marginLeft: 5, fontSize: 9, fontWeight: 800, color: 'var(--green)' }}>★</span>}
@@ -511,7 +511,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                     {numbers.map(n => <option key={n.id} value={n.id}>{n.phoneNumber}{n.displayName ? ` · ${n.displayName}` : ''}</option>)}
                   </select>
                   {numbers.length === 0 && (
-                    <p style={{ fontSize: 11, color: '#fbbf24', marginTop: 5 }}>No WhatsApp number is connected — the handoff button will not appear.</p>
+                    <p style={{ fontSize: 11, color: '#b45309', marginTop: 5 }}>No WhatsApp number is connected — the handoff button will not appear.</p>
                   )}
                 </Field>
               )}
@@ -547,7 +547,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                       <button key={id} type="button" onClick={() => setConfig({ position: id })}
                         style={{ flex: 1, padding: '8px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: "'Manrope',sans-serif",
                                  border: `1px solid ${form.config.position === id ? 'var(--gbd)' : 'var(--bd)'}`,
-                                 background: form.config.position === id ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                                 background: form.config.position === id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                                  color: form.config.position === id ? 'var(--green)' : 'var(--t2)' }}>{label}</button>
                     ))}
                   </div>
@@ -558,7 +558,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                       <button key={id} type="button" onClick={() => setConfig({ size: id })}
                         style={{ flex: 1, padding: '8px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, textTransform: 'capitalize', fontFamily: "'Manrope',sans-serif",
                                  border: `1px solid ${form.config.size === id ? 'var(--gbd)' : 'var(--bd)'}`,
-                                 background: form.config.size === id ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                                 background: form.config.size === id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                                  color: form.config.size === id ? 'var(--green)' : 'var(--t2)' }}>{id}</button>
                     ))}
                   </div>
@@ -587,7 +587,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                     <input value={q} onChange={e => setConfig({ suggestedQuestions: form.config.suggestedQuestions.map((x, j) => j === i ? e.target.value : x) })}
                       style={{ ...inputBase, flex: 1 }} />
                     <button onClick={() => setConfig({ suggestedQuestions: form.config.suggestedQuestions.filter((_, j) => j !== i) })}
-                      style={{ padding: '0 10px', borderRadius: 7, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#f87171', cursor: 'pointer', fontSize: 11 }}>Remove</button>
+                      style={{ padding: '0 10px', borderRadius: 7, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#dc2626', cursor: 'pointer', fontSize: 11 }}>Remove</button>
                   </div>
                 ))}
                 {form.config.suggestedQuestions.length < 6 && (
@@ -618,7 +618,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                         <button key={id} type="button" onClick={() => setLead({ trigger: id })}
                           style={{ flex: 1, padding: '8px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: "'Manrope',sans-serif",
                                    border: `1px solid ${form.leadCapture.trigger === id ? 'var(--gbd)' : 'var(--bd)'}`,
-                                   background: form.leadCapture.trigger === id ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                                   background: form.leadCapture.trigger === id ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                                    color: form.leadCapture.trigger === id ? 'var(--green)' : 'var(--t2)' }}>{label}</button>
                       ))}
                     </div>
@@ -642,7 +642,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                         req
                       </label>
                       <button onClick={() => setLead({ fields: form.leadCapture.fields.filter((_, j) => j !== i) })}
-                        style={{ padding: '0 9px', height: 34, borderRadius: 7, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#f87171', cursor: 'pointer', fontSize: 11 }}>×</button>
+                        style={{ padding: '0 9px', height: 34, borderRadius: 7, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#dc2626', cursor: 'pointer', fontSize: 11 }}>×</button>
                     </div>
                   ))}
                   <Btn size="sm" variant="outline" onClick={() => setLead({ fields: [...form.leadCapture.fields, { key: '', label: '', type: 'text', required: false }] })}>
@@ -660,7 +660,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                 <textarea value={(form.allowedDomains || []).join('\n')}
                   onChange={e => setForm(f => ({ ...f, allowedDomains: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) }))}
                   rows={3} placeholder={'example.com\nwww.example.com'} style={{ ...inputBase, resize: 'vertical', fontFamily: 'monospace', fontSize: 12 }} />
-                <p style={{ fontSize: 11, color: (form.allowedDomains || []).length ? 'var(--t3)' : '#fbbf24', marginTop: 5, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 11, color: (form.allowedDomains || []).length ? 'var(--t3)' : '#b45309', marginTop: 5, lineHeight: 1.5 }}>
                   {(form.allowedDomains || []).length
                     ? 'Only these domains can load the widget. www. of a listed domain is allowed automatically.'
                     : 'Leave empty and any website can use this widget key — and spend your AI quota. Restrict it before going live.'}
@@ -679,7 +679,7 @@ const WidgetEditor = ({ widget, numbers, onClose, onSaved }) => {
                   Paste this just before <code style={{ color: 'var(--t1)' }}>&lt;/body&gt;</code> on your website. It carries no keys or
                   credentials, and every setting above is loaded at runtime — change anything here and your site picks it up without reinstalling.
                 </p>
-                <div style={{ padding: '12px 14px', borderRadius: 9, background: 'rgba(0,0,0,0.35)', border: '1px solid var(--bd)', fontFamily: 'monospace', fontSize: 11.5, color: 'var(--t1)', wordBreak: 'break-all', marginBottom: 10 }}>
+                <div style={{ padding: '12px 14px', borderRadius: 9, background: 'rgba(15,23,42,0.35)', border: '1px solid var(--bd)', fontFamily: 'monospace', fontSize: 11.5, color: 'var(--t1)', wordBreak: 'break-all', marginBottom: 10 }}>
                   {widget.installSnippet}
                 </div>
                 <Btn size="sm" onClick={copyInstall}>
@@ -765,7 +765,7 @@ export default function WidgetsView() {
       </div>
 
       <div className="dash-page" style={{ flex: 1, overflowY: 'auto', padding: '20px 28px' }}>
-        {err && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#f87171', fontSize: 12, marginBottom: 16 }}>{err}</div>}
+        {err && <div style={{ padding: '10px 13px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', color: '#dc2626', fontSize: 12, marginBottom: 16 }}>{err}</div>}
 
         {analytics && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 10, marginBottom: 16 }}>
@@ -796,24 +796,24 @@ export default function WidgetsView() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {widgets.map(w => (
-                <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 15px', borderRadius: 10, border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)', flexWrap: 'wrap' }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 9, background: `${w.config?.primaryColor || '#35e8f2'}18`, border: `1px solid ${w.config?.primaryColor || '#35e8f2'}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <I n="msg" s={15} c={w.config?.primaryColor || '#35e8f2'} />
+                <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 15px', borderRadius: 10, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)', flexWrap: 'wrap' }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 9, background: `${w.config?.primaryColor || '#0d9488'}18`, border: `1px solid ${w.config?.primaryColor || '#0d9488'}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <I n="msg" s={15} c={w.config?.primaryColor || '#0d9488'} />
                   </div>
                   <div style={{ flex: 1, minWidth: 160 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                       <p style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--t1)' }}>{w.name}</p>
-                      <span style={{ padding: '1px 7px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>
+                      <span style={{ padding: '1px 7px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: 'rgba(15,23,42,0.05)', border: '1px solid var(--bd)', color: 'var(--t2)' }}>
                         {TYPES.find(t => t.id === w.type)?.label || w.type}
                       </span>
                       <span style={{ padding: '1px 7px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-                                     background: w.enabled ? 'var(--gbg)' : 'rgba(255,255,255,0.04)',
+                                     background: w.enabled ? 'var(--gbg)' : 'rgba(15,23,42,0.04)',
                                      border: `1px solid ${w.enabled ? 'var(--gbd)' : 'var(--bd)'}`,
                                      color: w.enabled ? 'var(--green)' : 'var(--t2)' }}>
                         {w.enabled ? 'Live' : 'Disabled'}
                       </span>
                       {(w.allowedDomains || []).length === 0 && (
-                        <span title="Any website can use this widget key" style={{ padding: '1px 7px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.3)', color: '#fbbf24' }}>
+                        <span title="Any website can use this widget key" style={{ padding: '1px 7px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.3)', color: '#b45309' }}>
                           Unrestricted
                         </span>
                       )}
@@ -828,8 +828,8 @@ export default function WidgetsView() {
                     <Btn size="sm" variant="outline" onClick={() => toggle(w)}>{w.enabled ? 'Disable' : 'Enable'}</Btn>
                     <Btn size="sm" variant="outline" onClick={() => setEditing(w)}><I n="pencil" s={12} c="var(--t2)" /> Edit</Btn>
                     <button onClick={() => remove(w)} title="Delete"
-                      style={{ padding: '0 10px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#f87171', cursor: 'pointer', fontSize: 12 }}>
-                      <I n="trash" s={12} c="#f87171" />
+                      style={{ padding: '0 10px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: '#dc2626', cursor: 'pointer', fontSize: 12 }}>
+                      <I n="trash" s={12} c="#dc2626" />
                     </button>
                   </div>
                 </div>
@@ -842,7 +842,7 @@ export default function WidgetsView() {
           <Section title="Recent Visitors">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {sessions.map(s => (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(255,255,255,0.02)' }}>
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.02)' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 12.5, color: 'var(--t1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {s.firstQuestion || <span style={{ color: 'var(--t3)' }}>Opened the widget without asking anything</span>}

@@ -18,7 +18,7 @@ const STAGE_ORDER = ['QUALIFICATION', 'NEEDS_ANALYSIS', 'PROPOSAL', 'NEGOTIATION
 
 const card = { background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 'var(--rl)', boxShadow: 'var(--card-shadow)' };
 const cardTitle = { fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, color: 'var(--t1)', marginBottom: 14 };
-const tooltipStyle = { background: '#0b1324', border: '1px solid var(--bd)', borderRadius: 8, fontSize: 12 };
+const tooltipStyle = { background:'#ffffff', border: '1px solid var(--bd)', borderRadius: 8, fontSize: 12 };
 
 const nav = (section) => window.dispatchEvent(new CustomEvent('app:nav', { detail: section }));
 
@@ -60,10 +60,10 @@ export const CrmDashboardView = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       <div style={{ height: 58, borderBottom: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', flexShrink: 0, background: 'var(--surf)' }}>
         <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 17, color: 'var(--t1)' }}>CRM Overview</span>
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 2, border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', background: 'rgba(15,23,42,0.03)', borderRadius: 8, padding: 2, border: '1px solid rgba(15,23,42,0.08)' }}>
           {RANGES.map(r => (
             <button key={r.id} onClick={() => setRange(r.id)}
-              style={{ background: range === r.id ? 'rgba(255,255,255,0.1)' : 'transparent', color: range === r.id ? 'var(--t1)' : 'var(--t3)', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: range === r.id ? 'rgba(15,23,42,0.1)' : 'transparent', color: range === r.id ? 'var(--t1)' : 'var(--t3)', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               {r.label}
             </button>
           ))}
@@ -72,7 +72,7 @@ export const CrmDashboardView = () => {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 18 }}>
         {err && (
-          <div style={{ padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#f87171', fontSize: 12.5 }}>{err}</div>
+          <div style={{ padding: '9px 14px', borderRadius: 8, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.22)', color: '#dc2626', fontSize: 12.5 }}>{err}</div>
         )}
         {!data && !err && <div style={{ fontSize: 12.5, color: 'var(--t3)' }}>Loading…</div>}
 
@@ -83,7 +83,7 @@ export const CrmDashboardView = () => {
               <Kpi label="Open deals" icon="briefcase" value={k.openDeals} hint={`${fmtMoney(k.openPipelineTotal)} in pipeline`} onClick={() => nav('deals')} />
               <Kpi label="Won this month" icon="check-circle" value={fmtMoneyShort(k.closedWonMonthly)} hint={`${k.wonDeals} won in 90 days`} />
               <Kpi label="Win rate (90d)" icon="chart" value={`${k.winRate90d}%`} hint={`Avg deal ${fmtMoneyShort(k.averageDeal90d)}`} />
-              <Kpi label="Overdue tasks" icon="clock" tone={act.overdueTasks > 0 ? '#f87171' : 'var(--green)'} value={act.overdueTasks}
+              <Kpi label="Overdue tasks" icon="clock" tone={act.overdueTasks > 0 ? '#dc2626' : 'var(--green)'} value={act.overdueTasks}
                 hint={`${act.dueTodayTasks} due today · ${act.completedTasks} done`} onClick={() => nav('tasks')} />
             </div>
 
@@ -93,11 +93,11 @@ export const CrmDashboardView = () => {
                 <div style={{ height: 230 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={byStage}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.06)" vertical={false} />
                       <XAxis dataKey="stage" tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={fmtMoneyShort} width={60} />
-                      <Tooltip contentStyle={tooltipStyle} formatter={(v, _n, p) => [`${fmtMoney(v)} · ${p.payload.count} deals`, 'Value']} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                      <Bar dataKey="value" fill="#35e8f2" radius={[6, 6, 0, 0]} />
+                      <Tooltip contentStyle={tooltipStyle} formatter={(v, _n, p) => [`${fmtMoney(v)} · ${p.payload.count} deals`, 'Value']} cursor={{ fill: 'rgba(15,23,42,0.03)' }} />
+                      <Bar dataKey="value" fill="#0d9488" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -108,12 +108,12 @@ export const CrmDashboardView = () => {
                 <div style={{ height: 230 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data.charts.pipelineVsWon}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.06)" vertical={false} />
                       <XAxis dataKey="month" tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fill: 'var(--t3)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={fmtMoneyShort} width={60} />
                       <Tooltip contentStyle={tooltipStyle} formatter={(v, n) => [fmtMoney(v), n === 'newPipeline' ? 'New pipeline' : 'Closed won']} />
                       <Area type="monotone" dataKey="newPipeline" stroke="#0ea5e9" fill="rgba(14,165,233,0.15)" strokeWidth={2} />
-                      <Area type="monotone" dataKey="closedWon" stroke="#22c55e" fill="rgba(34,197,94,0.15)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="closedWon" stroke="#16a34a" fill="rgba(34,197,94,0.15)" strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>

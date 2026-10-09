@@ -55,7 +55,16 @@ const ALIASES = {
 
 export const ICON_NAMES = Object.keys(ICONS);
 
+// Icons drawn in a neutral text colour or the accent sit on white or grey
+// surfaces, and are painted green. Status colours (red, amber, violet), dark
+// ink on bright buttons and inherited currentColor keep their own colour.
+const GREEN_ON_NEUTRAL = new Set([
+  'var(--t1)', 'var(--t2)', 'var(--t3)', 'var(--t3-faint)',
+  'var(--green)', 'var(--accent)', 'var(--accent, #0d9488)', '#0d9488',
+]);
+
 export const I = ({ n, s = 16, c = 'currentColor', w = 1.75 }) => {
+  if (GREEN_ON_NEUTRAL.has(c)) c = 'var(--icon)';
   const Glyph = ICONS[n] ?? ICONS[ALIASES[n]];
   if (!Glyph) {
     if (import.meta.env?.DEV) console.warn(`Icons: no glyph named "${n}"`);

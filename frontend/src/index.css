@@ -29,6 +29,7 @@
   --accent:#0d9488;
   --green: #0d9488;          /* legacy name, accent role */
   --wa-green:#25d366;        /* WhatsApp brand mark — stays WhatsApp green */
+  --icon: #16a34a;           /* icons on white/grey surfaces: green, 3.3:1 on white */
   /* Status green, kept apart from the accent so delivered / completed badges
      keep the green-good / amber-warn / red-fail convention. */
   --success:#16a34a;

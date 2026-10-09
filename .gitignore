@@ -95,3 +95,6 @@ open-chrome-profile.mjs
 
 # Local-disk file storage (lib/storage, STORAGE_DRIVER=disk). Runtime data.
 backend/uploads/
+
+# Vite build cache
+.vite/

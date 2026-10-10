@@ -51,19 +51,20 @@ test('placeholders are filled per recipient and escaped', () => {
   assert.equal(personalizeText('Offer for {{first_name}}', { name: 'Ravi K' }), 'Offer for Ravi');
 });
 
-test('every theme gets readable text on its accent and on its tint', async () => {
+test('every theme gets a readable button and links', async () => {
   const { THEMES, palette, contrast } = await import('./emailCampaignHtml.js');
   for (const [name, hex] of Object.entries(THEMES)) {
     const p = palette(hex);
-    assert.ok(contrast(p.ink, p.accent) >= 3, `${name}: button text contrast ${contrast(p.ink, p.accent).toFixed(2)}`);
-    assert.ok(contrast(p.deep, p.tint) >= 4.5, `${name}: emphasis on tint`);
+    assert.ok(contrast(p.ink, p.button) >= 4.5, `${name}: button text contrast ${contrast(p.ink, p.button).toFixed(2)}`);
+    assert.ok(contrast(p.deep, '#ffffff') >= 4.5, `${name}: link contrast`);
   }
-  assert.equal(palette('#fde047').ink, '#0f172a');       // light accent → dark text
-  assert.equal(palette(THEMES.midnight).ink, '#ffffff'); // dark accent → white text
+  // A light accent keeps its colour for decoration but gets a deeper button.
+  const light = palette('#fde047');
+  assert.equal(light.accent, '#fde047');
+  assert.ok(contrast('#ffffff', light.button) >= 4.5);
 });
 
-test('a greeting line is pulled out above the body', () => {
+test('a greeting line comes before the body', () => {
   const html = renderEmailHtml({ content: { headline: 'Hello', paragraphs: ['Hi {{first_name}},', 'Body text'] }, brandName: 'Acme' });
   assert.ok(html.indexOf('Hi {{first_name}},') < html.indexOf('Body text'));
-  assert.ok(html.includes('font-size:17px;line-height:1.5;font-weight:700'));
 });

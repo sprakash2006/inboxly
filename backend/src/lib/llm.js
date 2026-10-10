@@ -157,21 +157,24 @@ async function generateOnce(ai, model, contents, json) {
 // So a transient failure is retried with a short backoff, and if the preferred
 // model is still busy the request moves to GEMINI_FALLBACK_MODEL — a lighter
 // model on separate capacity, which is available when the main one is not.
-async function callGemini(prompt, system, { json = false } = {}) {
+// `fast` tries the lighter fallback model first, for interactive features
+// where a quick answer matters more than the main model's extra depth.
+async function callGemini(prompt, system, { json = false, fast = false } = {}) {
   const ai = gemini();
   if (!ai) return null;
   if (Date.now() < geminiCooldownUntil) return null;
 
   const contents = system ? `${system}\n\n${prompt}` : prompt;
-  const models = [...new Set([env.GEMINI_MODEL, env.GEMINI_FALLBACK_MODEL].filter(Boolean))];
+  const order = fast ? [env.GEMINI_FALLBACK_MODEL, env.GEMINI_MODEL] : [env.GEMINI_MODEL, env.GEMINI_FALLBACK_MODEL];
+  const models = [...new Set(order.filter(Boolean))];
   let lastErr = null;
 
   for (const model of models) {
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
       try {
         const text = await generateOnce(ai, model, contents, json);
-        if (model !== env.GEMINI_MODEL) {
-          console.warn(`[llm] Answered with fallback model "${model}" — "${env.GEMINI_MODEL}" was unavailable.`);
+        if (model !== models[0]) {
+          console.warn(`[llm] Answered with fallback model "${model}" — "${models[0]}" was unavailable.`);
         }
         lastFailure = null;
         return text;
@@ -271,8 +274,8 @@ export async function llmText(prompt, system = '', opts = {}) {
 }
 
 // Returns a parsed JSON object, or null.
-export async function llmJson(prompt, system = '') {
-  const raw = await llmText(prompt, system, { json: true });
+export async function llmJson(prompt, system = '', opts = {}) {
+  const raw = await llmText(prompt, system, { ...opts, json: true });
   if (!raw) return null;
   try {
     const cleaned = raw.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();

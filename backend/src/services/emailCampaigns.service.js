@@ -75,7 +75,8 @@ Message:
 ${text.slice(0, 4000)}
 """`;
 
-  const ai = await llmJson(prompt, SYSTEM).catch(() => null);
+  // The user is waiting on this click, so the faster model goes first.
+  const ai = await llmJson(prompt, SYSTEM, { fast: true }).catch(() => null);
   if (ai && (ai.headline || ai.paragraphs)) {
     const content = normalizeContent(ai);
     // A link the model made up is dropped: the button must point somewhere

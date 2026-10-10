@@ -59,7 +59,9 @@ export async function verifySmtp() {
 // code). For those, "SMTP is not configured" must be an error rather than a
 // silent skip — otherwise the caller reports success for a code that was never
 // going to be sent.
-export async function sendMail({ to, subject, html, mustDeliver = false }) {
+// `fromName` overrides the display name only (an email campaign goes out under
+// the workspace's name); the address is always EMAIL_FROM.
+export async function sendMail({ to, subject, html, mustDeliver = false, fromName }) {
   if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASSWORD) {
     if (mustDeliver) {
       throw new Error('Email delivery is not configured on this server (SMTP_HOST, SMTP_USER and SMTP_PASSWORD).');
@@ -70,7 +72,7 @@ export async function sendMail({ to, subject, html, mustDeliver = false }) {
   try {
     const transporter = getTransporter();
     const info = await transporter.sendMail({
-      from: `"${env.EMAIL_FROM_NAME}" <${env.EMAIL_FROM}>`,
+      from: `"${String(fromName || env.EMAIL_FROM_NAME).replace(/["\\\r\n]/g, '')}" <${env.EMAIL_FROM}>`,
       to,
       subject,
       html,

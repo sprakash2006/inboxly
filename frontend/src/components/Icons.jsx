@@ -14,7 +14,7 @@ import {
   Lock, LogOut, Mail, Megaphone, MessageSquare, Monitor, Package, PartyPopper, Pencil, Phone, Plug,
   Plus, Receipt, RefreshCw, RotateCcw, ScanSearch, Search, Send, Settings, Shield, ShieldCheck,
   SlidersHorizontal, Smartphone, Sparkle, Sparkles, SquareCheckBig, Star, StickyNote, Tag, Target,
-  Trash2, TrendingUp, TriangleAlert, Truck, Undo2, User, Users, Wallet, Webhook, Workflow, Wrench, X,
+  Trash2, TrendingUp, TriangleAlert, Truck, Undo2, Upload, User, Users, Wallet, Webhook, Workflow, Wrench, X,
   Zap,
 } from 'lucide-react';
 
@@ -42,7 +42,7 @@ const ICONS = {
   external: ExternalLink, checks: CheckCheck, code: Code,
   // General-purpose icons
   package: Package, money: Wallet, truck: Truck, undo: Undo2, frown: Frown, calendar: Calendar,
-  receipt: Receipt, help: CircleHelp, gift: Gift, wrench: Wrench,
+  receipt: Receipt, help: CircleHelp, gift: Gift, wrench: Wrench, upload: Upload,
 };
 
 // Names used around the app for glyphs that already exist under another key.

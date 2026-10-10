@@ -27,6 +27,7 @@ import WalletStatusBanner from '../components/WalletStatusBanner.jsx';
 // Every section view is fetched the first time it is opened, so landing on
 // Home does not download the CRM, the automation builder and the rest.
 const CreateCampaign = lazy(() => import('./CreateCampaign.jsx'));
+const EmailCampaignBuilder = lazy(() => import('./EmailCampaign.jsx'));
 const ContactsView = lazy(() => import('./ContactsView.jsx'));
 const LeadsView = lazy(() => import('./LeadsView.jsx'));
 const DealsView = lazy(() => import('./DealsView.jsx'));
@@ -52,6 +53,7 @@ const AuthenticationDashboard = lazy(() => import('./AuthenticationDashboard.jsx
 const ResourceCenter = lazy(() => import('./ResourceCenter.jsx'));
 import { Avatar } from '../components/Avatar.jsx';
 import { confirmDialog } from '../components/Feedback.jsx';
+import { ChannelPicker, EmailCampaignsList } from './EmailCampaign.jsx';
 
 const card = { background: 'var(--surf)', border: '1px solid var(--bd)', borderRadius: 'var(--rl)', boxShadow: 'var(--card-shadow)' };
 
@@ -1362,7 +1364,9 @@ const CampaignDetailModal = ({ campaignId, onClose, onChanged, onEdit }) => {
 // attempts) moved to the Authentication module — see AuthenticationDashboard.jsx.
 // Campaign Analytics below now only ever fetches and renders regular
 // campaigns, unchanged from how it already worked for that case.
-const CampaignsView = ({ onCreateCampaign, onEditCampaign }) => {
+const CampaignsView = ({ onCreateCampaign, onCreateEmailCampaign, onEditCampaign, initialChannel = 'whatsapp' }) => {
+  const [channel, setChannel] = useState(initialChannel);
+  const [pickingChannel, setPickingChannel] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [detailId, setDetailId]   = useState(null);
@@ -1435,10 +1439,26 @@ const CampaignsView = ({ onCreateCampaign, onEditCampaign }) => {
             see the campaigns and their results only. */}
         {can('campaigns.manage') && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-            <Btn style={{ boxShadow: 'var(--glow)' }} onClick={onCreateCampaign}><I n="send" s={14} c="#08090c" /> New Campaign</Btn>
+            <Btn style={{ boxShadow: 'var(--glow)' }} onClick={() => setPickingChannel(true)}><I n="send" s={14} c="#08090c" /> New Campaign</Btn>
           </div>
         )}
-        {loading ? (
+        {/* WhatsApp and email campaigns are listed separately: their numbers
+            mean different things (read receipts vs. SMTP acceptance). */}
+        <div role="tablist" style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--bd)' }}>
+          {[['whatsapp', 'msg', 'WhatsApp'], ['email', 'mail', 'Email']].map(([id, icon, lbl]) => (
+            <button key={id} role="tab" aria-selected={channel === id} onClick={() => setChannel(id)}
+              style={{ padding: '9px 14px', background: 'none', border: 'none', borderBottom: `2px solid ${channel === id ? 'var(--green)' : 'transparent'}`, marginBottom: -1, cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: channel === id ? 'var(--t1)' : 'var(--t2)', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <I n={icon} s={15} c={channel === id ? 'var(--green)' : 'var(--t3)'} /> {lbl}
+            </button>
+          ))}
+        </div>
+        {pickingChannel && (
+          <ChannelPicker onClose={() => setPickingChannel(false)}
+            onPick={(ch) => { setPickingChannel(false); if (ch === 'email') onCreateEmailCampaign?.(); else onCreateCampaign(); }} />
+        )}
+        {channel === 'email' ? (
+          <EmailCampaignsList search={search} onCreate={onCreateEmailCampaign} />
+        ) : loading ? (
           <div style={{ textAlign:'center', padding:'48px', color:'var(--t2)', fontSize:13 }}>Loading campaigns…</div>
         ) : visibleCampaigns.length === 0 ? (
           <div style={{ textAlign:'center', padding:'48px', color:'var(--t2)', fontSize:13 }}>
@@ -2773,7 +2793,7 @@ const MobileTabBar = ({ page, setPage, user }) => {
       padding: '6px 0 calc(6px + env(safe-area-inset-bottom, 0px))',
     }}>
       {tabs.map(t => {
-        const on = page === t.id || (t.id === 'campaigns' && page === 'campaigns-create');
+        const on = page === t.id || (t.id === 'campaigns' && (page === 'campaigns-create' || page === 'campaigns-email'));
         return (
           <button key={t.id} onClick={() => setPage(t.id)} aria-current={on ? 'page' : undefined}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '7px 4px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Manrope',sans-serif" }}>
@@ -2881,7 +2901,7 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
               ? <div style={{ fontFamily: 'var(--mono)', fontSize: '9.5px', letterSpacing: '.18em', color: 'var(--t3)', padding: '0 8px 6px' }}>{group.name}</div>
               : <div style={{ height: '1px', background: 'var(--bd)', margin: '5px 8px' }} />}
             {group.items.map(item => {
-              const on = page === item.id || (page === 'campaigns-create' && item.id === 'campaigns');
+              const on = page === item.id || ((page === 'campaigns-create' || page === 'campaigns-email') && item.id === 'campaigns');
               return (
                 <div key={item.id} onClick={() => go(item.id)}
                   tabIndex={0} role="link" aria-current={on ? 'page' : undefined}
@@ -2996,10 +3016,10 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
   );
 };
 
-const VALID_SECTIONS = new Set([...ADMIN_NAV.map(n => n.id), ...ADMIN_TABS.map(n => n.id), 'campaigns-create', 'profile', 'resources']);
+const VALID_SECTIONS = new Set([...ADMIN_NAV.map(n => n.id), ...ADMIN_TABS.map(n => n.id), 'campaigns-create', 'campaigns-email', 'profile', 'resources']);
 
 // Titles for the no-access page of sections that are not in the nav.
-const SECTION_TITLES = { 'campaigns-create': 'Create campaign' };
+const SECTION_TITLES = { 'campaigns-create': 'Create campaign', 'campaigns-email': 'Create email campaign' };
 
 function sectionFromPath(path, user) {
   const defaultSection = user?.superAdmin === true ? 'admin-overview' : 'home';
@@ -3009,7 +3029,9 @@ function sectionFromPath(path, user) {
   const rest = String(path || '').replace(/^\/dashboard\/?/, '');
   if (!rest) return defaultSection;
   if (rest === 'platform') return 'admin-overview'; // pre-restructure bookmark
-  const section = rest === 'campaigns/create' ? 'campaigns-create' : rest.split('/')[0];
+  const section = rest === 'campaigns/create' ? 'campaigns-create'
+    : rest === 'campaigns/email' ? 'campaigns-email'
+    : rest.split('/')[0];
   // A section the role may not open still resolves, so renderView can show
   // the no-access page instead of silently sending the user Home.
   return VALID_SECTIONS.has(section) ? section : defaultSection;
@@ -3021,6 +3043,7 @@ function sectionFromPath(path, user) {
 function pathFromSection(section, subTab) {
   const path = section === 'home' ? '/dashboard'
     : section === 'campaigns-create' ? '/dashboard/campaigns/create'
+    : section === 'campaigns-email' ? '/dashboard/campaigns/email'
     : section === 'resources' ? '/resources'
     : `/dashboard/${section}`;
   return subTab ? `${path}?tab=${encodeURIComponent(subTab)}` : path;
@@ -3147,6 +3170,9 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
         />
       );
     }
+    if (page === 'campaigns-email') {
+      return <EmailCampaignBuilder onBack={() => setPage('campaigns', 'email')} />;
+    }
     if (page.startsWith('admin-')) {
       // Each Platform Admin section is its own sidebar item now; regular users fall through.
       if (user?.superAdmin === true) return <SuperAdminView tab={page.slice('admin-'.length)} />;
@@ -3157,6 +3183,8 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
 
     if (page === 'campaigns')  return (
       <CampaignsView
+        initialChannel={initialSubTab === 'email' ? 'email' : 'whatsapp'}
+        onCreateEmailCampaign={() => setPage('campaigns-email')}
         onCreateCampaign={() => openCampaignEditor(null)}
         onEditCampaign={(id) => openCampaignEditor(id)}
       />
@@ -3245,7 +3273,7 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
           page={page} setPage={setPage} onNav={onNav} user={user}
           mobile={mobile} open={navOpen} onClose={() => setNavOpen(false)}
         />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: (isInbox || page === 'campaigns-create') ? 'hidden' : 'auto', minWidth: 0 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: (isInbox || page === 'campaigns-create' || page === 'campaigns-email') ? 'hidden' : 'auto', minWidth: 0 }}>
           <Suspense fallback={
             <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--t2)', fontSize: 13 }}>
               <div style={{ width: 24, height: 24, border: '2px solid var(--green)', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 10px', animation: 'spin 1s linear infinite' }} />

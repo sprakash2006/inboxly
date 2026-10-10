@@ -159,6 +159,7 @@ model Workspace {
   oauthConsents           OAuthConsent[]
   triggers                AutomationTrigger[]
   campaigns               Campaign[]
+  emailCampaigns          EmailCampaign[]
   contacts                Contact[]
   conversations           Conversation[]
   invoices                Invoice[]
@@ -450,6 +451,58 @@ model Contact {
   @@unique([workspaceId, phoneNumber])
   @@unique([workspaceId, instagramUserId])
   @@index([workspaceId, updatedAt])
+}
+
+// An email broadcast. Separate from Campaign, which is built around WhatsApp
+// templates, numbers and wallet billing; an email goes out through the
+// workspace's SMTP account and costs nothing per message.
+model EmailCampaign {
+  id              String                   @id @default(cuid())
+  workspaceId     String
+  name            String
+  subject         String
+  // Inbox preview line shown after the subject in most mail clients.
+  preheader       String?
+  // What the user typed, kept so the campaign can be reopened and rewritten.
+  message         String
+  // Structured body the HTML is rendered from: { headline, paragraphs[],
+  // bullets[], ctaText, ctaUrl, signoff }. Rendered by emailCampaignHtml.js.
+  content         Json
+  accentColor     String                   @default("#0d9488")
+  aiRewritten     Boolean                  @default(false)
+  // DRAFT | SCHEDULED | SENDING | COMPLETED | CANCELLED | FAILED
+  status          String                   @default("SCHEDULED")
+  total           Int                      @default(0)
+  sent            Int                      @default(0)
+  failed          Int                      @default(0)
+  skipped         Int                      @default(0)
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdByUserId String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  workspace       Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  recipients      EmailCampaignRecipient[]
+
+  @@index([workspaceId, createdAt])
+}
+
+model EmailCampaignRecipient {
+  id         String        @id @default(cuid())
+  campaignId String
+  email      String
+  name       String?
+  // Set when the address came from a saved contact, null for CSV or pasted ones.
+  contactId  String?
+  // PENDING | SENT | FAILED | SKIPPED
+  status     String        @default("PENDING")
+  error      String?
+  sentAt     DateTime?
+  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, email])
+  @@index([campaignId, status])
 }
 
 model Campaign {

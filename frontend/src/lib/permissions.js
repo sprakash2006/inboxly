@@ -157,6 +157,7 @@ export const SECTION_MIN_ROLE = Object.freeze({
   setup:                'CLIENT',
   api:                  'CLIENT',
   'campaigns-create':   'CLIENT',
+  'campaigns-email':    'CLIENT',
 });
 
 export function canOpenSection(section, user = currentUser()) {

@@ -17,6 +17,7 @@ const STATUS_STYLES = {
   Draft:     { bg: 'rgba(15,23,42,.04)', bd: 'var(--bd)',             fg: 'var(--t2)' },
   Scheduled: { bg: 'rgba(14,165,233,.1)',   bd: 'rgba(14,165,233,.25)',  fg: '#7c3aed' },
   Running:   { bg: 'rgba(14,165,233,.1)',   bd: 'rgba(14,165,233,.25)',  fg: '#7c3aed' },
+  Sending:   { bg: 'rgba(14,165,233,.1)',   bd: 'rgba(14,165,233,.25)',  fg: '#0284c7' },
   Cancelled: { bg: 'rgba(239,68,68,.08)',   bd: 'rgba(239,68,68,.22)',   fg: '#dc2626' },
   Failed:    { bg: 'rgba(239,68,68,.08)',   bd: 'rgba(239,68,68,.22)',   fg: '#dc2626' },
   Rejected:  { bg: 'rgba(239,68,68,.08)',   bd: 'rgba(239,68,68,.22)',   fg: '#dc2626' },

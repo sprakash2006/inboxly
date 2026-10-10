@@ -22,6 +22,9 @@ import app from './app.js';
 import { env } from './config/env.js';
 import { startCampaignWorker, stopCampaignSends } from './workers/campaign.worker.js';
 import { startEmailWorker } from './workers/email.worker.js';
+import { startEmailCampaignWorker } from './workers/emailCampaign.worker.js';
+import { emailCampaignQueue } from './queues/emailCampaign.queue.js';
+import { recoverEmailCampaigns } from './services/emailCampaigns.service.js';
 import { startBillingWorker } from './workers/billing.worker.js';
 import { startWorkflowWorker } from './workers/workflow.worker.js';
 import { startAgentWorker } from './workers/agent.worker.js';
@@ -52,6 +55,7 @@ import { storage, ephemeralDiskWarning } from './lib/storage/index.js';
 
 let campaignWorker = null;
 let emailWorker = null;
+let emailCampaignWorker = null;
 let billingWorker = null;
 let workflowWorker = null;
 let agentWorker = null;
@@ -379,6 +383,8 @@ async function main() {
     console.log('[Worker] Campaign worker started');
     emailWorker = startEmailWorker();
     console.log('[Worker] Email worker started');
+    emailCampaignWorker = startEmailCampaignWorker();
+    console.log('[Worker] Email campaign worker started');
     billingWorker = startBillingWorker();
     console.log('[Worker] Billing worker started');
     workflowWorker = startWorkflowWorker();
@@ -423,6 +429,15 @@ async function main() {
       console.error('[Recovery] Stranded-campaign recovery failed:', err.message);
     }
     startCampaignRecoverySweep();
+
+    // Email campaigns cut off mid-send, or scheduled ones whose delayed job
+    // was lost with Redis.
+    try {
+      const open = await recoverEmailCampaigns();
+      if (open > 0) console.log(`[Recovery] Re-queued ${open} email campaign(s)`);
+    } catch (err) {
+      console.error('[Recovery] Email-campaign recovery failed:', err.message);
+    }
 
     // Register the daily repeatable billing-cycle job (no-op if already registered).
     try {
@@ -509,13 +524,14 @@ async function shutdown(signal) {
     await Promise.allSettled([
       campaignWorker?.close(),
       emailWorker?.close(),
+      emailCampaignWorker?.close(),
       billingWorker?.close(),
       workflowWorker?.close(),
       webhookWorker?.close(),
       outgoingWebhookWorker?.close(),
       agentWorker?.close(),
     ]);
-    await Promise.allSettled([campaignQueue.close(), emailQueue.close(), billingQueue.close(), workflowQueue.close(), webhookQueue.close(), outgoingWebhookQueue.close(), agentQueue.close()]);
+    await Promise.allSettled([campaignQueue.close(), emailQueue.close(), emailCampaignQueue.close(), billingQueue.close(), workflowQueue.close(), webhookQueue.close(), outgoingWebhookQueue.close(), agentQueue.close()]);
     await Promise.allSettled([closeRealtimeBus(), redis.quit()]);
     await prisma.$disconnect();
     clearTimeout(timeout);

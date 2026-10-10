@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { parseDelayMs, triggerFires } from './workflowEngine.service.js';
 import { renderTemplate } from './workflowConditions.js';
 import { keywordMatches } from './automation.service.js';
-import { matchIntent } from './intent.service.js';
-import { routeByIntent } from './intentRouting.service.js';
 import { prisma } from '../lib/prisma.js';
 
 // ── Unit Tests: Parsers & Interpolation ──────────────────────────────────────
@@ -93,16 +91,6 @@ test('triggerFires: fires for keyword when message body matches', () => {
 const WS_A = 'test_ws_workflow_a';
 const WS_B = 'test_ws_workflow_b';
 
-const MOCK_INTENT_RULE = {
-  id: 'intent_rule_new_collection',
-  workspaceId: WS_A,
-  name: 'New Collection',
-  phrases: ['new collection', 'latest styles', 'new arrivals', 'clothes', 'products'],
-  actionType: 'workflow',
-  actionTarget: 'Tendy Wear New Collection Promo',
-  isActive: true,
-};
-
 const MOCK_WORKFLOW_NODES = [
   {
     id: 'step_1',
@@ -142,24 +130,6 @@ const MOCK_WORKFLOW_NODES = [
   },
 ];
 
-test('Test A: Inbound message matching Intent "New Collection" routes to workflow', () => {
-  const message = 'Hi, I want to know more about your new collection';
-  const best = matchIntent(message, [MOCK_INTENT_RULE]);
-
-  assert.ok(best, 'Intent should match');
-  assert.equal(best.rule.name, 'New Collection');
-  assert.equal(best.rule.actionType, 'workflow');
-  assert.equal(best.rule.actionTarget, 'Tendy Wear New Collection Promo');
-  assert.ok(best.confidence >= 0.6, `Confidence ${best.confidence} should clear default threshold`);
-});
-
-test('Test B: Non-matching message ("What are your delivery charges?") does not route to workflow', () => {
-  const message = 'What are your delivery charges?';
-  const best = matchIntent(message, [MOCK_INTENT_RULE]);
-
-  assert.equal(best, null, 'Non-matching message should return null');
-});
-
 test('Test C: Disabled workflow (isActive: false) does not execute', async () => {
   const originalFindFirst = prisma.workflow.findFirst;
   try {
@@ -179,29 +149,6 @@ test('Test C: Disabled workflow (isActive: false) does not execute', async () =>
     assert.equal(run, null, 'Disabled workflow must return null and not start a run');
   } finally {
     prisma.workflow.findFirst = originalFindFirst;
-  }
-});
-
-test('Test D: Disabled intent (isActive: false or intentMatchingEnabled: false) does not route', async () => {
-  // Sub-case 1: Rule is inactive
-  const disabledRule = { ...MOCK_INTENT_RULE, isActive: false };
-  const matchResult = matchIntent('Hi, I want to know more about your new collection', [disabledRule]);
-  assert.equal(matchResult, null, 'Inactive intent rule should never match');
-
-  // Sub-case 2: Workspace has intentMatchingEnabled: false
-  const originalWsFind = prisma.workspace.findUnique;
-  try {
-    prisma.workspace.findUnique = async () => ({ intentMatchingEnabled: false, intentMatchThreshold: 0.6 });
-    const routed = await routeByIntent({
-      workspaceId: WS_A,
-      conversationId: 'conv_1',
-      contact: { id: 'contact_1' },
-      waNumber: { id: 'wanum_1' },
-      messageBody: 'Hi, I want to know more about your new collection',
-    });
-    assert.equal(routed, null, 'Disabled workspace intent matching must return null');
-  } finally {
-    prisma.workspace.findUnique = originalWsFind;
   }
 });
 

@@ -9,18 +9,12 @@ import {
 } from './campaignAi.service.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AI Agent + AI Intent Matching
+// AI Agent
 //
-// Both features hook into the inbound-message handler (webhook.service.js):
-//   1. Intent Matching — fuzzy-scores an inbound message against the
-//      workspace's keyword triggers and returns the best one above a threshold,
-//      even when there is no exact/contains match. Uses the LLM to classify
-//      when available, and a deterministic token-overlap scorer otherwise, so
-//      it works with or without a Gemini/Ollama key.
-//   2. AI Agent — an LLM-backed fallback responder that answers free-form
-//      questions using a configurable system prompt + knowledge base. Only
-//      fires when it's been explicitly deployed AND no trigger/welcome/OOO reply
-//      already applies.
+// Hooks into the inbound-message handler (webhook.service.js) as an LLM-backed
+// fallback responder that answers free-form questions using a configurable
+// system prompt + knowledge base. Only fires when it's been explicitly
+// deployed AND no trigger/welcome/OOO reply already applies.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ---- Config CRUD --------------------------------------------------------------
@@ -63,13 +57,12 @@ export const normaliseEscalationRules = (value) => {
 // Knowledge counts only what the agent is actually given: the aiAgentKnowledge
 // notes (typed or uploaded). Indexed KnowledgeSource rows feed the website
 // widget, not this agent's prompt, so they do not make it "ready".
-export function readiness({ ws, intentRuleCount }) {
+export function readiness({ ws }) {
   const checks = [
     { id: 'identity',     label: 'Give the agent a name and a persona',        weight: 15, done: !!(ws.aiAgentName || '').trim() && (ws.aiAgentPrompt || '').trim().length > 30 },
     { id: 'purpose',      label: 'Describe what the agent is for',             weight: 10, done: (ws.aiAgentPurpose || '').trim().length > 10 },
-    { id: 'knowledge',    label: 'Add knowledge notes or upload a document',   weight: 25, done: (ws.aiAgentKnowledge || '').trim().length > 40 },
+    { id: 'knowledge',    label: 'Add knowledge notes or upload a document',   weight: 35, done: (ws.aiAgentKnowledge || '').trim().length > 40 },
     { id: 'instructions', label: 'Add answering instructions',                 weight: 10, done: (ws.aiAgentInstructions || '').trim().length > 10 },
-    { id: 'routing',      label: 'Add an intent so routing is not guesswork',  weight: 10, done: intentRuleCount > 0 },
     { id: 'escalation',   label: 'Choose when a human takes over',             weight: 10, done: ws.escalationRules != null },
     { id: 'safety',       label: 'State a safety guardrail',                   weight: 10, done: (ws.aiAgentSafetyNote || '').trim().length > 10 },
     { id: 'deployed',     label: 'Deploy the agent',                           weight: 10, done: ws.aiAgentEnabled === true },
@@ -131,7 +124,6 @@ export async function getAgentConfig(workspaceId) {
     select: {
       aiAgentEnabled: true, aiAgentName: true, aiAgentPrompt: true,
       aiAgentKnowledge: true, aiAgentModel: true, aiAgentDeployedAt: true,
-      intentMatchingEnabled: true, intentMatchThreshold: true,
       aiAgentPurpose: true, aiAgentInstructions: true, aiAgentSafetyNote: true,
       aiAgentLanguages: true, escalationThreshold: true, escalationRules: true,
     },
@@ -140,10 +132,7 @@ export async function getAgentConfig(workspaceId) {
 
   // Counted rather than fetched: the page loads knowledge sources from their
   // own endpoint, and this only needs to know whether there are any.
-  const [knowledgeSourceCount, intentRuleCount] = await Promise.all([
-    prisma.knowledgeSource.count({ where: { workspaceId } }),
-    prisma.intentRule.count({ where: { workspaceId } }),
-  ]);
+  const knowledgeSourceCount = await prisma.knowledgeSource.count({ where: { workspaceId } });
 
   return {
     ...ws,
@@ -154,8 +143,7 @@ export async function getAgentConfig(workspaceId) {
     escalationRulesSet: ws.escalationRules != null,
     llmAvailable: llmAvailable(),
     knowledgeSourceCount,
-    intentRuleCount,
-    readiness: readiness({ ws, intentRuleCount }),
+    readiness: readiness({ ws }),
   };
 }
 
@@ -290,16 +278,6 @@ export async function undeployAgent(workspaceId) {
   });
 }
 
-export async function setIntentMatching(workspaceId, { enabled, threshold }) {
-  const data = {};
-  if (typeof enabled === 'boolean') data.intentMatchingEnabled = enabled;
-  if (typeof threshold === 'number' && threshold >= 0 && threshold <= 1) data.intentMatchThreshold = threshold;
-  return prisma.workspace.update({
-    where: { id: workspaceId }, data,
-    select: { intentMatchingEnabled: true, intentMatchThreshold: true },
-  });
-}
-
 // ---- Agent directory ----------------------------------------------------------
 //
 // The agent is workspace-scoped configuration (aiAgent* on Workspace), so a
@@ -361,69 +339,6 @@ export async function listAgentCampaigns(workspaceId, agentId = null) {
     total: campaigns.length,
     campaigns: campaigns.map((c) => ({ ...c, activeSessions: liveByCampaign[c.id] ?? 0 })),
   };
-}
-
-// ---- Intent matching ----------------------------------------------------------
-
-const STOPWORDS = new Set(['the','a','an','is','are','to','of','for','and','or','i','you','my','me','we','it','this','that','can','do','please','hi','hello','hey','want','need']);
-
-function tokenize(text) {
-  return String(text || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t && !STOPWORDS.has(t));
-}
-
-// Deterministic similarity: Jaccard token overlap + keyword-substring bonus.
-// Returns 0..1. Used when no LLM is available.
-function scoreOverlap(message, keyword) {
-  const mTokens = new Set(tokenize(message));
-  const kTokens = tokenize(keyword);
-  if (kTokens.length === 0 || mTokens.size === 0) return 0;
-  let hits = 0;
-  for (const k of kTokens) if (mTokens.has(k)) hits++;
-  const jaccard = hits / (mTokens.size + kTokens.length - hits);
-  const substringBonus = String(message).toLowerCase().includes(String(keyword).toLowerCase()) ? 0.4 : 0;
-  return Math.min(1, jaccard + substringBonus);
-}
-
-// Returns the best matching trigger for an inbound message, or null. Tries the
-// LLM classifier first (when available) for real intent understanding, then
-// falls back to the deterministic scorer.
-export async function matchIntent(workspaceId, messageBody) {
-  const ws = await prisma.workspace.findUnique({
-    where: { id: workspaceId },
-    select: { intentMatchingEnabled: true, intentMatchThreshold: true },
-  });
-  if (!ws?.intentMatchingEnabled) return null;
-
-  const triggers = await prisma.automationTrigger.findMany({ where: { workspaceId, isActive: true } });
-  if (triggers.length === 0) return null;
-
-  const threshold = ws.intentMatchThreshold ?? 0.6;
-
-  // 1. LLM classifier — pick the best keyword or NONE. AI intent matching is
-  //    a plan feature (campaignAi); without it only the deterministic match
-  //    below runs, which spends no model tokens.
-  if (llmAvailable() && await planAllows(workspaceId, 'campaignAi')) {
-    const list = triggers.map((t, i) => `${i + 1}. ${t.keyword}`).join('\n');
-    const system = `You route a customer's WhatsApp message to the single best-matching automation keyword. Reply with ONLY the number of the best match, or "0" if none fit well.`;
-    const prompt = `Message: "${messageBody}"\n\nKeywords:\n${list}\n\nBest match number:`;
-    const raw = await llmText(prompt, system);
-    if (raw) {
-      const n = parseInt(String(raw).match(/\d+/)?.[0] ?? '0', 10);
-      if (n >= 1 && n <= triggers.length) {
-        return { trigger: triggers[n - 1], score: 1, method: 'llm' };
-      }
-      if (n === 0) return null;
-    }
-  }
-
-  // 2. Deterministic fallback.
-  let best = null;
-  for (const t of triggers) {
-    const score = scoreOverlap(messageBody, t.keyword);
-    if (!best || score > best.score) best = { trigger: t, score, method: 'overlap' };
-  }
-  if (best && best.score >= threshold) return best;
-  return null;
 }
 
 // ---- AI Agent reply -----------------------------------------------------------

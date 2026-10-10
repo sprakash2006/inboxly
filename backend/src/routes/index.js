@@ -35,7 +35,6 @@ import supportRoutes from './support.routes.js';
 import workspacesRoutes from './workspaces.routes.js';
 import subscriptionRoutes from './subscription.routes.js';
 import aiAgentRoutes from './aiAgent.routes.js';
-import intentRoutes from './intent.routes.js';
 import invitationsRoutes, {
   publicInvitationsRouter,
 } from './invitations.routes.js';
@@ -172,7 +171,6 @@ ws.use('/ai-agents/whatsapp', aiAgentRoutes);
 ws.use('/ai-agents/autonomous', agentRoutes);
 ws.use('/ai-agents', aiAgentsRoutes);
 ws.use('/ai-agent', aiAgentRoutes);
-ws.use('/intents', intentRoutes);
 ws.use('/invitations', invitationsRoutes);
 ws.use('/switch', workspaceSwitchRoutes);
 // Server-sent events: inbox, campaign and template updates as they happen.

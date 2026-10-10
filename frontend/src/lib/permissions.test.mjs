@@ -54,7 +54,6 @@ const SAMPLE_REQUEST = {
   'templates.manage':        ['POST', 'templates', '/'],
   'campaigns.manage':        ['POST', 'campaigns', '/'],
   'automation.manage':       ['PATCH', 'automation', '/basic'],
-  'intents.manage':          ['POST', 'intents', '/'],
   'aiAgents.manage':         ['PATCH', 'ai-agents/whatsapp', '/config'],
   'aiAgents.studioTest':     ['POST', 'ai-agents', '/a1/test'],
   'aiAgent.settleSuggestion':['PATCH', 'ai-agents/autonomous', '/facts/f1'],

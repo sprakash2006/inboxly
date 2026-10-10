@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { findMatchingTrigger } from './automation.service.js';
-import { matchIntent, generateAgentReply } from './aiAgent.service.js';
+import { generateAgentReply } from './aiAgent.service.js';
 import { handleCampaignAiInbound, parseCampaignCtaPayload } from './campaignAi.service.js';
 import { queueTemplateApprovedEmail, queueTemplateRejectedEmail } from './email.service.js';
 import { handleRecipientFailure } from './retry.service.js';
@@ -26,7 +26,7 @@ import {
 import { processInboundMedia } from './inboundMedia.service.js';
 import { emitWebhook } from './outgoingWebhook.service.js';
 import {
-  routeByIntent, escalateToHuman, escalationMatch, escalationRulesApply,
+  escalateToHuman, escalationMatch, escalationRulesApply,
 } from './intentRouting.service.js';
 import { planAllows } from './planFeatures.service.js';
 import {
@@ -936,44 +936,12 @@ async function runInboundAutomation({
   }
 
   let autoReplyText = null;
-  let intentHint = null;
 
   // 8. Exact keyword trigger (deterministic, highest priority after workflows).
   if (customerText && !workflowWillReply) {
     const trigger = await findMatchingTrigger(workspaceId, messageBody);
     if (trigger) autoReplyText = trigger.responseTemplate;
 
-    // 9. Intent rules. A rule can hand the thread to a person, answer from a
-    //    trigger, start a workflow, or tell the agent what the customer is
-    //    asking about. Available on every plan: only the model needs
-    //    campaignAi (WF-IN-14).
-    if (!autoReplyText) {
-      const routed = await routeByIntent({
-        workspaceId, conversationId: conversation.id, contact, waNumber, messageBody,
-      }).catch((err) => {
-        console.error('[Inbound] Intent routing failed:', err);
-        return null;
-      });
-      if (routed?.handled) {
-        await scheduleDelayedResponse(workspace, conversation.id);
-        return;
-      }
-      if (routed?.replyText) autoReplyText = routed.replyText;
-      if (routed?.intentHint) intentHint = routed.intentHint;
-    }
-
-    // 10. Legacy fuzzy keyword matching against automation triggers, kept as
-    //     the last deterministic attempt before the model.
-    //
-    //     Skipped when an intent rule has already classified the message and
-    //     asked for an AI answer: the operator wrote that rule to say what this
-    //     message is about, and letting a fuzzy keyword match answer instead
-    //     throws that away — which is how "where is my order" ended up being
-    //     answered by the HELP trigger's greeting.
-    if (!autoReplyText && !intentHint) {
-      const intent = await matchIntent(workspaceId, messageBody).catch((err) => { console.warn('[Inbound] Intent matching failed:', err.message); return null; });
-      if (intent?.trigger) autoReplyText = intent.trigger.responseTemplate;
-    }
   }
 
   // 11. Escalation rules. "Refund", "this is useless", "customer service" —
@@ -1039,7 +1007,6 @@ async function runInboundAutomation({
       contactName: contact?.name,
       conversationId: conversation.id,
       waNumberId: waNumber.id,
-      intentHint,
     }).catch((err) => { console.error(`[Inbound] AI agent reply failed for ${conversation.id}:`, err.message); return null; });
 
     // Nothing to say. The message is left unanswered: it is in the inbox,

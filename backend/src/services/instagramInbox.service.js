@@ -3,7 +3,7 @@ import { realtime } from '../lib/realtimeBus.js';
 import { safeRequest } from '../lib/safeUrl.js';
 import { storage, keys } from '../lib/storage/index.js';
 import { findMatchingTrigger } from './automation.service.js';
-import { matchIntent, generateAgentReply } from './aiAgent.service.js';
+import { generateAgentReply } from './aiAgent.service.js';
 import { runWorkflowsForInbound, runWillSendMessage, resumeAwaitingRun } from './workflowEngine.service.js';
 import { matchOptOutKeyword } from './optout.service.js';
 import { isWithinBusinessHours } from './businessHours.service.js';
@@ -373,13 +373,9 @@ export async function handleInstagramMessage({ workspaceId, accountId, event, fl
   let replyText = null;
   let step = null;
   if (customerText) {
-    // 3. Keyword trigger, then the fuzzy intent match.
+    // 3. Keyword trigger.
     const trigger = await findMatchingTrigger(workspaceId, messageBody);
     if (trigger) { replyText = trigger.responseTemplate; step = 'trigger'; }
-    if (!replyText) {
-      const intent = await matchIntent(workspaceId, messageBody).catch(() => null);
-      if (intent?.trigger) { replyText = intent.trigger.responseTemplate; step = 'intent'; }
-    }
     // 4. The AI agent's escalation rules — only while an agent is deployed,
     //    and only once the workspace's own automations had their turn.
     if (!replyText && escalationRulesApply(workspace)) {

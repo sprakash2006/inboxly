@@ -325,11 +325,6 @@ export default function ChatAnalytics({ workspaceId }) {
                     ))}
                   </div>
                 )}
-                {insights?.clusteredBy === 'default' && (
-                  <p style={{ fontSize: 11, color: 'var(--t3)', marginTop: 12, lineHeight: 1.55 }}>
-                    Add intents under Intent Matching and these clusters become your own categories instead of the defaults.
-                  </p>
-                )}
               </div>
 
               {/* ── Sentiment ── */}

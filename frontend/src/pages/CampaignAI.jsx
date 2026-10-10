@@ -338,7 +338,6 @@ const RELATED_HREF = {
   'AI Agent': '/dashboard/ai-agent',
   'Shared Inbox': '/dashboard/inbox',
   'Automation': '/dashboard/automation',
-  'Intent Matching': '/dashboard/intent-matching',
   'WhatsApp Campaigns': '/dashboard/campaigns',
   'Templates': '/dashboard/templates',
 };

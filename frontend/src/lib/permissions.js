@@ -124,7 +124,6 @@ export const CAPABILITIES = Object.freeze({
   'templates.manage':       'CLIENT', // create, edit, delete, sync, library install, AI draft
   'campaigns.manage':       'CLIENT', // create, edit, launch, pause, resume, cancel, export
   'automation.manage':      'CLIENT', // basic, auto-replies, workflows, IG flows, voice, WhatsApp forms
-  'intents.manage':         'CLIENT',
   'aiAgents.manage':        'CLIENT', // studio agents and channels, WhatsApp agent config/deploy/knowledge
   'aiAgents.studioTest':    'CLIENT', // POST /ai-agents/:id/test
   'aiAgent.settleSuggestion':'CLIENT',// PATCH /ai-agents/autonomous/facts/:id

@@ -35,6 +35,3 @@ export async function agents(req, res) {
 export async function campaignUsage(req, res) {
   res.json(await svc.listAgentCampaigns(req.params.workspaceId, req.query.agentId || null));
 }
-export async function setIntent(req, res) {
-  res.json(await svc.setIntentMatching(req.params.workspaceId, req.body || {}));
-}

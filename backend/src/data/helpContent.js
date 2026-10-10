@@ -231,7 +231,6 @@ One WhatsApp rule shapes all of this: outside the customer service window that a
 Basic Automations — welcome message, out-of-office reply and business hours.
 Custom Auto Reply — keyword triggers and the replies they send.
 Workflows — multi-step flows with conditions and delays.
-AI Intent Matching — routes a message to the right trigger without an exact keyword.
 WhatsApp AI Agent — the free-form AI responder.
 Instagram Quickflows — the same keyword model applied to Instagram.
 Voice AI, Inbound Calls — answering and transcribing phone calls.
@@ -264,22 +263,7 @@ Create one by entering the keyword, choosing how it should match, and writing th
 
 Each trigger can be active or deactivated. Deactivating keeps the trigger and its message but stops it firing, which is more useful than deleting one you only want off for a while.
 
-Keyword triggers are checked before the welcome, out-of-office and AI agent replies, so a message matching a trigger gets the trigger's answer and nothing else responds to it.
-
-If you want messages that mean the same thing but do not contain the keyword to reach the trigger anyway, turn on AI Intent Matching.`,
-  },
-
-  {
-    id: 'automation-intent-matching',
-    title: 'AI intent matching',
-    topic: 'Automation',
-    body: `AI Intent Matching, on its own tab under Automation, scores an inbound message against your existing keyword triggers by meaning rather than by exact text. It is what sends "my parcel hasn't come" to a shipping trigger whose keyword is "delivery".
-
-You set a confidence threshold: how sure the match must be before the trigger fires. Raise it and only clear matches route, which is safer but lets more messages through to a human; lower it and more messages route automatically at the cost of the occasional wrong trigger.
-
-It classifies with the AI provider when one is configured and falls back to a deterministic word-overlap scorer when none is, so it keeps working either way — just less cleverly.
-
-It routes to triggers you have already created; it does not invent replies of its own. That is the AI agent's job.`,
+Keyword triggers are checked before the welcome, out-of-office and AI agent replies, so a message matching a trigger gets the trigger's answer and nothing else responds to it.`,
   },
 
   {

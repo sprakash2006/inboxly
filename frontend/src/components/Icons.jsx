@@ -40,7 +40,7 @@ const ICONS = {
   widget: AppWindow, wallet: Wallet, support: LifeBuoy, book: BookOpen, verified: BadgeCheck,
   'shield-check': ShieldCheck, party: PartyPopper, camera: Camera, star: Star,
   external: ExternalLink, checks: CheckCheck, code: Code,
-  // Intent icons (Automation → AI Intent Matching)
+  // General-purpose icons
   package: Package, money: Wallet, truck: Truck, undo: Undo2, frown: Frown, calendar: Calendar,
   receipt: Receipt, help: CircleHelp, gift: Gift, wrench: Wrench,
 };

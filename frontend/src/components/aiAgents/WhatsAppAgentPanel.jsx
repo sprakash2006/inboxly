@@ -575,7 +575,7 @@ const WhatsAppAgentPanel = () => {
               )}
 
               <div style={{ padding:'11px 14px', background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', borderRadius:8, fontSize:11.5, color:'var(--t3)', lineHeight:1.6 }}>
-                Reply order on inbound messages: <strong style={{ color:'var(--t2)' }}>active campaign AI chat</strong> → form in progress → workflow → keyword trigger → intent match → escalation rules → welcome/out-of-office → <strong style={{ color:'var(--t2)' }}>this agent</strong>.
+                Reply order on inbound messages: <strong style={{ color:'var(--t2)' }}>active campaign AI chat</strong> → form in progress → workflow → keyword trigger → escalation rules → welcome/out-of-office → <strong style={{ color:'var(--t2)' }}>this agent</strong>.
               </div>
             </div>
           )}
@@ -587,7 +587,7 @@ const WhatsAppAgentPanel = () => {
                   never read; only the rules below decide a handoff. */}
               <p style={{ fontSize:12, color:'var(--t2)', lineHeight:1.6 }}>
                 While the agent is deployed, a message that matches a rule switched on below — and that no workflow, keyword
-                trigger or intent rule answered — is handed to a human in the shared inbox. Automation on that chat pauses until a
+                trigger answered — is handed to a human in the shared inbox. Automation on that chat pauses until a
                 person replies, and resumes by itself once nobody has replied there for 24 hours (HANDOFF_TTL_HOURS).
               </p>
 

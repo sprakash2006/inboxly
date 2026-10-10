@@ -16,7 +16,7 @@ const SETTING_SECTIONS = [
   {
     title: 'AI language & image generation',
     fields: [
-      ['GEMINI_API_KEY', 'Gemini API key', 'Powers the AI agent, intent matching and template copy'],
+      ['GEMINI_API_KEY', 'Gemini API key', 'Powers the AI agent and template copy'],
       ['OPENAI_API_KEY', 'OpenAI API key', 'Used for template header image generation'],
     ],
   },

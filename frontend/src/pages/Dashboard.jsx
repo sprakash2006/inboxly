@@ -2594,7 +2594,6 @@ const ADMIN_NAV = [
   // The one AI Agents area: WhatsApp agent, agent studio, autonomous CRM agent.
   { id: 'ai-agent',       label: 'AI Agents',      icon: 'bot'   },
   { id: 'automation',     label: 'Automation',     icon: 'zap'   },
-  { id: 'intent-matching', label: 'Intent Matching', icon: 'spark' },
   { id: 'analytics',      label: 'Analytics',      icon: 'chart' },
   { id: 'chat-analysis',  label: 'Chat Analysis',  icon: 'chart' },
   { id: 'user-analytics', label: 'User Analytics', icon: 'user'  },
@@ -2645,7 +2644,7 @@ const SUPERADMIN_NAV = [...ADMIN_TABS, { id: 'settings', label: 'Settings', icon
 // row's colour: teal when active, slate otherwise.
 const NAV_ICONS = {
   home: 'home', inbox: 'inbox', campaigns: 'megaphone', templates: 'template', authentication: 'fingerprint',
-  contacts: 'contacts', 'ai-agent': 'sparkl', automation: 'zap', 'intent-matching': 'target',
+  contacts: 'contacts', 'ai-agent': 'sparkl', automation: 'zap',
   analytics: 'chart', 'chat-analysis': 'scan', 'user-analytics': 'trending',
   setup: 'smartphone', api: 'key', payments: 'credit',
   support: 'support', settings: 'cog', profile: 'user',
@@ -2662,7 +2661,7 @@ const NAV_GROUPS = [
   { name: 'COMMAND',    ids: ['home', 'inbox'] },
   { name: 'GROW',       ids: ['campaigns', 'templates', 'authentication', 'contacts'] },
   { name: 'CRM & SALES', ids: ['crm-overview', 'leads', 'deals', 'tasks'] },
-  { name: 'AUTOMATE',   ids: ['ai-agent', 'automation', 'intent-matching'] },
+  { name: 'AUTOMATE',   ids: ['ai-agent', 'automation'] },
   { name: 'UNDERSTAND', ids: ['analytics', 'chat-analysis', 'user-analytics'] },
   { name: 'CONNECT',    ids: ['widget', 'setup', 'api', 'payments', 'support', 'resources', 'settings'] },
 ];
@@ -3171,7 +3170,6 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     // Matching stays an Automation tab with its own route and sidebar entry.
     // 'ai-chatbots' is an old route, redirected above; it renders the same.
     if (page === 'ai-agent' || page === 'ai-chatbots') return <AiAgentsView initialTab={initialSubTab} />;
-    if (page === 'intent-matching') return <AutomationView initialTab="ai-intent" />;
     if (page === 'crm-overview') return <CrmDashboardView user={user} />;
     if (page === 'leads')      return <LeadsView />;
     if (page === 'deals')      return <DealsView initialTab={initialSubTab} />;

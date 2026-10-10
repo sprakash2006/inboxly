@@ -834,14 +834,3 @@ test('two deliveries of one message processed concurrently under the worker lock
   assert.equal(db.messages.filter((m) => m.direction === 'INBOUND').length, 1);
 });
 
-// ── WF-IN-14: intent rules route on every plan ─────────────────────────────
-
-test('an intent rule that runs a workflow works on a plan without campaignAi', async () => {
-  db.planFeatures = { automation: true, workflows: true, campaignAi: false };
-  const wf = addWorkflow({ name: 'Track order', nodes: [
-    { id: 's1', type: 'trigger', subtype: 'keyword', value: 'TRACKXYZ' },
-    { id: 's2', type: 'action', subtype: 'message', value: 'Your parcel is on its way' },
-  ] });
-  db.intentRules.push({ id: 'ir_1', workspaceId: 'ws_A', name: 'Tracking', isActive: true, actionType: 'workflow', actionTarget: wf.id, phrases: ['where is my parcel'] });
-  assert.deepEqual(await customerSends(text('where is my parcel')), ['Your parcel is on its way']);
-});

@@ -142,8 +142,8 @@ export const CATEGORIES = [
   },
   {
     id: 'automation', name: 'Automation & Workflows', icon: 'zap',
-    blurb: 'Keyword triggers, multi-step workflows and intent matching.',
-    overview: 'Automation & Workflows turns repetitive conversations into rules. Start with keyword triggers for instant replies, then build multi-step workflows with conditions and delays, and route by meaning with intent matching.',
+    blurb: 'Keyword triggers, welcome messages and multi-step workflows.',
+    overview: 'Automation & Workflows turns repetitive conversations into rules. Start with keyword triggers for instant replies, then build multi-step workflows with conditions and delays.',
     useFor: [
       'Auto-replying to common questions',
       'Building welcome and follow-up sequences',
@@ -154,7 +154,6 @@ export const CATEGORIES = [
       { title: 'Keyword triggers', body: 'One-word-in, one-message-out replies with no flow required.' },
       { title: 'Visual workflow builder', body: 'Trigger, condition, action and delay nodes chained into sequences.' },
       { title: 'Branching', body: 'Split on attributes or the customer’s reply; each branch runs independently.' },
-      { title: 'Intent matching', body: 'Classify messages into defined intents with a tunable confidence threshold.' },
       { title: 'Safe testing', body: 'Run a workflow against a test contact before activating it.' },
     ],
   },
@@ -700,20 +699,6 @@ export const RESOURCES = [
     ],
   },
   {
-    slug: 'intent-matching',
-    title: 'Configure Intent Matching',
-    category: 'automation', type: 'guide', difficulty: 'advanced', duration: '6 min',
-    description: 'Route messages by meaning instead of exact keywords.',
-    tags: ['intent', 'nlu', 'confidence', 'routing', 'ai'],
-    intro: 'Intent matching classifies an inbound message into one of your defined intents ("track order", "cancel", "pricing") so a workflow can act on meaning rather than exact words.',
-    learn: [
-      'Defining intents with a handful of example phrases each',
-      'Setting a confidence threshold that fits your traffic',
-      'Falling back to a human or the AI Agent when confidence is low',
-    ],
-    tips: ['Start with a high threshold and loosen it — misrouted messages erode trust faster than an occasional "didn’t understand".'],
-  },
-  {
     slug: 'deploy-ai-agent',
     title: 'Deploy the WhatsApp AI Agent',
     category: 'ai-agent', type: 'guide', difficulty: 'intermediate', duration: '8 min',
@@ -1221,7 +1206,7 @@ export const TROUBLESHOOTING = [
     tips: ['Replies not appearing → confirm the number is Active and the webhook is connected.',
       'Reply box forcing a template → the 24-hour service window has closed.'] },
   { id: 'configure-automation', label: 'Configure Automation',
-    resources: ['keyword-triggers', 'build-a-workflow', 'why-workflow-didnt-run', 'intent-matching'],
+    resources: ['keyword-triggers', 'build-a-workflow', 'why-workflow-didnt-run'],
     tips: ['Two automations firing → overlapping keywords; make one more specific.',
       'Workflow not starting → open its run history; “Didn’t run” says why (handoff, opt-out, open form). See “Why didn’t my workflow run?”.'] },
   { id: 'use-ai-agent', label: 'Use the AI Agent',

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext, Fragment } from 'react';
-import { I, ICON_NAMES } from '../components/Icons.jsx';
+import { I } from '../components/Icons.jsx';
 import { Btn } from '../components/Btn.jsx';
 import { wFetch } from '../lib/api.js';
 import { wJson } from '../lib/automationApi.js';
@@ -108,14 +108,12 @@ const Pill = ({ children, tone = 'green' }) => (
 // the AI Agents area with the studio and the autonomous agent, and Dashboard
 // redirects /dashboard/automation?tab=wa-agent there.
 const TAB_ROUTES = {
-  'ai-intent': '/dashboard/intent-matching',
 };
 
 const TABS = [
   { id: 'basic',     label: 'Basic Automations',        icon: 'play'  },
   { id: 'custom',    label: 'Custom Auto Reply',         icon: 'msg'   },
   { id: 'workflows', label: 'Workflows',                 icon: 'wflow' },
-  { id: 'ai-intent', label: 'AI Intent Matching',        icon: 'spark' },
   { id: 'ig-quick',  label: 'Instagram Quickflows',      icon: 'insta' },
   { id: 'voice-ai',  label: 'Voice AI - Inbound Calls',  icon: 'phone' },
   { id: 'wa-forms',  label: 'WhatsApp Forms',            icon: 'note'  },
@@ -2149,433 +2147,6 @@ const WorkflowCard = ({ workflow: w, stats, readOnly, runsTick, onToggle, onEdit
 };
 
 // ─────────────────────────────────────────────
-// 4. AI INTENT MATCHING
-// ─────────────────────────────────────────────
-// The routing layer in front of the agent. An intent is a named thing
-// customers ask for, the phrases that signal it, and where a match goes.
-//
-// The page keeps the two controls it always had — the global switch and the
-// sensitivity threshold — because they are what decides whether any of this
-// runs at all, and adds the thing that was missing: the rules themselves.
-
-// Icon names from components/Icons.jsx. The intent stores the name (the
-// backend keeps up to 8 characters, which every name here fits).
-const INTENT_ICONS = ['package', 'money', 'truck', 'undo', 'frown', 'calendar', 'receipt', 'help', 'gift', 'wrench'];
-
-// Intents saved before icons replaced emoji still carry the emoji; show the
-// matching icon for those, and a neutral target for anything unknown.
-const LEGACY_INTENT_ICONS = {
-  '\u{1F4E6}': 'package', '\u{1F4B0}': 'money', '\u{1F69A}': 'truck', '↩️': 'undo', '↩': 'undo',
-  '\u{1F621}': 'frown', '\u{1F4C5}': 'calendar', '\u{1F9FE}': 'receipt', '❓': 'help', '\u{1F381}': 'gift',
-  '\u{1F527}': 'wrench',
-};
-const intentIconName = (icon) => (ICON_NAMES.includes(icon) ? icon : LEGACY_INTENT_ICONS[icon] || 'target');
-const IntentIcon = ({ icon, s = 17, c = 'var(--accent)' }) => <I n={intentIconName(icon)} s={s} c={c} />;
-
-const ACTION_TYPES = [
-  { id: 'ai',       label: 'AI agent',       hint: 'Answer with the deployed agent' },
-  { id: 'human',    label: 'Human handoff',  hint: 'Assign to a person or team' },
-  { id: 'trigger',  label: 'Auto-reply',     hint: 'Send a keyword trigger’s reply' },
-  { id: 'workflow', label: 'Workflow',       hint: 'Start an automation workflow' },
-];
-
-// Create/edit sheet. One dialog for both because the fields are identical and
-// two near-identical forms drift the moment either is touched.
-const IntentEditor = ({ intent, onClose, onSaved }) => {
-  const editing = !!intent;
-  const [name, setName] = useState(intent?.name || '');
-  const [icon, setIcon] = useState(intent?.icon ? intentIconName(intent.icon) : INTENT_ICONS[0]);
-  const [actionType, setActionType] = useState(intent?.actionType || 'ai');
-  const [actionTarget, setActionTarget] = useState(intent?.actionTarget || '');
-  const [phrases, setPhrases] = useState(Array.isArray(intent?.phrases) ? intent.phrases : []);
-  const [draft, setDraft] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-
-  const addPhrase = () => {
-    const value = draft.trim();
-    if (!value) return;
-    // Case-insensitive de-dupe: "Size 9" and "size 9" match identically, so
-    // storing both only makes the card longer.
-    if (!phrases.some(p => p.toLowerCase() === value.toLowerCase())) setPhrases(list => [...list, value]);
-    setDraft('');
-  };
-
-  const save = async () => {
-    const trimmed = name.trim();
-    if (!trimmed) { setError('Give the intent a name.'); return; }
-    if (phrases.length === 0) { setError('Add at least one phrase — an intent with no phrases can never match.'); return; }
-    setSaving(true); setError(null);
-    const body = JSON.stringify({ name: trimmed, icon, actionType, actionTarget, phrases });
-    const r = editing
-      ? await wJson(`/intents/${intent.id}`, { method: 'PATCH', body })
-      : await wJson('/intents', { method: 'POST', body });
-    setSaving(false);
-    if (!r.ok) { setError(r.error); return; }
-    onSaved();
-  };
-
-  return (
-    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.4)', backdropFilter:'blur(4px)', zIndex:120, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ ...card, width:'100%', maxWidth:520, maxHeight:'88vh', overflowY:'auto', padding:24 }}>
-        <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:17, color:'var(--t1)', marginBottom:18 }}>
-          {editing ? 'Edit intent' : 'New intent'}
-        </h3>
-
-        {error && <div style={{ marginBottom:14 }}><Banner tone="error">{error}</Banner></div>}
-
-        <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-          <div>
-            <label style={labelStyle}>Icon</label>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
-              {INTENT_ICONS.map(g => (
-                <button key={g} type="button" onClick={() => setIcon(g)} aria-label={g} aria-pressed={icon === g}
-                  style={{ width:36, height:36, borderRadius:9, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-                           background: icon === g ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
-                           border:`1px solid ${icon === g ? 'var(--gbd)' : 'var(--bd)'}` }}>
-                  <IntentIcon icon={g} c={icon === g ? 'var(--accent)' : 'var(--t2)'} />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label style={labelStyle}>Name</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Product availability" style={inputStyle} />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Route a match to</label>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))', gap:8 }}>
-              {ACTION_TYPES.map(a => {
-                const on = actionType === a.id;
-                return (
-                  <button key={a.id} type="button" onClick={() => setActionType(a.id)}
-                    style={{ textAlign:'left', padding:'10px 12px', borderRadius:9, cursor:'pointer', fontFamily:"'Manrope',sans-serif",
-                             background: on ? 'var(--gbg)' : 'rgba(15,23,42,0.03)',
-                             border:`1px solid ${on ? 'var(--gbd)' : 'var(--bd)'}` }}>
-                    <div style={{ fontSize:13, fontWeight:600, color: on ? 'var(--green)' : 'var(--t1)' }}>{a.label}</div>
-                    <div style={{ fontSize:11, color:'var(--t3)', marginTop:2 }}>{a.hint}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <label style={labelStyle}>
-              {actionType === 'human' ? 'Assign to' : actionType === 'trigger' ? 'Keyword' : actionType === 'workflow' ? 'Workflow name' : 'Context note (optional)'}
-            </label>
-            <input value={actionTarget} onChange={e => setActionTarget(e.target.value)} style={inputStyle}
-              placeholder={actionType === 'human' ? 'Support team' : actionType === 'trigger' ? 'SHIPPING' : actionType === 'workflow' ? 'Order lookup' : 'live stock check'} />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Phrases that signal this intent</label>
-            <div style={{ display:'flex', gap:8 }}>
-              <input value={draft} onChange={e => setDraft(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addPhrase(); } }}
-                placeholder="in stock?" style={{ ...inputStyle, flex:1 }} />
-              <Btn variant="outline" onClick={addPhrase}>Add</Btn>
-            </div>
-            {phrases.length > 0 && (
-              <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10 }}>
-                {phrases.map(ph => (
-                  <span key={ph} style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12, padding:'4px 8px 4px 10px', borderRadius:20, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', color:'var(--t2)' }}>
-                    {ph}
-                    <button type="button" onClick={() => setPhrases(list => list.filter(x => x !== ph))} aria-label={`Remove ${ph}`}
-                      style={{ background:'none', border:'none', cursor:'pointer', display:'flex', padding:0, color:'var(--t3)' }}>
-                      <I n="x" s={10} c="var(--t3)" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <p style={{ fontSize:11, color:'var(--t3)', marginTop:8, lineHeight:1.5 }}>
-              A whole phrase found in the message scores highest; otherwise the score is the share of the phrase’s words present.
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display:'flex', justifyContent:'flex-end', gap:10, marginTop:22 }}>
-          <Btn variant="outline" onClick={onClose} disabled={saving}>Cancel</Btn>
-          <Btn onClick={save} disabled={saving}>{saving ? 'Saving…' : editing ? 'Save intent' : 'Create intent'}</Btn>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const AIIntentMatchingTab = () => {
-  // Intent matching is the campaignAi plan feature (enforced server-side).
-  const { allows } = usePlanFeatures();
-  const planLocked = !allows('campaignAi');
-  const [enabled, setEnabled] = useState(false);
-  const [threshold, setThreshold] = useState(0.6);
-  const [llmAvailable, setLlmAvailable] = useState(true);
-  const [banner, setBanner] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  const [rules, setRules] = useState([]);
-  const [loadingRules, setLoadingRules] = useState(true);
-  const [editor, setEditor] = useState(null);       // { intent } | { intent: null }
-  const [stats, setStats] = useState(null);
-
-  // Live tester
-  const [testInput, setTestInput] = useState('do you have this in size 9?');
-  const [testResult, setTestResult] = useState(null);
-  const [testing, setTesting] = useState(false);
-
-  const loadRules = useCallback(async () => {
-    const r = await wJson('/intents');
-    setLoadingRules(false);
-    if (r.ok && Array.isArray(r.data)) setRules(r.data);
-  }, []);
-
-  const loadStats = useCallback(async () => {
-    const r = await wJson('/intents/accuracy');
-    if (r.ok && r.data) setStats(r.data);
-  }, []);
-
-  useEffect(() => {
-    wJson(`${AI_AGENTS_API.whatsapp}/config`).then(r => {
-      if (!r.ok || !r.data) return;
-      setEnabled(r.data.intentMatchingEnabled === true);
-      setThreshold(typeof r.data.intentMatchThreshold === 'number' ? r.data.intentMatchThreshold : 0.6);
-      setLlmAvailable(r.data.llmAvailable !== false);
-    });
-    loadRules();
-    loadStats();
-  }, [loadRules, loadStats]);
-
-  // Debounced so the tester feels live without a request per keystroke.
-  useEffect(() => {
-    const value = testInput.trim();
-    if (!value) { setTestResult(null); return undefined; }
-    const t = setTimeout(async () => {
-      setTesting(true);
-      const r = await wJson('/intents/test', { method: 'POST', body: JSON.stringify({ message: value }) });
-      setTesting(false);
-      setTestResult(r.ok ? r.data : null);
-    }, 320);
-    return () => clearTimeout(t);
-  }, [testInput, rules]);
-
-  const persist = async (next, nextThreshold) => {
-    setSaving(true); setBanner(null);
-    const r = await wJson(`${AI_AGENTS_API.whatsapp}/intent-matching`, { method:'PATCH', body: JSON.stringify({ enabled: next, threshold: nextThreshold }) });
-    setSaving(false);
-    if (!r.ok) { setBanner({ tone:'error', text:r.error }); return; }
-    setEnabled(r.data.intentMatchingEnabled);
-    setThreshold(r.data.intentMatchThreshold);
-    setBanner({ tone:'ok', text: r.data.intentMatchingEnabled
-      ? 'Intent matching is on — inbound messages are routed by your intents before they reach the agent.'
-      : 'Intent matching is off. Messages go straight to the agent.' });
-  };
-
-  const toggleRule = async (rule) => {
-    // Optimistic: the switch is the whole interaction, and waiting a round trip
-    // to move it makes the card feel broken.
-    setRules(list => list.map(r => (r.id === rule.id ? { ...r, isActive: !r.isActive } : r)));
-    const r = await wJson(`/intents/${rule.id}`, { method:'PATCH', body: JSON.stringify({ isActive: !rule.isActive }) });
-    if (!r.ok) {
-      setRules(list => list.map(x => (x.id === rule.id ? { ...x, isActive: rule.isActive } : x)));
-      setBanner({ tone:'error', text:r.error });
-    }
-  };
-
-  const removeRule = async (rule) => {
-    if (!await confirmDialog(`Delete the intent “${rule.name}”? Messages it used to route will fall through to the AI agent.`, { danger: true })) return;
-    const r = await wJson(`/intents/${rule.id}`, { method:'DELETE' });
-    if (!r.ok) { setBanner({ tone:'error', text:r.error }); return; }
-    loadRules();
-  };
-
-  const activeCount = rules.filter(r => r.isActive).length;
-
-  return (
-    <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-      <TabHeader icon="spark" color="#4d7c0f" bg="rgba(101,163,13,0.1)"
-        title="Intent matching" subtitle={`Rules that route messages before the AI · ${activeCount} active`}
-        badge={enabled && <Pill>On</Pill>}>
-        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-          <Btn variant="outline" onClick={() => setEditor({ intent: null })} disabled={planLocked}>
-            <I n="plus" s={13} c="var(--t2)" /> New intent
-          </Btn>
-          <Toggle on={enabled} onToggle={() => persist(!enabled, threshold)} disabled={saving || (planLocked && !enabled)} />
-        </div>
-      </TabHeader>
-
-      {planLocked && <Banner tone="warn">Intent matching is not included in your plan. Upgrade from Payments to turn it on.</Banner>}
-      {banner && <Banner tone={banner.tone}>{banner.text}</Banner>}
-
-      <div className="intent-grid" style={{ display:'grid', gridTemplateColumns:'minmax(0,1fr) 320px', gap:16, alignItems:'start' }}>
-        {/* ── the rules ── */}
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {loadingRules && (
-            <div style={{ ...card, padding:'28px', textAlign:'center', color:'var(--t3)', fontSize:13 }}>Loading intents…</div>
-          )}
-
-          {!loadingRules && rules.length === 0 && (
-            <div style={{ ...card, padding:'30px 24px', textAlign:'center' }}>
-              <div style={{ marginBottom:10 }}><I n="target" s={28} c="var(--accent)" /></div>
-              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'var(--t1)', marginBottom:6 }}>No intents yet</p>
-              <p style={{ fontSize:13, color:'var(--t2)', lineHeight:1.6, maxWidth:380, margin:'0 auto 16px' }}>
-                An intent is a thing customers ask for and where that question should go. Until you add one, every inbound
-                message goes straight to the AI agent.
-              </p>
-              <Btn onClick={() => setEditor({ intent: null })}>Create your first intent</Btn>
-            </div>
-          )}
-
-          {rules.map(rule => (
-            <div key={rule.id} style={{ ...card, padding:'16px 18px', opacity: rule.isActive ? 1 : 0.6, transition:'opacity .15s' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <span style={{ width:36, height:36, borderRadius:10, background:'var(--gbg)', border:'1px solid var(--gbd)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <IntentIcon icon={rule.icon} />
-                </span>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14.5, color:'var(--t1)' }}>{rule.name}</div>
-                  <div style={{ fontSize:12, color:'var(--t2)', marginTop:2 }}>→ {rule.routedTo}</div>
-                </div>
-                <span style={{ fontFamily:'var(--mono)', fontSize:10, color:'var(--t3)', flexShrink:0, whiteSpace:'nowrap' }}>
-                  {rule.matchCount30d}× / 30d
-                </span>
-                <button onClick={() => setEditor({ intent: rule })} aria-label={`Edit ${rule.name}`}
-                  style={{ width:28, height:28, borderRadius:7, background:'rgba(15,23,42,0.04)', border:'1px solid var(--bd)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <I n="pencil" s={12} c="var(--t2)" />
-                </button>
-                <button onClick={() => removeRule(rule)} aria-label={`Delete ${rule.name}`}
-                  style={{ width:28, height:28, borderRadius:7, background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.2)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <I n="trash" s={12} c="#dc2626" />
-                </button>
-                <Toggle on={rule.isActive} onToggle={() => toggleRule(rule)} />
-              </div>
-              {Array.isArray(rule.phrases) && rule.phrases.length > 0 && (
-                <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:12, paddingLeft:48 }}>
-                  {rule.phrases.map(ph => (
-                    <span key={ph} style={{ fontFamily:'var(--mono)', fontSize:10.5, padding:'3px 9px', borderRadius:20, background:'rgba(15,23,42,0.03)', border:'1px solid var(--bd)', color:'var(--t2)' }}>{ph}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* ── tester + accuracy ── */}
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={{ ...card, padding:'18px' }}>
-            <div style={{ fontFamily:'var(--mono)', fontSize:10, letterSpacing:'.14em', color:'var(--t3)', textTransform:'uppercase', marginBottom:10 }}>Test a message</div>
-            <input value={testInput} onChange={e => setTestInput(e.target.value)} placeholder="Type what a customer might say…" style={inputStyle} />
-
-            {testResult && (
-              <div style={{ marginTop:14 }}>
-                <div style={{ fontFamily:'var(--mono)', fontSize:9.5, letterSpacing:'.12em', color:'var(--t3)', textTransform:'uppercase', marginBottom:8 }}>
-                  {testResult.matched ? 'Matched intent' : 'No match'}
-                </div>
-                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                  <span style={{ fontSize:19 }}><IntentIcon icon={testResult.matched ? testResult.intent.icon : 'bot'} s={19} /></span>
-                  <div style={{ minWidth:0 }}>
-                    <div style={{ fontSize:13.5, fontWeight:700, color:'var(--t1)' }}>
-                      {testResult.matched ? testResult.intent.name : 'Falls through to the AI agent'}
-                    </div>
-                    <div style={{ fontSize:11.5, color:'var(--t2)' }}>
-                      confidence {Math.round((testResult.confidence || 0) * 100)}% · threshold {Math.round(testResult.threshold * 100)}%
-                    </div>
-                  </div>
-                </div>
-                {/* The bar is read against the threshold, so the threshold is
-                    drawn on it — a percentage alone does not tell you whether
-                    it was enough. */}
-                <div style={{ position:'relative', height:6, borderRadius:6, background:'rgba(15,23,42,0.07)', overflow:'hidden', marginBottom:4 }}>
-                  <div style={{ width:`${Math.round((testResult.confidence || 0) * 100)}%`, height:'100%', borderRadius:6, background: testResult.matched ? 'var(--green)' : '#b45309', transition:'width .2s' }} />
-                </div>
-                <div style={{ position:'relative', height:10, marginBottom:10 }}>
-                  <span style={{ position:'absolute', left:`${Math.round(testResult.threshold * 100)}%`, top:-10, width:1, height:12, background:'var(--t3)' }} />
-                </div>
-                <div style={{ fontSize:12, color:'var(--t2)' }}>
-                  Routed to <strong style={{ color:'var(--t1)' }}>{testResult.routedTo}</strong>
-                </div>
-                {testResult.matched && testResult.matchedPhrase && (
-                  <div style={{ fontSize:11, color:'var(--t3)', marginTop:6 }}>
-                    matched on “{testResult.matchedPhrase}”
-                  </div>
-                )}
-                {!testResult.enabled && (
-                  <p style={{ fontSize:11, color:'#b45309', marginTop:10, lineHeight:1.5 }}>
-                    Intent matching is switched off, so this routing is a preview — live messages still go straight to the agent.
-                  </p>
-                )}
-              </div>
-            )}
-            {testing && !testResult && <p style={{ fontSize:12, color:'var(--t3)', marginTop:12 }}>Matching…</p>}
-          </div>
-
-          <div style={{ ...card, padding:'18px' }}>
-            <div style={{ fontFamily:'var(--mono)', fontSize:10, letterSpacing:'.14em', color:'var(--t3)', textTransform:'uppercase', marginBottom:12 }}>
-              Match accuracy · {stats?.days ?? 30}d
-            </div>
-            {!stats || stats.total === 0 ? (
-              <p style={{ fontSize:12, color:'var(--t3)', lineHeight:1.6 }}>
-                No routed messages yet. Once inbound messages start flowing through these intents, their hit rate appears here.
-              </p>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
-                {[
-                  ['Auto-matched',           stats.matched,     'var(--lime)'],
-                  ['Fell through to AI',     stats.fellThrough, 'var(--cyan)'],
-                  ['Mismatched (corrected)', stats.mismatched,  '#b45309'],
-                ].map(([label, value, colour]) => (
-                  <div key={label}>
-                    <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, marginBottom:5, flexWrap: 'wrap', rowGap: 10 }}>
-                      <span style={{ color:'var(--t2)' }}>{label}</span>
-                      <span style={{ color:colour, fontWeight:700, fontFamily:'var(--mono)' }}>{value.pct}%</span>
-                    </div>
-                    <div style={{ height:4, borderRadius:4, background:'rgba(15,23,42,0.07)', overflow:'hidden' }}>
-                      <div style={{ width:`${value.pct}%`, height:'100%', background:colour, borderRadius:4 }} />
-                    </div>
-                  </div>
-                ))}
-                <p style={{ fontSize:10.5, color:'var(--t3)', marginTop:2 }}>{stats.total.toLocaleString()} routed messages</p>
-              </div>
-            )}
-          </div>
-
-          {/* Sensitivity stays with the tester: it is the number the confidence
-              bar above is measured against. */}
-          <div style={{ ...card, padding:'18px' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8, flexWrap: 'wrap', rowGap: 10 }}>
-              <label htmlFor="intent-sensitivity" style={{ fontSize:12, fontWeight:600, color:'var(--t1)' }}>Match sensitivity</label>
-              <span style={{ fontSize:12, color:'var(--t2)' }}>
-                {Math.round(threshold * 100)}% — {threshold >= 0.75 ? 'strict' : threshold >= 0.5 ? 'balanced' : 'loose'}
-              </span>
-            </div>
-            <input id="intent-sensitivity" type="range" min="0.3" max="0.9" step="0.05" value={threshold}
-              onChange={e => setThreshold(parseFloat(e.target.value))}
-              onMouseUp={() => enabled && persist(true, threshold)}
-              onTouchEnd={() => enabled && persist(true, threshold)}
-              style={{ width:'100%', accentColor:'var(--green)' }} />
-            <p style={{ fontSize:11, color:'var(--t3)', marginTop:8, lineHeight:1.5 }}>
-              {llmAvailable
-                ? 'Anything below this falls through to the AI agent, which answers in its own words.'
-                : 'The server has no AI model configured, so anything that falls through gets your default auto-reply instead of a generated answer.'}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {editor && (
-        <IntentEditor
-          intent={editor.intent}
-          onClose={() => setEditor(null)}
-          onSaved={() => { setEditor(null); loadRules(); loadStats(); }}
-        />
-      )}
-    </div>
-  );
-};
-
-// ─────────────────────────────────────────────
 // 6. INSTAGRAM QUICKFLOWS
 // ─────────────────────────────────────────────
 const IG_SOURCES = [['dm', 'Direct Message'], ['comment', 'Post Comment'], ['story_reply', 'Story Reply']];
@@ -3648,22 +3219,17 @@ export default function AutomationView({ initialTab }) {
   // lands back on the same tab. Dashboard's router only looks at pathname, so
   // this doesn't interact with the outer route.
   //
-  // `initialTab` seeds it for the sections that are really one tab of this
-  // page given its own route — /dashboard/intent-matching.
-  // An explicit ?tab= still wins, so those routes stay shareable once the user
-  // switches tabs within them.
+  // `initialTab` seeds it when a link opens a specific tab. An explicit ?tab=
+  // still wins, so links stay shareable once the user switches tabs.
   const [activeTab, setActiveTab] = useState(() => {
     const fromUrl = new URLSearchParams(window.location.search).get('tab');
     if (TAB_IDS.has(fromUrl)) return fromUrl;
     return TAB_IDS.has(initialTab) ? initialTab : 'basic';
   });
 
-  // /dashboard/automation and /dashboard/intent-matching both render *this*
-  // component, so React reconciles them as the same element
-  // and never remounts on a move between them — the lazy useState initialiser
-  // above runs once and never again. Without this, clicking "Intent Matching"
-  // in the sidebar changed the URL but left the panel on whatever tab was
-  // already open. Following the prop is what actually switches the view.
+  // The component is not remounted when only `initialTab` changes, so the lazy
+  // useState initialiser above would never see the new value. Following the
+  // prop is what actually switches the view.
   useEffect(() => {
     if (TAB_IDS.has(initialTab)) setActiveTab(initialTab);
   }, [initialTab]);
@@ -3693,7 +3259,6 @@ export default function AutomationView({ initialTab }) {
       case 'basic':       return <BasicAutomationsTab />;
       case 'custom':      return <CustomAutoReplyTab />;
       case 'workflows':   return <WorkflowsTab />;
-      case 'ai-intent':   return <AIIntentMatchingTab />;
       case 'ig-quick':    return <InstagramQuickflowsTab />;
       case 'voice-ai':    return <VoiceAITab />;
       case 'wa-forms':    return <WhatsAppFormsTab />;
@@ -3705,9 +3270,7 @@ export default function AutomationView({ initialTab }) {
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', background:'var(--bg)' }}>
       {/* This page builds its own header rather than using the shell's, so it
-          had no hamburger — on a phone the nav drawer was unreachable from
-          Automation, the AI Agent and Intent Matching, which are three separate
-          sidebar destinations. */}
+          needs its own hamburger to reach the nav drawer on a phone. */}
       {isMobile && (
         <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 16px 0', flexShrink:0, background:'var(--surf)' }}>
           <MobileNavButton />

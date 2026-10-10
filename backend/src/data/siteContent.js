@@ -67,7 +67,7 @@ export const FEATURES = [
   {
     span: 2, icon: 'spark', color: '#0EA5E9',
     title: 'Replies that route themselves',
-    desc: 'A deployed agent answers free-form questions when no rule matches, and intent matching sends “my parcel hasn’t come” to your shipping trigger without an exact keyword.',
+    desc: 'A deployed agent answers free-form questions when no keyword rule or workflow matches.',
   },
   {
     span: 2, icon: 'wflow', color: '#F59E0B', visual: 'flow',
@@ -138,7 +138,7 @@ export const PLAN_CARDS = [
     name: 'Basic', planKey: 'BASIC', popular: false,
     price: '₹1,500', per: '/mo', note: 'or ₹3,500 per quarter',
     desc: 'For a small team running its first campaigns.',
-    features: ['Up to 10 team members and 10 API keys', '10,000 included messages per cycle', 'Campaigns, templates, team inbox', 'Campaign AI Agent and intent matching', 'Workflows, auto-replies and Instagram flows', 'Email support'],
+    features: ['Up to 10 team members and 10 API keys', '10,000 included messages per cycle', 'Campaigns, templates, team inbox', 'Campaign AI Agent', 'Workflows, auto-replies and Instagram flows', 'Email support'],
   },
   {
     name: 'Growth', planKey: 'GROWTH', popular: true,
@@ -285,7 +285,7 @@ export const CAMPAIGN_AI = {
      'Yes. The Test Lab runs your questions against a campaign’s real context and shows the exact answer with the sources it came from, before you deploy.'],
   ],
 
-  related: ['AI Agent', 'Shared Inbox', 'Automation', 'Intent Matching', 'WhatsApp Campaigns', 'Templates'],
+  related: ['AI Agent', 'Shared Inbox', 'Automation', 'WhatsApp Campaigns', 'Templates'],
 
   cta: {
     headline: 'Let your next campaign answer questions.',
@@ -311,7 +311,7 @@ export const REACTOR = {
     { num: '03', kicker: 'INTELLIGENCE', title: 'AI that knows the offer.',
       body: 'The agent answers grounded in your real campaign data. It never invents a discount, a date or a product it was not given.' },
     { num: '04', kicker: 'FLOW',         title: 'Every reply routes itself.',
-      body: 'Intent matching, keyword rules and automation branches decide the next step — qualify, nurture, escalate or convert.' },
+      body: 'Keyword rules and automation branches decide the next step — qualify, nurture, escalate or convert.' },
     { num: '05', kicker: 'HUMAN',        title: 'Handoff when it counts.',
       body: 'When intent gets high or sentiment dips, the thread lands in the shared inbox with full context for a real person.' },
     { num: '06', kicker: 'FEEDBACK',     title: 'Each reply sharpens the next.',
@@ -378,7 +378,7 @@ export const PLATFORM_MAP = {
   groups: [
     { name: 'COMMAND',    color: 'var(--cyan)',   items: ['Dashboard', 'Shared inbox'] },
     { name: 'GROW',       color: 'var(--lime)',   items: ['Campaigns', 'Campaign builder', 'Templates', 'Contacts & clusters'] },
-    { name: 'AUTOMATE',   color: 'var(--violet)', items: ['AI agent & Test Lab', 'Automation workflows', 'Intent matching', 'WhatsApp forms', 'Voice AI'] },
+    { name: 'AUTOMATE',   color: 'var(--violet)', items: ['AI agent & Test Lab', 'Automation workflows', 'WhatsApp forms', 'Voice AI'] },
     { name: 'UNDERSTAND', color: 'var(--cyan)',   items: ['Analytics', 'Chat analysis', 'User analytics'] },
     { name: 'CONNECT',    color: 'var(--wa-green)', items: ['Website widget', 'Integrations', 'WhatsApp numbers', 'API keys & webhooks', 'Payments & wallet', 'Settings'] },
   ],

@@ -27,6 +27,5 @@ router.post('/knowledge/upload',
 router.post('/deploy', requireFeature('campaignAi'), ctrl.deploy);
 router.post('/undeploy', ctrl.undeploy);
 router.post('/test', requireFeature('campaignAi'), ctrl.test);
-router.patch('/intent-matching', requireFeature('campaignAi'), ctrl.setIntent);
 
 export default router;

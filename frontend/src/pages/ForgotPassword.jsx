@@ -83,12 +83,7 @@ export default function ForgotPassword() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '40px' }}>
       <div style={{ width: '100%', maxWidth: '380px' }}>
         <div onClick={() => navigate('/login')} style={{ display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer', marginBottom: '28px' }}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
-              <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.3" strokeLinecap="round" />
-            </svg>
-          </div>
+          <img src="/logo.png" alt="" width={34} height={34} style={{ display: 'block', flexShrink: 0 }} />
           <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '17px', color: 'var(--t1)' }}>
             Inboxly
           </span>

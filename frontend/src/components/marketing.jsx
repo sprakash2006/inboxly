@@ -129,13 +129,8 @@ export const Aurora = () => (
   </>
 );
 
-export const BrandMark = ({ size = 32, radius = 9, glow = true }) => (
-  <div style={{ width: size, height: size, borderRadius: radius, background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: glow ? '0 0 18px rgba(13,148,136,0.35)' : 'none' }}>
-    <svg width={size * 0.44} height={size * 0.44} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#08090c" />
-      <path d="M5.5 7.5h5M5.5 10h3" stroke="#0d9488" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  </div>
+export const BrandMark = ({ size = 32 }) => (
+  <img src="/logo.png" alt="" width={size} height={size} style={{ display: 'block', flexShrink: 0 }} />
 );
 
 // The site header. `links` lets a product page point at its own sections while
@@ -203,7 +198,7 @@ export const MarketingFooter = ({ onNav }) => (
       <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr 1fr 1fr', gap: 40, marginBottom: 44 }}>
         <div>
           <button onClick={() => onNav('landing')} style={{ display: 'inline-flex', alignItems: 'center', gap: 9, cursor: 'pointer', marginBottom: 14, background: 'none', border: 'none', padding: 0 }}>
-            <BrandMark size={28} radius={8} glow={false} />
+            <BrandMark size={28} />
             <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Inboxly</span>
           </button>
           <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.65, maxWidth: 240 }}>

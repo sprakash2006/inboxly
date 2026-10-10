@@ -1,8 +1,8 @@
-/* Single source of truth for the Inboxly brand mark, so the pulse dot and
-   wordmark are identical everywhere they appear (sidebar, resource centre
-   footer). Mirrors the treatment used in the dashboard sidebar header. */
+/* Single source of truth for the Inboxly brand mark (public/logo.png) and
+   wordmark, so they are identical everywhere they appear (sidebar, resource
+   centre, legal and setup pages). */
 export function Logo({
-  size = 32,           // px, the hit area around the pulse dot
+  size = 32,           // px, the hit area around the mark
   text = true,         // render the "Inboxly" wordmark alongside
   textSize,            // px, defaults to a size-relative value
   onClick,
@@ -33,23 +33,7 @@ export function Logo({
           flexShrink: 0,
         }}
       >
-        {/* The chat-bubble mark used on the landing and sign-in pages. */}
-        <span
-          style={{
-            width: mark,
-            height: mark,
-            borderRadius: Math.round(mark * 0.3),
-            background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
-            boxShadow: '0 2px 8px rgba(13,148,136,0.28)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <svg width={Math.round(mark * 0.52)} height={Math.round(mark * 0.52)} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M8 1C4.13 1 1 4.13 1 8c0 1.29.35 2.5.96 3.54L1 15l3.46-.96A7 7 0 1 0 8 1z" fill="#ffffff" />
-          </svg>
-        </span>
+        <img src="/logo.png" alt="" width={mark} height={mark} style={{ display: 'block' }} />
       </span>
       {text && (
         <span

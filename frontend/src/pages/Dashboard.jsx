@@ -45,7 +45,6 @@ const SettingsView = lazy(() => import('./SettingsView.jsx'));
 const ProfileView = lazy(() => import('./ProfileView.jsx'));
 const SuperAdminView = lazy(() => import('./SuperAdminView.jsx'));
 const SupportView = lazy(() => import('./SupportView.jsx'));
-const IntegrationsView = lazy(() => import('./IntegrationsView.jsx'));
 const PaymentsView = lazy(() => import('./PaymentsView.jsx'));
 import LegalCenter from '../components/LegalCenter.jsx';
 import { LEGAL_DOCS } from '../lib/legalContent.js';
@@ -868,7 +867,7 @@ const HomeView = () => {
               <I n="spark" s={18} c="var(--green)" />
             </div>
             <div>
-              <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '14px', color: 'var(--t1)', marginBottom: '2px' }}>Unlock integrations &amp; AI onboarding</p>
+              <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '14px', color: 'var(--t1)', marginBottom: '2px' }}>Unlock AI onboarding &amp; higher limits</p>
               <p style={{ fontSize: '12px', color: 'var(--t2)' }}>You're on the {plan.name} plan. Upgrade for higher limits and the paid features.</p>
             </div>
           </div>
@@ -2592,7 +2591,6 @@ const ADMIN_NAV = [
   { id: 'inbox',          label: 'Inbox',          icon: 'msg'   },
 
   { id: 'widget',         label: 'Website Widget', icon: 'globe' },
-  { id: 'integrations',   label: 'Integrations',   icon: 'plug' },
   // The one AI Agents area: WhatsApp agent, agent studio, autonomous CRM agent.
   { id: 'ai-agent',       label: 'AI Agents',      icon: 'bot'   },
   { id: 'automation',     label: 'Automation',     icon: 'zap'   },
@@ -2649,7 +2647,7 @@ const NAV_ICONS = {
   home: 'home', inbox: 'inbox', campaigns: 'megaphone', templates: 'template', authentication: 'fingerprint',
   contacts: 'contacts', 'ai-agent': 'sparkl', automation: 'zap', 'intent-matching': 'target',
   analytics: 'chart', 'chat-analysis': 'scan', 'user-analytics': 'trending',
-  integrations: 'plug', setup: 'smartphone', api: 'key', payments: 'credit',
+  setup: 'smartphone', api: 'key', payments: 'credit',
   support: 'support', settings: 'cog', profile: 'user',
   // crm navigation
   'crm-overview': 'layout', 'ai-chatbots': 'bot', leads: 'target', deals: 'briefcase', tasks: 'check-square',
@@ -2666,7 +2664,7 @@ const NAV_GROUPS = [
   { name: 'CRM & SALES', ids: ['crm-overview', 'leads', 'deals', 'tasks'] },
   { name: 'AUTOMATE',   ids: ['ai-agent', 'automation', 'intent-matching'] },
   { name: 'UNDERSTAND', ids: ['analytics', 'chat-analysis', 'user-analytics'] },
-  { name: 'CONNECT',    ids: ['widget', 'integrations', 'setup', 'api', 'payments', 'support', 'resources', 'settings'] },
+  { name: 'CONNECT',    ids: ['widget', 'setup', 'api', 'payments', 'support', 'resources', 'settings'] },
 ];
 
 
@@ -3181,7 +3179,6 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     if (page === 'analytics')      return <AnalyticsView />;
     if (page === 'chat-analysis')  return <ChatAnalytics workspaceId={user.workspaceId} />;
     if (page === 'user-analytics') return <UserAnalyticsView />;
-    if (page === 'integrations')   return <IntegrationsView />;
     if (page === 'setup')          return <NumberSetupView />;
     if (page === 'payments')       return <PaymentsView initialTab={initialSubTab || 'wallet'} />;
     if (page === 'api')            return <ApiKeysView />;

@@ -31,9 +31,6 @@ import segmentsRoutes from './segments.routes.js';
 import whatsappFormsRoutes from './whatsappForms.routes.js';
 import walletRoutes from './wallet.routes.js';
 import widgetsRoutes from './widgets.routes.js';
-import integrationsRoutes, {
-  oauthCallbackRouter,
-} from './integrations.routes.js';
 import supportRoutes from './support.routes.js';
 import workspacesRoutes from './workspaces.routes.js';
 import subscriptionRoutes from './subscription.routes.js';
@@ -125,8 +122,6 @@ router.use('/users', usersRoutes);
 // before you belong to the workspace that sent it.
 router.use('/notifications', notificationsRoutes);
 
-router.use('/integrations/oauth', oauthCallbackRouter);
-
 router.use('/invitations', publicInvitationsRouter);
 
 // -----------------------------------------------------------------------------
@@ -166,7 +161,6 @@ ws.use('/opt-outs', optOutRoutes);
 ws.use('/blocked-numbers', optOutRoutes);
 
 ws.use('/subscription', subscriptionRoutes);
-ws.use('/integrations', integrationsRoutes);
 ws.use('/support', supportRoutes);
 // AI Agents: one route family for the one AI Agents area —
 //   /ai-agents             the agent studio (personas, channels, guidelines, actions)

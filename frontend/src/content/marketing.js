@@ -173,7 +173,7 @@ export const faq = [
   {
     q: 'What does it cost?',
     a: 'There is a free plan with no card required. Paid plans add higher message '
-      + 'quotas, more team members and integrations. WhatsApp message costs are '
+      + 'quotas, more team members and AI features. WhatsApp message costs are '
       + 'charged at the per-category rates published by Meta.',
   },
   {

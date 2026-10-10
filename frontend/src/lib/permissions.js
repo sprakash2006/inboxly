@@ -155,7 +155,6 @@ export function can(capability, user = currentUser()) {
 // no-access page instead. Sections not listed are open to every member.
 export const SECTION_MIN_ROLE = Object.freeze({
   widget:               'CLIENT',
-  integrations:         'CLIENT',
   setup:                'CLIENT',
   api:                  'CLIENT',
   'campaigns-create':   'CLIENT',

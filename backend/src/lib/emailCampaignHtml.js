@@ -112,74 +112,220 @@ export function personalizeText(text, { name, email } = {}) {
   return String(text).replace(/\{\{\s*(name|first_name|email)\s*\}\}/gi, (_, k) => vals[k.toLowerCase()]);
 }
 
+// ─── Colour ─────────────────────────────────────────────────────────────────
+//
+// One accent colour drives the whole email, and everything else is derived
+// from it so the result is always harmonious:
+//   - an analogous partner hue (28° round the wheel) for the hero gradient
+//   - light tints of the accent for the page, highlight box and borders
+//   - a deepened accent for emphasis text, darkened until it passes WCAG AA
+//   - the text colour on the accent (white or near-black) picked by contrast,
+//     so a light amber gets dark text and navy gets white
+// Neutrals are slate, a cool grey that sits well under every accent.
+
+// Curated themes Gemini chooses from to match the message's mood.
+export const THEMES = {
+  teal: '#0d9488',
+  ocean: '#2563eb',
+  violet: '#7c3aed',
+  rose: '#db2777',
+  festive: '#ea580c',
+  gold: '#d97706',
+  emerald: '#059669',
+  crimson: '#dc2626',
+  midnight: '#1e293b',
+};
+
+const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const rgbToHex = (rgb) => `#${rgb.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('')}`;
+const mix = (hex, withHex, amount) => {
+  const a = hexToRgb(hex);
+  const b = hexToRgb(withHex);
+  return rgbToHex(a.map((v, i) => v + (b[i] - v) * amount));
+};
+
+function rgbToHsl([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  return [h * 60, s, l];
+}
+
+function hslToRgb([h, s, l]) {
+  const hue = (((h % 360) + 360) % 360) / 360;
+  if (s === 0) return [l, l, l].map((v) => v * 255);
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  const channel = (x) => {
+    let t = x;
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+  return [channel(hue + 1 / 3), channel(hue), channel(hue - 1 / 3)].map((v) => v * 255);
+}
+
+function luminance(hex) {
+  const [r, g, b] = hexToRgb(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrast(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const INK_DARK = '#0f172a';
+
+export function palette(accentColor) {
+  const accent = HEX.test(accentColor || '') ? accentColor.toLowerCase() : THEMES.teal;
+  const [h, s, l] = rgbToHsl(hexToRgb(accent));
+  // Warm hues (red to gold) turn toward red, since turning toward yellow
+  // washes them out to neon; every other hue turns 22° forward (teal to
+  // blue, blue to indigo). The partner is never lighter than the accent, so
+  // text that reads on one end of the gradient reads on the other.
+  const shift = h <= 70 ? -12 : 22;
+  const partner = rgbToHex(hslToRgb([h + shift, s, Math.min(l, 0.6)]));
+  // White text on the accent whenever it reaches 3:1 (WCAG's bar for large
+  // bold text: the headline and button), checked against the lighter end of
+  // the gradient; near-black only for accents too light for white.
+  const lighter = luminance(partner) > luminance(accent) ? partner : accent;
+  const ink = contrast('#ffffff', lighter) >= 3 ? '#ffffff' : INK_DARK;
+  const tint = mix(accent, '#ffffff', 0.92);
+  let deep = accent;
+  for (let i = 0; i < 8 && contrast(deep, tint) < 4.5; i += 1) deep = mix(deep, INK_DARK, 0.18);
+  return {
+    accent,
+    partner,
+    ink,
+    inkSoft: ink === '#ffffff' ? 'rgba(255,255,255,0.88)' : 'rgba(15,23,42,0.75)',
+    deep,
+    tint,
+    tintBorder: mix(accent, '#ffffff', 0.78),
+    glow: mix(accent, '#ffffff', 0.6),
+    shadow: mix(accent, '#ffffff', 0.88),
+    page: mix(accent, '#f8fafc', 0.95),
+  };
+}
+
+// ─── Layout ─────────────────────────────────────────────────────────────────
+
 // Lets a line carry **bold** without allowing any other markup.
-const inline = (s) => escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+const inline = (s, color = INK_DARK) =>
+  escapeHtml(s).replace(/\*\*(.+?)\*\*/g, `<strong style="color:${color};font-weight:700;">$1</strong>`);
+
+// A greeting ("Hi {{first_name}},") is set apart from the body copy.
+const isGreeting = (t) => t.length <= 40 && /^(hi|hello|hey|dear|namaste|greetings)\b/i.test(t);
+
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 export function renderEmailHtml({ content, accentColor, preheader, brandName, logoUrl }) {
   const c = normalizeContent(content);
-  const accent = HEX.test(accentColor || '') ? accentColor : '#0d9488';
-  const brand = escapeHtml(clip(brandName, 60) || 'Inboxly');
+  const p = palette(accentColor);
+  const brandText = clip(brandName, 60) || 'Inboxly';
+  const brand = escapeHtml(brandText);
   const logo = safeUrl(logoUrl);
-  const font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+  const pre = clip(preheader, 160);
 
-  const paragraphs = c.paragraphs.map((p) =>
-    `<p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#334155;">${inline(p)}</p>`).join('');
-
-  const bullets = c.bullets.length ? `
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px;">
-      ${c.bullets.map((b) => `
-      <tr>
-        <td width="28" valign="top" style="padding:6px 0;">
-          <div style="width:20px;height:20px;border-radius:10px;background:${accent};color:#ffffff;font-size:12px;line-height:20px;text-align:center;font-weight:700;">&#10003;</div>
-        </td>
-        <td valign="top" style="padding:6px 0 6px 6px;font-size:15px;line-height:1.55;color:#334155;">${inline(b)}</td>
-      </tr>`).join('')}
-    </table>` : '';
-
-  const cta = c.ctaUrl ? `
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px;">
-      <tr><td style="border-radius:10px;background:${accent};">
-        <a href="${escapeHtml(c.ctaUrl)}" target="_blank" style="display:inline-block;padding:13px 28px;font-family:${font};font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">${escapeHtml(c.ctaText || 'Learn more')} &rarr;</a>
-      </td></tr>
-    </table>` : '';
-
-  const signoff = c.signoff
-    ? `<p style="margin:8px 0 0;font-size:15px;line-height:1.6;color:#334155;">${inline(c.signoff).replace(/\n/g, '<br>')}</p>`
-    : `<p style="margin:8px 0 0;font-size:15px;line-height:1.6;color:#334155;">Warm regards,<br><strong>${brand}</strong></p>`;
+  const paras = [...c.paragraphs];
+  const greeting = paras.length && isGreeting(paras[0]) ? paras.shift() : '';
 
   const header = logo
-    ? `<img src="${escapeHtml(logo)}" alt="${brand}" height="36" style="display:inline-block;height:36px;max-width:160px;border:0;vertical-align:middle;">`
-    : `<span style="font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">${brand}</span>`;
+    ? `<img src="${escapeHtml(logo)}" alt="${brand}" height="34" style="display:block;height:34px;max-width:170px;border:0;">`
+    : `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td width="34" height="34" align="center" valign="middle" bgcolor="${p.accent}" style="width:34px;height:34px;border-radius:10px;background:${p.accent};color:${p.ink};font-size:16px;font-weight:800;">${escapeHtml(brandText.charAt(0).toUpperCase())}</td>
+          <td style="padding-left:10px;font-size:17px;font-weight:800;color:${INK_DARK};letter-spacing:-0.02em;">${brand}</td>
+        </tr></table>`;
+
+  // The headline sits on the accent gradient; Outlook, which ignores
+  // gradients, falls back to the solid bgcolor. With no headline the card
+  // opens with a thin accent rule instead.
+  const hero = c.headline ? `
+          <tr><td class="hero-pad" bgcolor="${p.accent}" style="background:${p.accent};background-image:linear-gradient(135deg,${p.accent} 0%,${p.partner} 100%);border-radius:18px 18px 0 0;padding:40px 36px 36px;">
+            <h1 style="margin:0;font-size:28px;line-height:1.25;font-weight:800;color:${p.ink};letter-spacing:-0.02em;">${escapeHtml(c.headline.replace(/\*\*/g, ''))}</h1>
+            ${pre ? `<p style="margin:12px 0 0;font-size:15px;line-height:1.55;color:${p.inkSoft};">${escapeHtml(pre)}</p>` : ''}
+          </td></tr>` : `
+          <tr><td style="height:6px;background:${p.accent};border-radius:18px 18px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>`;
+
+  const body = paras.map((t) =>
+    `<p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#334155;">${inline(t, p.deep)}</p>`).join('\n            ');
+
+  const highlights = c.bullets.length ? `
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:6px 0 26px;background:${p.tint};border:1px solid ${p.tintBorder};border-radius:14px;">
+              <tr><td style="padding:18px 20px 8px;">${c.bullets.map((b) => `
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 10px;"><tr>
+                  <td width="30" valign="top"><div style="width:22px;height:22px;border-radius:11px;background:${p.accent};color:${p.ink};font-size:12px;line-height:22px;text-align:center;font-weight:800;">&#10003;</div></td>
+                  <td valign="top" style="padding:1px 0 0 4px;font-size:15px;line-height:1.55;color:#1e293b;font-weight:500;">${inline(b, p.deep)}</td>
+                </tr></table>`).join('')}
+              </td></tr>
+            </table>` : '';
+
+  const url = c.ctaUrl ? escapeHtml(c.ctaUrl) : '';
+  const shortUrl = escapeHtml(c.ctaUrl.replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, 50));
+  const cta = url ? `
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:8px auto 10px;">
+              <tr><td align="center" bgcolor="${p.accent}" style="border-radius:12px;background:${p.accent};background-image:linear-gradient(135deg,${p.accent},${p.partner});box-shadow:0 6px 16px ${p.glow};">
+                <a href="${url}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:${FONT};font-size:17px;font-weight:700;color:${p.ink};text-decoration:none;border-radius:12px;">${escapeHtml(c.ctaText || 'Learn more')}&nbsp;&rarr;</a>
+              </td></tr>
+            </table>
+            <p style="margin:0 0 26px;text-align:center;font-size:12px;color:#94a3b8;">or open <a href="${url}" target="_blank" style="color:${p.deep};text-decoration:underline;">${shortUrl}</a></p>` : '';
+
+  const sign = (c.signoff || `Warm regards,\n${brandText}`).split('\n').map((l) => l.trim()).filter(Boolean);
+  const signoff = `
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:6px;border-top:1px solid #e2e8f0;">
+              <tr><td style="padding-top:22px;font-size:15px;line-height:1.6;color:#475569;">
+                ${sign.slice(0, -1).map((l) => inline(l)).join('<br>')}${sign.length > 1 ? '<br>' : ''}<strong style="color:${INK_DARK};">${inline(sign[sign.length - 1] || brandText)}</strong>
+              </td></tr>
+            </table>`;
 
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light">
-<title>${escapeHtml(c.headline || brandName || '')}</title>
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>${escapeHtml(c.headline || brandText)}</title>
+<style>
+  @media (max-width:620px){
+    .card-pad{padding:28px 22px !important}
+    .hero-pad{padding:30px 22px 26px !important}
+    h1{font-size:24px !important}
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:${font};">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(clip(preheader, 160))}</div>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f1f5f9;">
-  <tr><td align="center" style="padding:28px 12px;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;">
-      <tr><td style="padding:0 4px 16px;">${header}</td></tr>
-      <tr><td style="background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
-        <div style="height:6px;background:${accent};font-size:0;line-height:0;">&nbsp;</div>
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-          <tr><td style="padding:32px 32px 28px;">
-            ${c.headline ? `<h1 style="margin:0 0 18px;font-size:24px;line-height:1.3;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">${inline(c.headline)}</h1>` : ''}
-            ${paragraphs}
-            ${bullets}
-            ${cta}
-            ${signoff}
+<body style="margin:0;padding:0;background:${p.page};font-family:${FONT};-webkit-font-smoothing:antialiased;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(pre)}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${p.page}" style="background:${p.page};">
+  <tr><td align="center" style="padding:32px 14px 40px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;font-family:${FONT};">
+      <tr><td style="padding:0 4px 20px;">${header}</td></tr>
+      <tr><td style="border-radius:18px;background:#ffffff;box-shadow:0 1px 3px rgba(15,23,42,0.06),0 12px 32px ${p.shadow};">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${hero}
+          <tr><td class="card-pad" style="padding:34px 36px 32px;">
+            ${greeting ? `<p style="margin:0 0 16px;font-size:17px;line-height:1.5;font-weight:700;color:${INK_DARK};">${inline(greeting)}</p>` : ''}
+            ${body}${highlights}${cta}${signoff}
           </td></tr>
         </table>
       </td></tr>
-      <tr><td style="padding:20px 8px 0;text-align:center;font-size:12px;line-height:1.6;color:#94a3b8;">
+      <tr><td style="padding:24px 16px 0;text-align:center;font-size:12px;line-height:1.7;color:#94a3b8;">
+        <span style="color:#64748b;font-weight:600;">${brand}</span><br>
         You are receiving this email because you are in touch with ${brand}.<br>
-        Not interested? Just reply with &ldquo;unsubscribe&rdquo; and we will take you off the list.
+        Not interested? Reply with &ldquo;unsubscribe&rdquo; and we will take you off the list.
       </td></tr>
     </table>
   </td></tr>

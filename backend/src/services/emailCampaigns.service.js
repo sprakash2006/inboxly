@@ -9,7 +9,7 @@ import { sendMail } from '../lib/mailer.js';
 import { realtime } from '../lib/realtimeBus.js';
 import { enqueueEmailCampaign } from '../queues/emailCampaign.queue.js';
 import {
-  contentFromMessage, normalizeContent, renderEmailHtml, personalize, personalizeText,
+  contentFromMessage, normalizeContent, renderEmailHtml, personalize, personalizeText, THEMES,
 } from '../lib/emailCampaignHtml.js';
 
 export const MAX_RECIPIENTS = 2000;
@@ -50,14 +50,15 @@ const TONES = {
 
 const SYSTEM = `You are an expert email marketing copywriter. You turn a business owner's rough message into a clear, engaging marketing email.
 Return ONLY a JSON object with exactly these keys:
-{"subject": string (max 70 chars), "preheader": string (max 110 chars, complements the subject), "headline": string (max 70 chars), "paragraphs": string[] (2 to 4 short paragraphs), "bullets": string[] (0 to 5 short benefit or detail lines; empty if the message has no list-like details), "ctaText": string (2 to 4 words, empty if there is no link), "ctaUrl": string, "signoff": string}
+{"subject": string (max 70 chars), "preheader": string (max 110 chars, complements the subject), "headline": string (max 70 chars), "paragraphs": string[] (2 to 4 short paragraphs), "bullets": string[] (0 to 5 short benefit or detail lines; empty if the message has no list-like details), "ctaText": string (2 to 4 words, empty if there is no link), "ctaUrl": string, "signoff": string, "theme": string}
 Rules:
 - Keep every fact from the message: names, offers, prices, dates, codes, links. Never invent discounts, prices, dates, links, statistics or claims.
 - ctaUrl must be a link that appears in the message, copied exactly; otherwise "".
 - Keep placeholders like {{name}} and {{first_name}} exactly as written. You may open with "Hi {{first_name}}," as the first paragraph.
 - Use **double asterisks** for at most two short emphasised phrases. No other markdown, no HTML, no emoji.
 - Write in the same language as the message.
-- signoff is a closing line plus the business name, e.g. "Warm regards,\\nThe Acme team".`;
+- signoff is a closing line plus the business name, e.g. "Warm regards,\\nThe Acme team".
+- theme is the colour that best fits the mood, one of: ${Object.keys(THEMES).join(', ')}. festive for Diwali, Holi and celebrations; gold for premium or jewellery; crimson for big sales and urgency; emerald for health, food and eco; rose for beauty and fashion; ocean for tech, finance and trust; violet for creative work and events; midnight for luxury; teal when nothing stands out.`;
 
 // Rewrites a plain message into structured email content with AI. Without a
 // configured model (or if it fails) the message is laid out as-is, so the
@@ -87,6 +88,9 @@ ${text.slice(0, 4000)}
     }
     return {
       aiUsed: true,
+      // A theme name outside the curated list is ignored, never used as a colour.
+      theme: Object.hasOwn(THEMES, ai.theme) ? ai.theme : null,
+      accentColor: Object.hasOwn(THEMES, ai.theme) ? THEMES[ai.theme] : null,
       subject: String(ai.subject || subject || content.headline).slice(0, 150),
       preheader: String(ai.preheader || '').slice(0, 160),
       content,

@@ -35,7 +35,7 @@ test('content is escaped, so markup in a message or AI reply is printed, not ren
   });
   assert.ok(!html.includes('<script>x'));
   assert.ok(!html.includes('<img src=x'));
-  assert.ok(html.includes('<strong>bold</strong>'));
+  assert.match(html, /<strong style="[^"]*">bold<\/strong>/);
 });
 
 test('an invalid accent colour falls back to the default', () => {
@@ -49,4 +49,21 @@ test('placeholders are filled per recipient and escaped', () => {
   assert.equal(personalize('Hi {{name}}', { name: '<b>Bob</b>' }), 'Hi &lt;b&gt;Bob&lt;/b&gt;');
   assert.equal(personalize('Hi {{name}}', {}), 'Hi there');
   assert.equal(personalizeText('Offer for {{first_name}}', { name: 'Ravi K' }), 'Offer for Ravi');
+});
+
+test('every theme gets readable text on its accent and on its tint', async () => {
+  const { THEMES, palette, contrast } = await import('./emailCampaignHtml.js');
+  for (const [name, hex] of Object.entries(THEMES)) {
+    const p = palette(hex);
+    assert.ok(contrast(p.ink, p.accent) >= 3, `${name}: button text contrast ${contrast(p.ink, p.accent).toFixed(2)}`);
+    assert.ok(contrast(p.deep, p.tint) >= 4.5, `${name}: emphasis on tint`);
+  }
+  assert.equal(palette('#fde047').ink, '#0f172a');       // light accent → dark text
+  assert.equal(palette(THEMES.midnight).ink, '#ffffff'); // dark accent → white text
+});
+
+test('a greeting line is pulled out above the body', () => {
+  const html = renderEmailHtml({ content: { headline: 'Hello', paragraphs: ['Hi {{first_name}},', 'Body text'] }, brandName: 'Acme' });
+  assert.ok(html.indexOf('Hi {{first_name}},') < html.indexOf('Body text'));
+  assert.ok(html.includes('font-size:17px;line-height:1.5;font-weight:700'));
 });

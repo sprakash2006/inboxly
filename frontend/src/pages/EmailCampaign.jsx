@@ -24,7 +24,21 @@ const H = "'Space Grotesk',sans-serif";
 const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/i;
 const isEmail = (s) => EMAIL_RE.test(String(s || '').trim());
 
-const ACCENTS = ['#0d9488', '#2563eb', '#7c3aed', '#db2777', '#ea580c', '#0f172a'];
+// Same names and colours as the server's THEMES (lib/emailCampaignHtml.js),
+// which Gemini picks from to match the message's mood.
+const THEMES = [
+  ['teal', '#0d9488', 'Teal'],
+  ['ocean', '#2563eb', 'Ocean'],
+  ['violet', '#7c3aed', 'Violet'],
+  ['rose', '#db2777', 'Rose'],
+  ['festive', '#ea580c', 'Festive'],
+  ['gold', '#d97706', 'Gold'],
+  ['emerald', '#059669', 'Emerald'],
+  ['crimson', '#dc2626', 'Crimson'],
+  ['midnight', '#1e293b', 'Midnight'],
+];
+const ACCENTS = THEMES.map(t => t[1]);
+const themeName = (hex) => THEMES.find(t => t[1] === hex)?.[2] || 'Custom';
 const TONES = [
   ['friendly', 'Friendly'],
   ['professional', 'Professional'],
@@ -458,12 +472,13 @@ export default function EmailCampaignBuilder({ onBack }) {
       const d = await json(await wFetch('/email-campaigns/compose', {
         method: 'POST', body: JSON.stringify({ message, tone, subject: subject || undefined }),
       }));
-      setUndo({ content, subject, preheader });
+      setUndo({ content, subject, preheader, accent });
       setContent(d.content);
       setAiMessage(message);
       if (d.subject) setSubject(d.subject);
       if (d.preheader) setPreheader(d.preheader);
-      if (d.aiUsed) notify('Rewritten with AI. Check the preview on the right.', 'success');
+      if (d.accentColor && ACCENTS.includes(d.accentColor)) setAccent(d.accentColor);
+      if (d.aiUsed) notify(`Rewritten with AI${d.accentColor ? `, with the ${themeName(d.accentColor)} colour theme to match` : ''}. Check the preview.`, 'success');
       else setAiNotice(d.notice || 'AI is not available, so your message was laid out as written.');
     } catch (e) {
       setError(e.message);
@@ -474,7 +489,7 @@ export default function EmailCampaignBuilder({ onBack }) {
 
   const undoRewrite = () => {
     if (!undo) return;
-    setContent(undo.content); setSubject(undo.subject); setPreheader(undo.preheader);
+    setContent(undo.content); setSubject(undo.subject); setPreheader(undo.preheader); setAccent(undo.accent);
     setUndo(null); setAiNotice('');
   };
 
@@ -619,11 +634,11 @@ export default function EmailCampaignBuilder({ onBack }) {
                 )}
 
                 <div>
-                  <label style={label}>Accent colour</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {ACCENTS.map(c => (
-                      <button key={c} type="button" onClick={() => setAccent(c)} aria-label={`Accent ${c}`}
-                        style={{ width: 28, height: 28, borderRadius: 14, background: c, border: accent === c ? '3px solid var(--surf)' : '3px solid transparent', boxShadow: accent === c ? `0 0 0 2px ${c}` : 'none', cursor: 'pointer' }} />
+                  <label style={label}>Colour theme <span style={{ fontWeight: 400, color: 'var(--t3)' }}>· {themeName(accent)} (AI picks one to match your message; you can change it)</span></label>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {THEMES.map(([id, c, nm]) => (
+                      <button key={id} type="button" onClick={() => setAccent(c)} aria-label={`${nm} theme`} title={nm}
+                        style={{ width: 30, height: 30, borderRadius: 15, background: `linear-gradient(135deg, ${c}, ${c}cc)`, border: accent === c ? '3px solid var(--surf)' : '3px solid transparent', boxShadow: accent === c ? `0 0 0 2px ${c}` : '0 1px 2px rgba(15,23,42,.15)', cursor: 'pointer' }} />
                     ))}
                   </div>
                 </div>

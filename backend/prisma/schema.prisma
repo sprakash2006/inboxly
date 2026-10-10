@@ -410,7 +410,9 @@ model Contact {
   // An Instagram-only contact has no phone number; it is stored as
   // "ig:<letters>" (services/instagramInbox.service.js#instagramPlaceholderPhone),
   // which no phone validation accepts, so it is never sent a WhatsApp message.
-  phoneNumber        String
+  // Optional: a contact needs a phone number or an email address (or both).
+  // Email-only contacts are reached by email campaigns, never by WhatsApp.
+  phoneNumber        String?
   // Instagram-scoped user id (IGSID) of a contact who messaged the connected
   // Instagram account.
   instagramUserId    String?

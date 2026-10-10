@@ -23,8 +23,9 @@ export function planPhoneBackfill(contacts, country) {
   const groups = new Map();
   const invalid = [];
   for (const c of contacts) {
-    // Instagram-only contacts carry an "ig:" stand-in, not a phone number.
-    if (String(c.phoneNumber).startsWith('ig:')) continue;
+    // Email-only contacts have no number; Instagram-only ones carry an "ig:"
+    // stand-in rather than one.
+    if (!c.phoneNumber || String(c.phoneNumber).startsWith('ig:')) continue;
     const e164 = toE164(c.phoneNumber, { country });
     if (!e164) { invalid.push(c); continue; }
     if (!groups.has(e164)) groups.set(e164, []);

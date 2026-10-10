@@ -187,10 +187,34 @@ function announceContacts(workspaceId, contacts, source) {
     .catch((err) => console.warn('[Webhook:out] contact.created not sent:', err.message));
 }
 
+// The contact with this email address (case-insensitive), or null.
+export async function findContactByEmail(workspaceId, email, { client = prisma } = {}) {
+  if (!email) return null;
+  return client.contact.findFirst({ where: { workspaceId, email: { equals: email, mode: 'insensitive' } } });
+}
+
+const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/i;
+
+// Every contact needs a name and a way to reach it: a phone, an email, or both.
+function missingNameOrReach(name, phone, email) {
+  if (!String(name || '').trim()) return 'Name is required';
+  if (!phone && !email) return 'Add a phone number or an email address';
+  return null;
+}
+
 export async function createContact(workspaceId, { name, phoneNumber, email, tags = [], customFields }) {
-  const { phoneNumber: normalized, country } = await resolveContactPhone(workspaceId, phoneNumber);
-  const existing = await findContactByPhone(workspaceId, normalized, { country });
-  if (existing) { const e = new Error('A contact with this phone number already exists'); e.status = 409; throw e; }
+  const problem = missingNameOrReach(name, phoneNumber, email);
+  if (problem) { const e = new Error(problem); e.status = 400; throw e; }
+  let normalized = null;
+  if (phoneNumber) {
+    const resolved = await resolveContactPhone(workspaceId, phoneNumber);
+    normalized = resolved.phoneNumber;
+    const existing = await findContactByPhone(workspaceId, normalized, { country: resolved.country });
+    if (existing) { const e = new Error('A contact with this phone number already exists'); e.status = 409; throw e; }
+  } else if (await findContactByEmail(workspaceId, email)) {
+    // With no phone the unique key cannot catch a duplicate, so the email does.
+    const e = new Error('A contact with this email address already exists'); e.status = 409; throw e;
+  }
   await assertWithinLimit(workspaceId, 'contact');
   // Values are checked against the workspace's own field definitions, so an
   // unknown key is refused rather than quietly stored and never displayed.
@@ -198,7 +222,7 @@ export async function createContact(workspaceId, { name, phoneNumber, email, tag
   const custom = await validateCustomFields(workspaceId, customFields);
   const contact = await prisma.contact.create({
     data: {
-      workspaceId, name: name || normalized, phoneNumber: normalized,
+      workspaceId, name: name.trim(), phoneNumber: normalized,
       email: email || null, tags,
       ...(custom === undefined ? {} : { customFields: custom }),
     },
@@ -217,25 +241,48 @@ export async function importContacts(workspaceId, csvBuffer) {
 
   const country = await workspacePhoneCountry(workspaceId);
   const seen = new Set();
+  const seenEmails = new Set();
   let invalid = 0;
   const data = [];
+  const emailOnly = [];
   for (const r of records) {
     const rawPhone = r.phoneNumber || r.phone || r.Phone || r.PhoneNumber || '';
     const phoneNumber = isValidPhone(rawPhone, { country }) ? normalizePhone(rawPhone, { country }) : '';
-    if (!phoneNumber) { if (String(rawPhone).trim()) invalid++; continue; }
+    const rawEmail = String(r.email || r.Email || '').trim();
+    const email = EMAIL_RE.test(rawEmail) ? rawEmail : null;
+    const tags = r.tags ? String(r.tags).split(',').map((t) => t.trim()).filter(Boolean) : [];
+    if (!phoneNumber) {
+      // A bad phone makes the row invalid; no phone but a valid email makes
+      // it an email-only contact.
+      if (String(rawPhone).trim() || !email) { invalid++; continue; }
+      const key = email.toLowerCase();
+      if (seenEmails.has(key)) continue; // in-file duplicate
+      seenEmails.add(key);
+      emailOnly.push({ workspaceId, name: r.name || r.Name || email.split('@')[0], phoneNumber: null, email, tags });
+      continue;
+    }
     if (seen.has(phoneNumber)) continue; // in-file duplicate
     seen.add(phoneNumber);
-    data.push({
-      workspaceId,
-      name: r.name || r.Name || phoneNumber,
-      phoneNumber,
-      email: (r.email || r.Email || '').trim() || null,
-      tags: r.tags ? String(r.tags).split(',').map((t) => t.trim()).filter(Boolean) : [],
+    data.push({ workspaceId, name: r.name || r.Name || phoneNumber, phoneNumber, email, tags });
+  }
+
+  // Email-only rows have no phone for the unique key to dedupe on, so an
+  // address already stored in this workspace is dropped here instead.
+  let emailDuplicates = 0;
+  if (emailOnly.length) {
+    const stored = await prisma.contact.findMany({
+      where: { workspaceId, email: { in: emailOnly.map((d) => d.email), mode: 'insensitive' } },
+      select: { email: true },
     });
+    const storedSet = new Set(stored.map((c) => c.email.toLowerCase()));
+    for (const d of emailOnly) {
+      if (storedSet.has(d.email.toLowerCase())) emailDuplicates++;
+      else data.push(d);
+    }
   }
 
   if (data.length === 0) {
-    return { imported: 0, duplicates: 0, invalid, totalRows: records.length, contacts: [] };
+    return { imported: 0, duplicates: emailDuplicates, invalid, totalRows: records.length, contacts: [] };
   }
 
   // Plan limit check (README §12.4): reject the whole import rather than
@@ -250,6 +297,7 @@ export async function importContacts(workspaceId, csvBuffer) {
   // "+919876543210" contact.
   const canonicalOf = new Map();
   for (const d of data) {
+    if (!d.phoneNumber) continue;
     for (const v of phoneVariants(d.phoneNumber, { country })) canonicalOf.set(v, d.phoneNumber);
   }
   const existingPhones = await prisma.contact.findMany({
@@ -257,7 +305,7 @@ export async function importContacts(workspaceId, csvBuffer) {
     select: { phoneNumber: true },
   });
   const existingSet = new Set(existingPhones.map((c) => canonicalOf.get(c.phoneNumber)));
-  const fresh = data.filter((d) => !existingSet.has(d.phoneNumber));
+  const fresh = data.filter((d) => !d.phoneNumber || !existingSet.has(d.phoneNumber));
   const newCount = fresh.length;
   if (newCount > 0) {
     await assertWithinLimit(workspaceId, 'contact', {
@@ -277,10 +325,17 @@ export async function importContacts(workspaceId, csvBuffer) {
     : [];
   const imported = created.length;
   announceContacts(workspaceId, created, 'import');
-  const duplicates = data.length - imported;
+  const duplicates = data.length - imported + emailDuplicates;
+  const emails = data.filter((d) => !d.phoneNumber).map((d) => d.email);
   const matchedContacts = await prisma.contact.findMany({
-    where: { workspaceId, phoneNumber: { in: [...canonicalOf.keys()] } },
-    select: { id: true, name: true, phoneNumber: true },
+    where: {
+      workspaceId,
+      OR: [
+        { phoneNumber: { in: [...canonicalOf.keys()] } },
+        ...(emails.length ? [{ phoneNumber: null, email: { in: emails } }] : []),
+      ],
+    },
+    select: { id: true, name: true, phoneNumber: true, email: true },
   });
   return { imported, duplicates, invalid, totalRows: records.length, contacts: matchedContacts };
 }
@@ -298,7 +353,19 @@ export async function updateContact(workspaceId, id, updates) {
   if (!contact) { const e = new Error('Contact not found'); e.status = 404; throw e; }
   // The opt-out flag goes through the OptOut list so both sources agree.
   const { optedOut, ...data } = updates;
-  if (data.phoneNumber !== undefined) {
+  // Whatever is cleared, the contact must keep a name and a phone or email.
+  const nextPhone = data.phoneNumber !== undefined ? data.phoneNumber : contact.phoneNumber;
+  const problem = missingNameOrReach(
+    data.name !== undefined ? data.name : contact.name,
+    nextPhone,
+    data.email !== undefined ? data.email : contact.email,
+  );
+  if (problem) { const e = new Error(problem); e.status = 400; throw e; }
+  if (data.email && !nextPhone) {
+    const clash = await findContactByEmail(workspaceId, data.email);
+    if (clash && clash.id !== id) { const e = new Error('A contact with this email address already exists'); e.status = 409; throw e; }
+  }
+  if (data.phoneNumber) {
     const { phoneNumber, country } = await resolveContactPhone(workspaceId, data.phoneNumber);
     // Another contact under any spelling of the new number would become a
     // duplicate the unique key cannot see.

@@ -189,20 +189,24 @@ export const campaignSchemas = {
 };
 
 export const contactSchemas = {
+  // Name is required, and so is a way to reach the contact: a phone number,
+  // an email address, or both.
   create: z.object({
-    name: z.string().trim().min(1).max(120),
-    phoneNumber: z.string().trim().min(6).max(20),
-    email: z.union([z.string().trim().email(), z.literal(''), z.null()]).optional().transform((v) => (v ? v : null)),
+    name: z.string().trim().min(1, 'Name is required').max(120),
+    phoneNumber: z.union([z.string().trim().min(6, 'Phone number must have at least 6 digits').max(20), z.literal(''), z.null()]).optional().transform((v) => (v ? v : null)),
+    email: z.union([z.string().trim().email('Enter a valid email address'), z.literal(''), z.null()]).optional().transform((v) => (v ? v : null)),
     tags: z.array(z.string().trim().max(50)).max(30).optional().default([]),
     // Shape only. The keys and value types are checked against the workspace's
     // own field definitions in workspaceCustomFields.service.js#validateCustomFields ΓÇö
     // a schema here could not know what fields this workspace has.
     customFields: z.record(z.union([z.string(), z.number(), z.null()])).optional(),
-  }),
+  }).refine((c) => c.phoneNumber || c.email, { message: 'Add a phone number or an email address', path: ['phoneNumber'] }),
+  // Clearing the phone or email is allowed here; the service refuses an
+  // update that would leave the contact with neither.
   update: z.object({
-    name: z.string().trim().min(1).max(120).optional(),
-    phoneNumber: z.string().trim().min(6).max(20).optional(),
-    email: z.union([z.string().trim().email(), z.literal(''), z.null()]).optional().transform((v) => (v === '' ? null : v)),
+    name: z.string().trim().min(1, 'Name is required').max(120).optional(),
+    phoneNumber: z.union([z.string().trim().min(6, 'Phone number must have at least 6 digits').max(20), z.literal(''), z.null()]).optional().transform((v) => (v === '' ? null : v)),
+    email: z.union([z.string().trim().email('Enter a valid email address'), z.literal(''), z.null()]).optional().transform((v) => (v === '' ? null : v)),
     tags: z.array(z.string().trim().max(50)).max(30).optional(),
     optedOut: z.boolean().optional(),
     customFields: z.record(z.union([z.string(), z.number(), z.null()])).optional(),

@@ -1523,7 +1523,7 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
   const [estimateError, setEstimateError] = useState('');
 
   const reloadContacts = () => {
-    wFetch('/contacts').then(r=>r.ok&&r.json()).then(d=>{ const list=Array.isArray(d)?d:d?.data; if(Array.isArray(list)) setContacts(list); }).catch(err=>console.warn('[CreateCampaign] Loading contacts failed:', err?.message||err));
+    wFetch('/contacts').then(r=>r.ok&&r.json()).then(d=>{ const list=Array.isArray(d)?d:d?.data; if(Array.isArray(list)) setContacts(list.filter(c => c.phoneNumber /* email-only contacts cannot get WhatsApp */)); }).catch(err=>console.warn('[CreateCampaign] Loading contacts failed:', err?.message||err));
   };
 
   useEffect(() => {

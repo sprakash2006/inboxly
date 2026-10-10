@@ -58,6 +58,39 @@ const FLabel = ({ children, required }) => (
   </label>
 );
 
+// A contact needs a name and a way to reach it: a phone number, an email,
+// or both. The server enforces the same rule; this gives the message first.
+const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/i;
+function contactFormError({ name, phone, email }) {
+  if (!name.trim()) return 'Name is required.';
+  if (!phone.trim() && !email.trim()) return 'Add a phone number or an email address (at least one).';
+  if (phone.trim() && phone.replace(/\D/g, '').length < 7) return 'Enter a full phone number with country code, e.g. +91 9876543210.';
+  if (email.trim() && !EMAIL_RE.test(email.trim())) return 'Enter a valid email address.';
+  return null;
+}
+
+// The phone and email fields side by side, with the "one of the two" rule
+// spelled out above them.
+const ReachFields = ({ phone, setPhone, email, setEmail, onEnter }) => (
+  <div>
+    <p style={{ fontSize:11.5, color:'var(--t2)', margin:'0 0 8px', display:'flex', alignItems:'center', gap:6 }}>
+      <I n="info" s={13} c="var(--t3)" /> Add a phone number, an email, or both. At least one is required.
+    </p>
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div>
+        <FLabel>Phone Number</FLabel>
+        <FInput value={phone} onChange={e => setPhone(e.target.value.replace(/[^0-9+\s\-()]/g, ''))} placeholder="+91 9876543210" onKeyDown={e => e.key === 'Enter' && onEnter()} />
+        <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Needed for WhatsApp. Include the country code (e.g. +91 for India).</p>
+      </div>
+      <div>
+        <FLabel>Email</FLabel>
+        <FInput type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@example.com" onKeyDown={e => e.key === 'Enter' && onEnter()} />
+        <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Needed for email campaigns.</p>
+      </div>
+    </div>
+  </div>
+);
+
 // ─── Manual add tab ────────────────────────────────────────────
 const ManualTab = ({ onSaved }) => {
   const [name, setName]     = useState('');
@@ -68,13 +101,14 @@ const ManualTab = ({ onSaved }) => {
   const [err, setErr]       = useState(null);
 
   const submit = async () => {
-    if (!phone.trim()) { setErr('Phone number is required'); return; }
+    const problem = contactFormError({ name, phone, email });
+    if (problem) { setErr(problem); return; }
     setErr(null); setSaving(true);
     try {
       const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
       const res = await wFetch('/contacts', {
         method:'POST',
-        body: JSON.stringify({ name: name.trim() || 'Unknown', phoneNumber: phone.trim(), email: email.trim() || null, tags }),
+        body: JSON.stringify({ name: name.trim(), phoneNumber: phone.trim() || null, email: email.trim() || null, tags }),
       });
       const data = await res.json();
       if (!res.ok) { setErr(data.error || `Error ${res.status}`); return; }
@@ -93,24 +127,16 @@ const ManualTab = ({ onSaved }) => {
         <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
       )}
       <div>
-        <FLabel>Name</FLabel>
+        <FLabel required>Name</FLabel>
         <FInput value={name} onChange={e => setName(e.target.value)} placeholder="Jane Doe" />
       </div>
-      <div>
-        <FLabel required>Phone Number</FLabel>
-        <FInput value={phone} onChange={e => setPhone(e.target.value.replace(/[^0-9+\s\-()]/g, ''))} placeholder="+91 9876543210" onKeyDown={e => e.key === 'Enter' && submit()} />
-        <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Include country code (e.g. +91 for India, +1 for US). WhatsApp won't deliver without it.</p>
-      </div>
-      <div>
-        <FLabel>Email</FLabel>
-        <FInput type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@example.com" />
-      </div>
+      <ReachFields phone={phone} setPhone={setPhone} email={email} setEmail={setEmail} onEnter={submit} />
       <div>
         <FLabel>Tags</FLabel>
         <FInput value={tagsRaw} onChange={e => setTags(e.target.value)} placeholder="vip, newsletter, prospect" />
         <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Comma-separated.</p>
       </div>
-      <Btn onClick={submit} disabled={saving || !phone.trim()} style={{ alignSelf:'flex-end', boxShadow: phone.trim() ? 'var(--glow)' : 'none' }}>
+      <Btn onClick={submit} disabled={saving || !!contactFormError({ name, phone, email })} style={{ alignSelf:'flex-end', boxShadow: contactFormError({ name, phone, email }) ? 'none' : 'var(--glow)' }}>
         {saving ? 'Adding…' : 'Add Contact'}
       </Btn>
     </div>
@@ -236,9 +262,9 @@ const CsvTab = ({ onSaved }) => {
           <li>
             Required columns:
             <ul style={{ listStyleType: 'none', paddingLeft: 16, marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>phoneNumber</code> (required)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>phoneNumber</code> or <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>email</code> (at least one per row)</li>
               <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>name</code> (optional)</li>
-              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>email</code> (optional)</li>
+              <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>email</code> (optional when there is a phone)</li>
               <li>- <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>tags</code> (optional)</li>
             </ul>
           </li>
@@ -306,13 +332,14 @@ const EditContactDialog = ({ contact, onClose, onSaved }) => {
   const [err, setErr]       = useState(null);
 
   const submit = async () => {
-    if (!phone.trim()) { setErr('Phone number is required'); return; }
+    const problem = contactFormError({ name, phone, email });
+    if (problem) { setErr(problem); return; }
     setErr(null); setSaving(true);
     try {
       const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
       const res = await wFetch(`/contacts/${contact.id}`, {
         method:'PATCH',
-        body: JSON.stringify({ name: name.trim() || 'Unknown', phoneNumber: phone.trim(), email: email.trim() || null, tags }),
+        body: JSON.stringify({ name: name.trim(), phoneNumber: phone.trim() || null, email: email.trim() || null, tags }),
       });
       const data = await res.json();
       if (!res.ok) { setErr(data.error || `Error ${res.status}`); return; }
@@ -331,24 +358,16 @@ const EditContactDialog = ({ contact, onClose, onSaved }) => {
           <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
         )}
         <div>
-          <FLabel>Name</FLabel>
+          <FLabel required>Name</FLabel>
           <FInput value={name} onChange={e => setName(e.target.value)} placeholder="Jane Doe" />
         </div>
-        <div>
-          <FLabel required>Phone Number</FLabel>
-          <FInput value={phone} onChange={e => setPhone(e.target.value.replace(/[^0-9+\s\-()]/g, ''))} placeholder="+91 9876543210" onKeyDown={e => e.key === 'Enter' && submit()} />
-          <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Include country code (e.g. +91 for India, +1 for US). WhatsApp won't deliver without it.</p>
-        </div>
-        <div>
-          <FLabel>Email</FLabel>
-          <FInput type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@example.com" />
-        </div>
+        <ReachFields phone={phone} setPhone={setPhone} email={email} setEmail={setEmail} onEnter={submit} />
         <div>
           <FLabel>Tags</FLabel>
           <FInput value={tagsRaw} onChange={e => setTags(e.target.value)} placeholder="vip, newsletter, prospect" />
           <p style={{ fontSize:11, color:'var(--t3)', marginTop:4 }}>Comma-separated.</p>
         </div>
-        <Btn onClick={submit} disabled={saving || !phone.trim()} style={{ alignSelf:'flex-end', boxShadow: phone.trim() ? 'var(--glow)' : 'none' }}>
+        <Btn onClick={submit} disabled={saving || !!contactFormError({ name, phone, email })} style={{ alignSelf:'flex-end', boxShadow: contactFormError({ name, phone, email }) ? 'none' : 'var(--glow)' }}>
           {saving ? 'Saving…' : 'Save Changes'}
         </Btn>
       </div>
@@ -392,7 +411,7 @@ const DeleteContactModal = ({ contact, onClose, onDeleted }) => {
           <div style={{ padding:'9px 12px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#dc2626', fontSize:12 }}>{err}</div>
         )}
         <p style={{ fontSize: 13, color: 'var(--t1)', lineHeight: 1.5 }}>
-          Are you sure you want to delete <strong>{contact.name || contact.phoneNumber}</strong>?
+          Are you sure you want to delete <strong>{contact.name || contact.phoneNumber || contact.email}</strong>?
         </p>
         <p style={{ fontSize: 13, color: 'var(--t2)', lineHeight: 1.5 }}>
           This action cannot be undone. It will not delete existing conversations or campaign histories for this contact, but they will no longer appear in your contact list.
@@ -584,7 +603,7 @@ const CreateClusterModal = ({ cluster = null, onClose, onSaved }) => {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                       <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--t1)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{c.name}</span>
-                      <span style={{ fontSize: 11.5, color: 'var(--t2)', fontFamily: 'monospace' }}>{c.phoneNumber}</span>
+                      <span style={{ fontSize: 11.5, color: 'var(--t2)', fontFamily: 'monospace' }}>{c.phoneNumber || c.email}</span>
                     </div>
                   </div>
                 );
@@ -1086,7 +1105,7 @@ export default function ContactsView() {
                           <span style={{ fontSize:13, fontWeight:600, color:'var(--t1)' }}>{c.name}</span>
                         </div>
                       </td>
-                      <td style={{ padding:'12px 16px', fontSize:13, color:'var(--t2)', fontFamily:'monospace' }}>{c.phoneNumber}</td>
+                      <td style={{ padding:'12px 16px', fontSize:13, color:'var(--t2)', fontFamily:'monospace' }}>{c.phoneNumber || <span style={{ color:'var(--t3)' }}>—</span>}</td>
                       <td style={{ padding:'12px 16px', fontSize:12, color:'var(--t2)' }}>{c.email || <span style={{ color:'var(--t3)' }}>—</span>}</td>
                       <td style={{ padding:'12px 16px', fontSize:12, color:'var(--t2)' }}>{fmtDate(c.createdAt)}</td>
                       <td style={{ padding:'12px 16px' }}><StatusBadge optedOut={c.optedOut} /></td>

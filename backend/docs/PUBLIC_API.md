@@ -1,8 +1,9 @@
 # Inboxly Public API
 
 The Inboxly Public API lets your own systems work with a workspace using an API key:
-send WhatsApp messages, manage templates, campaigns and contacts, read analytics,
-and receive events through a webhook. A separate **Authentication (OTP) API** sends
+send WhatsApp messages, reply in inbox conversations, manage templates, WhatsApp
+and email campaigns, contacts, segments and opt-outs, read analytics, and receive
+events through a webhook. A separate **Authentication (OTP) API** sends
 and verifies one-time passcodes over WhatsApp.
 
 Everything here is source-of-truth for `src/routes/public.routes.js` and
@@ -41,18 +42,25 @@ issued before scopes existed keep full access.
 | Scope | Allows | In the default set |
 |---|---|---|
 | `messages:send` | `POST /messages` | yes |
-| `templates:read` | `GET /templates`, `GET /templates/:id` | yes |
-| `templates:write` | `POST /templates` | |
-| `campaigns:read` | `GET /campaigns`, `GET /campaigns/:id` | yes |
-| `campaigns:write` | `POST /campaigns`, recipients, `POST /campaigns/:id/launch` (launching spends the wallet) | |
-| `contacts:read` | `GET /contacts` | yes |
-| `contacts:write` | `POST /contacts`, `PUT /contacts/:id` | yes |
+| `numbers:read` | `GET /numbers`, `GET /numbers/:id/health` | yes |
+| `conversations:read` | `GET /conversations`, `GET /conversations/:id/messages` | yes |
+| `conversations:write` | `POST /conversations`, text and template replies in a conversation | |
+| `templates:read` | `GET /templates`, `/templates/:id`, `/templates/library`, `/templates/media/:assetId` | yes |
+| `templates:write` | create, update, delete, duplicate, restore, sync from Meta, install from library, upload header media | |
+| `campaigns:read` | `GET /campaigns`, `/campaigns/:id`, recipients export, `POST /campaigns/estimate` | yes |
+| `campaigns:write` | create, edit, recipients, launch, pause, resume, cancel (launching spends the wallet) | |
+| `email-campaigns:read` | `GET /email-campaigns`, `/email-campaigns/:id`, `POST /email-campaigns/preview` | yes |
+| `email-campaigns:write` | compose, test-send, create (send or schedule), cancel, delete | |
+| `contacts:read` | contacts (list, one, tags, export) and segments | yes |
+| `contacts:write` | contacts (create, update, import, delete) and segments | yes |
+| `opt-outs:read` | `GET /opt-outs` | yes |
+| `opt-outs:write` | `POST /opt-outs`, `DELETE /opt-outs/:id` | |
 | `webhooks:write` | `POST /webhooks` | |
-| `analytics:read` | `GET /analytics/summary` | |
-| `wallet:read` | `GET /wallet/balance` | |
-| `ai-agent:read` | `GET /ai-agent/config` | |
-| `ai-agent:write` | `POST /ai-agent/query` | |
-| `automations:read` | `GET /automations` | |
+| `analytics:read` | `GET /analytics/summary` | yes |
+| `wallet:read` | `GET /wallet/balance`, `GET /wallet/summary` | yes |
+| `ai-agent:read` | `GET /ai-agent/config` | yes |
+| `ai-agent:write` | `POST /ai-agent/query` | yes |
+| `automations:read` | `GET /automations` | yes |
 | `authentication:send` | the Authentication (OTP) API | never — must be requested explicitly |
 
 ### Rate limits
@@ -65,6 +73,9 @@ lookup. Exceeding one returns `429` with a `Retry-After` header and
 |---|---|
 | Any public endpoint | 300 requests / minute per key; 600 / minute per client address |
 | `POST /messages` | 60 / minute per key, and 10 / minute to any one recipient number |
+| `POST /conversations/:id/messages`, `/template` | shares the `POST /messages` budget per key, and 10 / minute into any one conversation |
+| `POST /email-campaigns/test` | 20 / minute per key, and 5 / minute to any one address |
+| `POST /templates/media`, `POST /contacts/import` | 60 uploads per 10 minutes per key |
 | `POST /authentication/generate` | 30 / minute per key, and 5 per 10 minutes to any one phone number |
 | `POST /authentication/verify` | 120 / minute per key, and 20 per 10 minutes for any one phone number |
 
@@ -209,6 +220,30 @@ instead.
 
 ---
 
+## WhatsApp numbers
+
+| Method | Path | Scope | Notes |
+|---|---|---|---|
+| `GET` | `/numbers` | `numbers:read` | Connected numbers with today's send count (access tokens are never returned) |
+| `GET` | `/numbers/:id/health` | `numbers:read` | Connection check for one number |
+
+---
+
+## Conversations (WhatsApp inbox)
+
+| Method | Path | Scope | Notes |
+|---|---|---|---|
+| `GET` | `/conversations?page=1&limit=20&search=&contactId=` | `conversations:read` | Inbox threads |
+| `POST` | `/conversations` | `conversations:write` | Open (or return the existing) conversation with a contact: `{ "contactId", "waNumberId"? }` |
+| `GET` | `/conversations/:id/messages` | `conversations:read` | The thread's messages |
+| `POST` | `/conversations/:id/messages` | `conversations:write` | Reply with text: `{ "type": "text", "body": "..." }`. Only inside the 24-hour window |
+| `POST` | `/conversations/:id/template` | `conversations:write` | Send an approved template into the thread: `{ "templateId", "variables": ["..."] }`. Works outside the 24-hour window |
+
+Replies sent with a key appear in the Inbox like any other message, with no
+agent named as the sender, and are billed like `POST /messages`.
+
+---
+
 ## Templates
 
 | Method | Path | Scope | Notes |
@@ -216,10 +251,19 @@ instead.
 | `GET` | `/templates` | `templates:read` | List templates |
 | `GET` | `/templates/:id` | `templates:read` | One template |
 | `POST` | `/templates` | `templates:write` | Create a template and submit it to Meta for review. Body: `name`, `category`, `language`, `components` (Meta's template format) |
+| `PUT` | `/templates/:id` | `templates:write` | Edit a template |
+| `DELETE` | `/templates/:id` | `templates:write` | Delete a template |
+| `POST` | `/templates/:id/duplicate` | `templates:write` | Copy a template into a new draft |
+| `POST` | `/templates/:id/restore` | `templates:write` | Restore a deleted template |
+| `POST` | `/templates/sync` | `templates:write` | Pull templates and review statuses from Meta |
+| `GET` | `/templates/library` | `templates:read` | Ready-made templates |
+| `POST` | `/templates/library/:libId/install` | `templates:write` | Install a library template |
+| `POST` | `/templates/media` | `templates:write` | Upload a header sample as multipart `file` (image, video or document). Returns the handle for the `HEADER` component |
+| `GET` | `/templates/media/:assetId` | `templates:read` | The stored header sample |
 
 ---
 
-## Campaigns
+## WhatsApp campaigns
 
 | Method | Path | Scope | Notes |
 |---|---|---|---|
@@ -228,7 +272,56 @@ instead.
 | `POST` | `/campaigns` | `campaigns:write` | Create a draft: `{ "name", "templateId", "numberId" }` |
 | `POST` | `/campaigns/:id/recipients` | `campaigns:write` | Add recipients: `{ "contactIds": ["..."] }` (max 10,000) |
 | `PUT` | `/campaigns/:id/recipients` | `campaigns:write` | Replace the audience: `{ "contactIds": [...] }` |
-| `POST` | `/campaigns/:id/launch` | `campaigns:write` | Launch (or schedule with `{ "scheduledAt": "ISO-8601" }`). The campaign's cost is charged to the wallet at launch |
+| `POST` | `/campaigns/:id/launch` | `campaigns:write` | Launch (or schedule with `{ "scheduledAt": "ISO-8601" }`; optional `retryConfig`). The campaign's cost is charged to the wallet at launch |
+| `POST` | `/campaigns/estimate` | `campaigns:read` | Price a send before launching: `{ "campaignId" }` or `{ "contactIds": [...], "templateId" }`. Charges nothing |
+| `PATCH` | `/campaigns/:id` | `campaigns:write` | Edit a draft or scheduled campaign |
+| `POST` | `/campaigns/:id/pause` | `campaigns:write` | Pause a running campaign |
+| `POST` | `/campaigns/:id/resume` | `campaigns:write` | Resume a paused campaign |
+| `POST` | `/campaigns/:id/cancel` | `campaigns:write` | Cancel the campaign |
+| `GET` | `/campaigns/:id/recipients/export` | `campaigns:read` | Per-recipient results as CSV |
+
+---
+
+## Email campaigns
+
+Emails go out through the server's SMTP account and are not billed per message.
+Contacts who have opted out are skipped and reported as such.
+
+| Method | Path | Scope | Notes |
+|---|---|---|---|
+| `GET` | `/email-campaigns` | `email-campaigns:read` | List email campaigns |
+| `GET` | `/email-campaigns/:id` | `email-campaigns:read` | One campaign with its recipients and their status |
+| `POST` | `/email-campaigns/compose` | `email-campaigns:write` | AI rewrite of a plain message into structured content: `{ "message", "tone"?, "subject"? }` with `tone` one of `friendly`, `professional`, `promotional`, `short`. Sends nothing |
+| `POST` | `/email-campaigns/preview` | `email-campaigns:read` | Rendered HTML of a draft: `{ "message", "content"?, "accentColor"?, "preheader"? }`. Sends nothing |
+| `POST` | `/email-campaigns/test` | `email-campaigns:write` | Send one test email: the draft fields plus `{ "to", "subject" }` |
+| `POST` | `/email-campaigns` | `email-campaigns:write` | Create and send, or schedule with `scheduledAt` (up to 90 days ahead). See below |
+| `POST` | `/email-campaigns/:id/cancel` | `email-campaigns:write` | Stop a scheduled or sending campaign |
+| `DELETE` | `/email-campaigns/:id` | `email-campaigns:write` | Delete a campaign |
+
+**Create body**
+
+```json
+{
+  "name": "Diwali offers",
+  "subject": "20% off everything this week",
+  "preheader": "Ends Sunday",
+  "message": "Plain-text version of the email",
+  "content": {
+    "headline": "Diwali sale",
+    "paragraphs": ["..."],
+    "bullets": ["..."],
+    "ctaText": "Shop now",
+    "ctaUrl": "https://example.com/sale",
+    "signoff": "Team Example"
+  },
+  "accentColor": "#0d9488",
+  "scheduledAt": "2026-10-20T09:00:00+05:30",
+  "recipients": [{ "email": "priya@example.com", "name": "Priya", "contactId": "optional" }]
+}
+```
+
+`content` is optional: without it, `message` is laid out as paragraphs. The output
+of `/compose` can be passed in as `content`. At most 2,000 recipients per campaign.
 
 ---
 
@@ -237,8 +330,38 @@ instead.
 | Method | Path | Scope | Notes |
 |---|---|---|---|
 | `GET` | `/contacts?page=1&limit=20` | `contacts:read` | Paginated list |
-| `POST` | `/contacts` | `contacts:write` | `{ "name", "phoneNumber", "email"? }` |
-| `PUT` | `/contacts/:id` | `contacts:write` | Update fields of a contact |
+| `GET` | `/contacts/:id` | `contacts:read` | One contact |
+| `GET` | `/contacts/tags` | `contacts:read` | Every tag in use |
+| `GET` | `/contacts/export` | `contacts:read` | All contacts as CSV |
+| `POST` | `/contacts` | `contacts:write` | `{ "name", "phoneNumber"?, "email"? }`: a name and at least one of phone or email |
+| `POST` | `/contacts/import` | `contacts:write` | Bulk import a CSV as multipart `file` (max 10 MB) |
+| `PUT` / `PATCH` | `/contacts/:id` | `contacts:write` | Update fields of a contact |
+| `DELETE` | `/contacts/:id` | `contacts:write` | Delete a contact |
+
+### Segments
+
+Saved audiences to target with campaigns.
+
+| Method | Path | Scope | Notes |
+|---|---|---|---|
+| `GET` | `/segments` | `contacts:read` | List segments |
+| `POST` | `/segments` | `contacts:write` | `{ "name", "desc"? }` |
+| `PATCH` | `/segments/:id` | `contacts:write` | Rename or change the description |
+| `DELETE` | `/segments/:id` | `contacts:write` | Delete the segment |
+| `POST` | `/segments/:id/contacts` | `contacts:write` | Add `{ "contactId" }`, or contact fields to create a contact in the segment |
+| `DELETE` | `/segments/:id/contacts/:contactId` | `contacts:write` | Remove a contact from the segment |
+
+---
+
+## Opt-outs
+
+Numbers on this list are not messaged: sends to them fail with `RECIPIENT_OPTED_OUT`.
+
+| Method | Path | Scope | Notes |
+|---|---|---|---|
+| `GET` | `/opt-outs?status=&search=&page=1&limit=50` | `opt-outs:read` | Opted-out and blocked numbers |
+| `POST` | `/opt-outs` | `opt-outs:write` | Block a number: `{ "phoneNumber", "reason"? }` |
+| `DELETE` | `/opt-outs/:id` | `opt-outs:write` | Unblock |
 
 ---
 
@@ -248,6 +371,7 @@ instead.
 |---|---|---|---|
 | `GET` | `/analytics/summary` | `analytics:read` | Workspace overview metrics |
 | `GET` | `/wallet/balance` | `wallet:read` | Wallet balance and recent transactions |
+| `GET` | `/wallet/summary` | `wallet:read` | Spend today, campaign and total spend, and recharges |
 | `GET` | `/ai-agent/config` | `ai-agent:read` | AI agent persona and settings |
 | `POST` | `/ai-agent/query` | `ai-agent:write` | `{ "message": "..." }` → the agent's reply (nothing is sent on WhatsApp) |
 | `GET` | `/automations` | `automations:read` | Active automations |

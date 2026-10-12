@@ -106,14 +106,49 @@ export const API_SCOPES = Object.freeze([
     description: 'Create campaigns and launch them. Launching spends the wallet.',
   },
   {
+    id: 'email-campaigns:read',
+    label: 'Read email campaigns',
+    description: 'List email campaigns, read their results and preview drafts.',
+  },
+  {
+    id: 'email-campaigns:write',
+    label: 'Manage email campaigns',
+    description: 'Compose, test-send, create (send or schedule), cancel and delete email campaigns.',
+  },
+  {
+    id: 'conversations:read',
+    label: 'Read conversations',
+    description: 'List WhatsApp inbox conversations and read their messages.',
+  },
+  {
+    id: 'conversations:write',
+    label: 'Reply in conversations',
+    description: 'Open conversations and send text or template replies in them.',
+  },
+  {
+    id: 'numbers:read',
+    label: 'Read WhatsApp numbers',
+    description: 'List connected WhatsApp numbers and check their health.',
+  },
+  {
     id: 'contacts:read',
     label: 'Read contacts',
-    description: 'List and read contacts.',
+    description: 'List, read and export contacts and segments.',
   },
   {
     id: 'contacts:write',
     label: 'Manage contacts',
-    description: 'Create and update contacts.',
+    description: 'Create, update, import and delete contacts and segments.',
+  },
+  {
+    id: 'opt-outs:read',
+    label: 'Read opt-outs',
+    description: 'List numbers that have opted out or been blocked.',
+  },
+  {
+    id: 'opt-outs:write',
+    label: 'Manage opt-outs',
+    description: 'Block and unblock numbers.',
   },
   {
     id: 'webhooks:write',
@@ -164,6 +199,10 @@ export const DEFAULT_SCOPES = Object.freeze([
   'campaigns:read',
   'contacts:read',
   'contacts:write',
+  'email-campaigns:read',
+  'conversations:read',
+  'numbers:read',
+  'opt-outs:read',
   'analytics:read',
   'automations:read',
   'automations:write',

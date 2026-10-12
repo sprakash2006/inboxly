@@ -51,6 +51,7 @@ import LegalCenter from '../components/LegalCenter.jsx';
 import { LEGAL_DOCS } from '../lib/legalContent.js';
 const AuthenticationDashboard = lazy(() => import('./AuthenticationDashboard.jsx'));
 const ResourceCenter = lazy(() => import('./ResourceCenter.jsx'));
+const ApiDocsView = lazy(() => import('./ApiDocsView.jsx'));
 import { Avatar } from '../components/Avatar.jsx';
 import { confirmDialog } from '../components/Feedback.jsx';
 import { ChannelPicker, EmailCampaignsList } from './EmailCampaign.jsx';
@@ -2604,30 +2605,36 @@ const PlaceholderView = ({ title, icon }) => (
 // offering screens whose every control would answer 403.
 const ADMIN_NAV = [
   { id: 'home',           label: 'Home',           icon: 'home'  },
-  { id: 'templates',      label: 'Templates',      icon: 'file'  },
-   { id: 'authentication',label: 'Authentication',        icon: 'shield' },
-  { id: 'campaigns',      label: 'Campaigns',      icon: 'send'  },
-  { id: 'contacts',       label: 'Contacts',       icon: 'users' },
   { id: 'inbox',          label: 'Inbox',          icon: 'msg'   },
+  { id: 'contacts',       label: 'Contacts',       icon: 'users' },
 
-  { id: 'widget',         label: 'Website Widget', icon: 'globe' },
-  // The one AI Agents area: WhatsApp agent, agent studio, autonomous CRM agent.
-  { id: 'ai-agent',       label: 'AI Agents',      icon: 'bot'   },
-  { id: 'automation',     label: 'Automation',     icon: 'zap'   },
-  { id: 'analytics',      label: 'Analytics',      icon: 'chart' },
-  { id: 'chat-analysis',  label: 'Chat Analysis',  icon: 'chart' },
-  { id: 'user-analytics', label: 'User Analytics', icon: 'user'  },
-  { id: 'setup',          label: 'Number Setup',   icon: 'phone' },
-  { id: 'payments',       label: 'Payments',       icon: 'credit' },
-  { id: 'api',            label: 'API Keys',       icon: 'key' },
-  { id: 'support',        label: 'Help & Support', icon: 'msg'   },
-  { id: 'resources',      label: 'Resource Center', icon: 'file' },
-  { id: 'settings',       label: 'Settings',       icon: 'cog'   },
+  { id: 'campaigns',      label: 'Campaigns',      icon: 'send'  },
+  { id: 'templates',      label: 'Templates',      icon: 'file'  },
+  { id: 'authentication', label: 'Authentication', icon: 'shield' },
 
   { id: 'crm-overview',   label: 'CRM Overview',   icon: 'layout' },
   { id: 'leads',          label: 'Leads',          icon: 'target' },
   { id: 'deals',          label: 'Deals',          icon: 'briefcase' },
   { id: 'tasks',          label: 'Tasks',          icon: 'check-square' },
+
+  // The one AI Agents area: WhatsApp agent, agent studio, autonomous CRM agent.
+  { id: 'ai-agent',       label: 'AI Agents',      icon: 'bot'   },
+  { id: 'automation',     label: 'Automation',     icon: 'zap'   },
+
+  { id: 'analytics',      label: 'Analytics',      icon: 'chart' },
+  { id: 'chat-analysis',  label: 'Chat Analysis',  icon: 'chart' },
+  { id: 'user-analytics', label: 'User Analytics', icon: 'user'  },
+
+  { id: 'setup',          label: 'Number Setup',   icon: 'phone' },
+  { id: 'widget',         label: 'Website Widget', icon: 'globe' },
+  { id: 'api',            label: 'API Keys',       icon: 'key' },
+
+  { id: 'payments',       label: 'Payments',       icon: 'credit' },
+  { id: 'settings',       label: 'Settings',       icon: 'cog'   },
+
+  { id: 'resources',      label: 'Resource Center', icon: 'file' },
+  { id: 'api-docs',       label: 'API Documentation', icon: 'code' },
+  { id: 'support',        label: 'Help & Support', icon: 'msg'   },
   { id: 'legal',          label: 'Legal',          icon: 'file'  },
 ];
 
@@ -2670,7 +2677,7 @@ const NAV_ICONS = {
   support: 'support', settings: 'cog', profile: 'user',
   // crm navigation
   'crm-overview': 'layout', 'ai-chatbots': 'bot', leads: 'target', deals: 'briefcase', tasks: 'check-square',
-  widget: 'widget', legal: 'file', resources: 'book',
+  widget: 'widget', legal: 'file', resources: 'book', 'api-docs': 'code',
   'admin-overview': 'layout', 'admin-analytics': 'analytics', 'admin-revenue': 'wallet',
   'admin-transactions': 'receipt', 'admin-payments': 'credit', 'admin-campaigns': 'megaphone',
   'admin-workspaces': 'building', 'admin-users': 'users', 'admin-numbers': 'smartphone',
@@ -2678,12 +2685,14 @@ const NAV_ICONS = {
 };
 
 const NAV_GROUPS = [
-  { name: 'COMMAND',    ids: ['home', 'inbox'] },
-  { name: 'GROW',       ids: ['campaigns', 'templates', 'authentication', 'contacts'] },
-  { name: 'CRM & SALES', ids: ['crm-overview', 'leads', 'deals', 'tasks'] },
-  { name: 'AUTOMATE',   ids: ['ai-agent', 'automation'] },
-  { name: 'UNDERSTAND', ids: ['analytics', 'chat-analysis', 'user-analytics'] },
-  { name: 'CONNECT',    ids: ['widget', 'setup', 'api', 'payments', 'support', 'resources', 'settings'] },
+  { name: 'WORKSPACE',        ids: ['home', 'inbox', 'contacts'] },
+  { name: 'MESSAGING',        ids: ['campaigns', 'templates', 'authentication'] },
+  { name: 'CRM & SALES',      ids: ['crm-overview', 'leads', 'deals', 'tasks'] },
+  { name: 'AI & AUTOMATION',  ids: ['ai-agent', 'automation'] },
+  { name: 'ANALYTICS',        ids: ['analytics', 'chat-analysis', 'user-analytics'] },
+  { name: 'CHANNELS & API',   ids: ['setup', 'widget', 'api'] },
+  { name: 'ACCOUNT',          ids: ['payments', 'settings'] },
+  { name: 'HELP',             ids: ['resources', 'api-docs', 'support'] },
 ];
 
 
@@ -2691,11 +2700,11 @@ const NAV_GROUPS = [
 // in the design set, so these are grouped by what an operator is doing —
 // watching the platform, following the money, running it, answering for it.
 const SUPERADMIN_GROUPS = [
-  { name: 'PLATFORM', ids: ['admin-overview', 'admin-analytics'] },
-  { name: 'REVENUE',  ids: ['admin-revenue', 'admin-transactions', 'admin-payments'] },
-  { name: 'OPERATE',  ids: ['admin-campaigns', 'admin-workspaces', 'admin-users', 'admin-numbers', 'admin-plans'] },
-  { name: 'ATTEND',   ids: ['admin-support', 'admin-api-management', 'settings'] },
-  { name: 'GOVERN',   ids: ['admin-audit'] },
+  { name: 'PLATFORM',          ids: ['admin-overview', 'admin-analytics'] },
+  { name: 'TENANTS',           ids: ['admin-workspaces', 'admin-users', 'admin-numbers', 'admin-campaigns'] },
+  { name: 'BILLING',           ids: ['admin-plans', 'admin-revenue', 'admin-transactions', 'admin-payments'] },
+  { name: 'SUPPORT & SECURITY', ids: ['admin-support', 'admin-api-management', 'admin-audit'] },
+  { name: 'ACCOUNT',           ids: ['settings'] },
 ];
 
 // Sections the sidebar renders in its fixed bottom block rather than in the
@@ -3208,6 +3217,7 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     if (page === 'setup')          return <NumberSetupView />;
     if (page === 'payments')       return <PaymentsView initialTab={initialSubTab || 'wallet'} />;
     if (page === 'api')            return <ApiKeysView />;
+    if (page === 'api-docs')       return <ApiDocsView />;
     if (page === 'support')        return <SupportView />;
     if (page === 'settings')       return <SettingsView />;
     if (page === 'profile')        return <ProfileView />;

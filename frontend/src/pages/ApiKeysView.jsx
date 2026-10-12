@@ -40,6 +40,10 @@ curl -X POST ${origin}/api/v1/public/messages \\
         {snippet}
       </pre>
       <div style={{ marginTop:14, display:'flex', gap:16, flexWrap:'wrap' }}>
+        <a href="/dashboard/api-docs" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent('app:nav', { detail: 'api-docs' })); }}
+          style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, fontWeight:600, color:'var(--green)', textDecoration:'none' }}>
+          Read the API documentation <I n="arrow" s={12} c="var(--green)" />
+        </a>
         <a href="/product/campaign-ai" onClick={e => { e.preventDefault(); navigate('/product/campaign-ai'); }}
           style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, fontWeight:600, color:'var(--green)', textDecoration:'none' }}>
           Read about Campaign AI <I n="arrow" s={12} c="var(--green)" />

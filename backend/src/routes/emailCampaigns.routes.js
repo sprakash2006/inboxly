@@ -27,7 +27,8 @@ const draft = {
   preheader: z.string().max(200).nullish(),
 };
 
-const schemas = {
+// Exported for the public API (routes/public.routes.js), which takes the same bodies.
+export const schemas = {
   compose: z.object({
     message: z.string().min(1, 'Write a message first').max(10_000),
     tone: z.enum(['friendly', 'professional', 'promotional', 'short']).optional(),

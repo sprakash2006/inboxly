@@ -160,11 +160,15 @@ router.get('/campaigns', requireScope('campaigns:read'), injectWorkspace(campaig
 router.post('/campaigns', requireScope('campaigns:write'), validate({ body: campaignSchemas.create }), campaignChanged, injectWorkspace(campaignsController.create));
 // What a send would cost before launching it: quota used, wallet charge, per-category price.
 router.post('/campaigns/estimate', requireScope('campaigns:read'), validate({ body: campaignSchemas.estimate }), injectWorkspace(campaignsController.estimate));
+// A CSV of recipients with a value per person for the template's variables.
+// Creates or matches the contacts; returns their ids and each row's values.
+router.post('/campaigns/audience-import', requireScope('campaigns:write'), uploadRateLimit, csvUpload.single('file'), verifyFileContents, injectWorkspace(campaignsController.audienceImport));
 router.get('/campaigns/:id', requireScope('campaigns:read'), injectWorkspace(campaignsController.getOne));
 router.patch('/campaigns/:id', requireScope('campaigns:write'), validate({ body: campaignSchemas.update }), campaignChanged, injectWorkspace(campaignsController.update));
 router.get('/campaigns/:id/recipients/export', requireScope('campaigns:read'), injectWorkspace(campaignsController.exportRecipients));
 router.post('/campaigns/:id/recipients', requireScope('campaigns:write'), validate({ body: campaignSchemas.addRecipients }), campaignChanged, injectWorkspace(campaignsController.addRecipients));
 router.put('/campaigns/:id/recipients', requireScope('campaigns:write'), validate({ body: campaignSchemas.setRecipients }), campaignChanged, injectWorkspace(campaignsController.setRecipients));
+router.put('/campaigns/:id/recipient-values', requireScope('campaigns:write'), validate({ body: campaignSchemas.recipientValues }), injectWorkspace(campaignsController.setRecipientValues));
 router.post('/campaigns/:id/launch', requireScope('campaigns:write'), validate({ body: campaignSchemas.launch }), campaignChanged, injectWorkspace(campaignsController.launch));
 router.post('/campaigns/:id/pause', requireScope('campaigns:write'), campaignChanged, injectWorkspace(campaignsController.pause));
 router.post('/campaigns/:id/resume', requireScope('campaigns:write'), campaignChanged, injectWorkspace(campaignsController.resume));

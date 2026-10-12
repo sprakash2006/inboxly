@@ -35,6 +35,123 @@ const quickReplyButtons = (components) =>
 
 const ctaKey = (value) => String(value ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
+// ─── template variables ────────────────────────────────────────
+// Mirrors backend/src/lib/templateParams.js: a header and a body number their
+// own {{1}}, so a variable is identified by slot ("BODY:2"). The server is the
+// authority on what gets sent; this only drives the picker and the preview.
+const countVars = (text) => {
+  const nums = [...String(text || '').matchAll(/\{\{(\d+)\}\}/g)].map(m => parseInt(m[1], 10));
+  return nums.length ? Math.max(...nums) : 0;
+};
+const templateSlots = (components) => getComponents(components)
+  .filter(c => /\{\{\d+\}\}/.test(c?.text || ''))
+  .flatMap(c => {
+    const type = String(c.type || 'BODY').toUpperCase();
+    const rows = c?.example?.body_text ?? c?.example?.header_text;
+    const samples = Array.isArray(rows?.[0]) ? rows[0] : Array.isArray(rows) ? rows : [];
+    return Array.from({ length: countVars(c.text) }, (_, i) => ({ key: `${type}:${i + 1}`, type, number: i + 1, sample: String(samples[i] ?? '').trim() }));
+  });
+
+// What the server does for a slot with no rule: {{1}} is the name, the rest
+// are the template's approval samples.
+const defaultRule = (slot) => (slot.type === 'BODY' && slot.number === 1 ? { source: 'name' } : { source: 'sample' });
+
+// A sample CSV column name per variable, which the upload also maps back
+// automatically: variable_2 → {{2}}, header_variable_1 → header {{1}}.
+const slotColumn = (slot) => `${slot.type === 'BODY' ? '' : `${slot.type.toLowerCase()}_`}variable_${slot.number}`;
+
+const ruleValue = (rule, slot, { name, row }) => {
+  switch (rule.source) {
+    case 'name':   return name || 'there';
+    case 'text':   return rule.value || '';
+    case 'column': return row ? (row[rule.column] || '') : `[${rule.column}]`;
+    default:       return slot.sample || name || 'there';
+  }
+};
+
+const fillSlots = (text, type, slots, rules, ctx) => String(text || '').replace(/\{\{(\d+)\}\}/g, (match, n) => {
+  const slot = slots.find(s => s.type === type && s.number === Number(n));
+  if (!slot) return match;
+  return ruleValue(rules[slot.key] || defaultRule(slot), slot, ctx) || match;
+});
+
+const selectStyle = { padding: '8px 10px', borderRadius: 8, background: 'var(--surf)', border: '1px solid var(--bd)', color: 'var(--t1)', fontSize: 12.5, fontFamily: "'Manrope',sans-serif", outline: 'none' };
+
+// Where each {{n}} gets its value. Shown under the audience, because the CSV
+// uploaded there is what most of these choices point at.
+const VariablesPanel = ({ slots, rules, setRule, columns, missingCount, valuesKnown }) => {
+  if (slots.length === 0) return null;
+  return (
+    <div style={{ padding: '14px 16px', borderRadius: 10, border: '1px solid var(--bd)', background: 'rgba(15,23,42,0.015)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--t1)', margin: 0 }}>Personalise variables</p>
+        <p style={{ fontSize: 12, color: 'var(--t2)', margin: '4px 0 0', lineHeight: 1.5 }}>
+          Choose what each placeholder is filled with. To give every person their own value, upload a CSV under <strong>Upload CSV</strong> with a column for it.
+        </p>
+      </div>
+      {slots.map(slot => {
+        const rule = rules[slot.key] || defaultRule(slot);
+        const sameForEveryone = rule.source === 'sample' && !(slot.type === 'BODY' && slot.number === 1);
+        return (
+          <div key={slot.key} style={{ display: 'grid', gridTemplateColumns: 'minmax(90px, 120px) 1fr', gap: 10, alignItems: 'start' }}>
+            <div style={{ paddingTop: 8 }}>
+              <code style={{ fontFamily: 'var(--mono)', fontSize: 12.5, fontWeight: 700, color: 'var(--t1)' }}>{`{{${slot.number}}}`}</code>
+              {slot.type !== 'BODY' && <span style={{ fontSize: 10.5, color: 'var(--t3)', marginLeft: 6 }}>{slot.type.toLowerCase()}</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <select
+                value={rule.source === 'column' ? `column:${rule.column}` : rule.source}
+                onChange={e => {
+                  const v = e.target.value;
+                  if (v.startsWith('column:')) setRule(slot.key, { source: 'column', column: v.slice(7) });
+                  else if (v === 'text') setRule(slot.key, { source: 'text', value: rule.source === 'text' ? rule.value : (slot.sample || '') });
+                  else setRule(slot.key, { source: v });
+                }}
+                style={selectStyle}
+                aria-label={`Value for {{${slot.number}}}`}
+              >
+                <option value="name">Contact's name</option>
+                {columns.length > 0 && (
+                  <optgroup label="From the uploaded CSV (per person)">
+                    {columns.map(col => <option key={col} value={`column:${col}`}>Column: {col}</option>)}
+                  </optgroup>
+                )}
+                {rule.source === 'column' && !columns.includes(rule.column) && (
+                  <option value={`column:${rule.column}`}>Column: {rule.column} (not in the current file)</option>
+                )}
+                <option value="text">Fixed text (same for everyone)</option>
+                <option value="sample">Template sample{slot.sample ? `: “${slot.sample}”` : ''}</option>
+              </select>
+              {rule.source === 'text' && (
+                <input value={rule.value || ''} onChange={e => setRule(slot.key, { source: 'text', value: e.target.value })}
+                  placeholder="Text to send in this place" maxLength={1000}
+                  style={{ ...selectStyle, background: 'rgba(15,23,42,0.03)' }} />
+              )}
+              {sameForEveryone && (
+                <p style={{ fontSize: 11.5, color: '#b45309', margin: 0, lineHeight: 1.5 }}>
+                  Every recipient gets {slot.sample ? <>“{slot.sample}”</> : 'the sample value'} here. Use a CSV column if it should differ per person.
+                </p>
+              )}
+              {rule.source === 'text' && !String(rule.value || '').trim() && (
+                <p style={{ fontSize: 11.5, color: '#dc2626', margin: 0 }}>Enter the text to send.</p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {Object.values(rules).some(r => r.source === 'column') && (
+        <p style={{ fontSize: 11.5, margin: 0, lineHeight: 1.5, color: missingCount > 0 ? '#b45309' : 'var(--t3)' }}>
+          {missingCount > 0
+            ? `${missingCount} selected contact${missingCount === 1 ? ' has' : 's have'} no value in a chosen column and will be skipped (not charged).`
+            : valuesKnown
+              ? 'Every selected contact has a value for each chosen column.'
+              : 'Contacts without a value in a chosen column are skipped at launch and not charged.'}
+        </p>
+      )}
+    </div>
+  );
+};
+
 // ─── constants & helpers ───────────────────────────────────────
 const card = {
   background: 'var(--surf)',
@@ -353,7 +470,7 @@ const Step2 = ({ templates, selectedTemplateId, setSelectedTemplateId, templateB
 };
 
 // ─── Step 3 ───────────────────────────────────────────────────
-const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds, setSelectedContactIds, toggleContact, onContactsReload, onNext }) => {
+const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds, setSelectedContactIds, toggleContact, onContactsReload, onAudienceValues, slots = [], variablesPanel = null, onNext }) => {
   const [search, setSearch]       = useState('');
   const [manualName, setManualName]   = useState('');
   const [manualPhone, setManualPhone] = useState('');
@@ -373,13 +490,19 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
   const [segmentError, setSegmentError] = useState('');
 
   const downloadSample = () => {
+    // One extra column per template variable after {{1}} (the name), seeded
+    // with the template's sample so the file shows what goes where.
+    const extra = slots.filter(sl => !(sl.type === 'BODY' && sl.number === 1));
+    const cell = (v) => (/[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : v);
+    const extraHead = extra.map(sl => `,${slotColumn(sl)}`).join('');
+    const extraRow = extra.map(sl => `,${cell(sl.sample || `value for {{${sl.number}}}`)}`).join('');
     const csvContent = [
-      'name,phoneNumber,email,tags',
-      'Aarav,+917410066251,aarav@example.com,test',
-      'Vivaan,+918983416795,vivaan@example.com,test',
-      'Krishna,+919226573383,krishna@example.com,test',
-      'Arjun,+918080178330,arjun@example.com,test',
-      'Rohan,+919604609921,rohan@example.com,test',
+      `name,phoneNumber,email,tags${extraHead}`,
+      `Aarav,+917410066251,aarav@example.com,test${extraRow}`,
+      `Vivaan,+918983416795,vivaan@example.com,test${extraRow}`,
+      `Krishna,+919226573383,krishna@example.com,test${extraRow}`,
+      `Arjun,+918080178330,arjun@example.com,test${extraRow}`,
+      `Rohan,+919604609921,rohan@example.com,test${extraRow}`,
     ].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -398,7 +521,9 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
     try {
       const fd = new FormData();
       fd.append('file', csvFile);
-      const res = await wFetch('/contacts/import', {
+      // Creates or matches the contacts like the Contacts import, and also
+      // returns each row's other columns for the template's variables.
+      const res = await wFetch('/campaigns/audience-import', {
         method: 'POST',
         body: fd,
       });
@@ -416,6 +541,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
             ids.forEach(id => next.add(id));
             return next;
           });
+          onAudienceValues?.(result);
           onContactsReload?.();
         }
       }
@@ -604,7 +730,9 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
           )}
           {csvResult && (
             <div style={{ padding:'10px 13px', borderRadius:8, background:'var(--gbg)', border:'1px solid var(--gbd)', color:'var(--green)', fontSize:13, fontWeight:600 }}>
-              <I n="checkc" s={13} /> Imported {csvResult.imported} contact{csvResult.imported !== 1 ? 's' : ''} and added to audience.
+              <I n="checkc" s={13} /> Added {csvResult.matched} contact{csvResult.matched !== 1 ? 's' : ''} to the audience ({csvResult.created} new).
+              {csvResult.columns?.length > 0 && <span style={{ fontWeight: 500 }}> Columns for variables: {csvResult.columns.join(', ')}.</span>}
+              {csvResult.invalid > 0 && <span style={{ fontWeight: 500, color: '#b45309' }}> {csvResult.invalid} row{csvResult.invalid !== 1 ? 's' : ''} had an invalid number and were left out.</span>}
             </div>
           )}
           <input ref={fileRef} type="file" accept=".csv,text/csv" style={{ display:'none' }} onChange={e => { setCsvFile(e.target.files[0]); setCsvResult(null); }} />
@@ -636,7 +764,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
               <>
                 <p style={{ fontSize:14, fontWeight:600, color:'var(--t1)', marginBottom:5 }}>Drop CSV here or click to browse</p>
                 <p style={{ fontSize:12, color:'var(--t2)' }}>
-                  Columns: <code style={{ color:'var(--green)', fontFamily:'monospace' }}>name</code>, <code style={{ color:'var(--green)', fontFamily:'monospace' }}>phoneNumber</code>, <code style={{ color:'var(--t2)', fontFamily:'monospace' }}>email</code>, <code style={{ color:'var(--t2)', fontFamily:'monospace' }}>tags</code>
+                  Columns: <code style={{ color:'var(--green)', fontFamily:'monospace' }}>name</code>, <code style={{ color:'var(--green)', fontFamily:'monospace' }}>phoneNumber</code>, <code style={{ color:'var(--t2)', fontFamily:'monospace' }}>email</code>, <code style={{ color:'var(--t2)', fontFamily:'monospace' }}>tags</code>, plus any columns for the template's variables
                 </p>
               </>
             )}
@@ -681,6 +809,9 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
                   <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>vip,customer</code>
                 </div>
               </li>
+              <li>
+                Any other column can fill a template variable, with a different value for each person — e.g. a <code style={{ fontFamily: 'monospace', color: '#6d28d9' }}>cart_item</code> column for {'{{2}}'}. The sample CSV has one column per variable. Choose which column fills which variable under <strong>Personalise variables</strong> below.
+              </li>
               <li>Duplicate phone numbers in the CSV will be skipped.</li>
               <li>Existing contacts are matched using phone number.</li>
               <li>Invalid rows will not be imported.</li>
@@ -688,7 +819,7 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
           </div>
           {csvFile && (
             <Btn onClick={uploadCsv} disabled={csvUploading} style={{ alignSelf:'flex-end', boxShadow: 'var(--glow)' }}>
-              {csvUploading ? 'Uploading…' : 'Import Contacts'}
+              {csvUploading ? 'Uploading…' : 'Import and add to audience'}
             </Btn>
           )}
         </div>
@@ -754,6 +885,8 @@ const Step3 = ({ audienceMethod, setAudienceMethod, contacts, selectedContactIds
           )}
         </div>
       )}
+
+      {variablesPanel}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: '1px solid var(--bd)' }}>
         <span style={{ fontSize: '13px', color: total > 0 ? 'var(--green)' : 'var(--t2)', fontWeight: 500 }}>
@@ -1512,6 +1645,15 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
   // Advanced wizard config (retries, fallback) — persisted to the campaign.
   const [retryConfig, setRetryConfig]         = useState(null);
   const [fallbackConfig, setFallbackConfig]   = useState(null);
+  // Template variables: a rule per slot the user has set ("BODY:2" → source),
+  // the uploaded CSV's columns, and each uploaded contact's row. Values from
+  // an upload in this session are saved to the campaign's recipients on the
+  // next save (valuesDirty); a reopened draft's values already live there.
+  const [variableRules, setVariableRules]     = useState({});
+  const [csvColumns, setCsvColumns]           = useState([]);
+  const [recipientValues, setRecipientValues] = useState({});
+  const [uploadedNames, setUploadedNames]     = useState({});
+  const [valuesDirty, setValuesDirty]         = useState(false);
 
   const [numbers, setNumbers]     = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -1580,6 +1722,8 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
         }
 
         setGoal(c.goal ?? null);
+        setVariableRules(c.variableConfig?.map ?? {});
+        setCsvColumns(c.variableConfig?.columns ?? []);
         setRetryConfig(c.retryConfig ?? null);
         setFallbackConfig(c.fallbackConfig ?? null);
         setRetriesActive(!!c.retryConfig?.enabled);
@@ -1620,6 +1764,24 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
     next.has(id) ? next.delete(id) : next.add(id);
     return next;
   });
+
+  const setVariableRule = useCallback((key, rule) => setVariableRules(prev => ({ ...prev, [key]: rule })), []);
+
+  // An uploaded audience CSV: keep each row, offer its columns, and map any
+  // column named like the sample file's (variable_2 → {{2}}) automatically.
+  const onAudienceValues = useCallback((result) => {
+    const columns = Array.isArray(result?.columns) ? result.columns : [];
+    setRecipientValues(prev => ({ ...prev, ...(result?.values || {}) }));
+    setUploadedNames(prev => ({ ...prev, ...Object.fromEntries((result?.contacts || []).map(c => [c.id, c.name])) }));
+    setCsvColumns(prev => [...new Set([...prev, ...columns])]);
+    setValuesDirty(true);
+    const tpl = templates.find(t => t.id === selectedTemplateId);
+    const auto = {};
+    for (const slot of templateSlots(tpl?.components)) {
+      if (columns.includes(slotColumn(slot))) auto[slot.key] = { source: 'column', column: slotColumn(slot) };
+    }
+    if (Object.keys(auto).length) setVariableRules(prev => ({ ...auto, ...prev }));
+  }, [templates, selectedTemplateId]);
 
   // Re-price whenever the audience changes. Debounced because selecting
   // contacts one at a time would otherwise fire a request per click, and
@@ -1663,11 +1825,24 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
     if (!isLocked(n)) setOpenStep(openStep === n ? null : n);
   };
 
+  const slots = templateSlots(templates.find(t => t.id === selectedTemplateId)?.components);
+  // Only rules for variables the chosen template has; a rule left over from a
+  // previously picked template would be dropped by the server anyway.
+  const activeRules = Object.fromEntries(Object.entries(variableRules).filter(([key]) => slots.some(sl => sl.key === key)));
+  const emptyTextRule = Object.values(activeRules).some(r => r.source === 'text' && !String(r.value || '').trim());
+  const columnRules = Object.values(activeRules).filter(r => r.source === 'column');
+  // Only countable for values uploaded in this session; a reopened draft's
+  // values are on the server, which skips the same people at launch.
+  const missingValueCount = valuesDirty && columnRules.length
+    ? [...selectedContactIds].filter(cid => columnRules.some(r => !String(recipientValues[cid]?.[r.column] ?? '').trim())).length
+    : 0;
+
   const canLaunch = !!(
     campaignName.trim() &&
     selectedNumberId &&
     selectedTemplateId &&
     selectedContactIds.size > 0 &&
+    !emptyTextRule &&
     (scheduleType === 'immediately' || scheduledAt)
   );
 
@@ -1703,6 +1878,10 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
       // Kept on the draft so a schedule survives being saved and reopened.
       // It is only an intention — launchCampaign takes its own copy.
       scheduledAt: scheduleType === 'custom' && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      // Null keeps the original rule ({{1}} = name, the rest = samples).
+      variableConfig: Object.keys(activeRules).length
+        ? { columns: [...new Set([...csvColumns, ...columnRules.map(r => r.column)])], map: activeRules }
+        : null,
     };
 
     let id = draftId;
@@ -1722,6 +1901,21 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
       method: 'PUT', body: JSON.stringify({ contactIds: [...selectedContactIds] }),
     });
     if (!recRes.ok) throw new Error(await parseError(recRes, `Could not save the audience (${recRes.status})`));
+
+    // Each uploaded person's CSV row, in chunks (a 10,000-row file does not
+    // fit one request). The first chunk replaces whatever an earlier upload
+    // left on the recipients.
+    if (valuesDirty) {
+      const entries = [...selectedContactIds].filter(cid => recipientValues[cid]).map(cid => [cid, recipientValues[cid]]);
+      const CHUNK = 2000;
+      for (let i = 0; i === 0 || i < entries.length; i += CHUNK) {
+        const valRes = await wFetch(`/campaigns/${id}/recipient-values`, {
+          method: 'PUT', body: JSON.stringify({ values: Object.fromEntries(entries.slice(i, i + CHUNK)), replace: i === 0 }),
+        });
+        if (!valRes.ok) throw new Error(await parseError(valRes, `Could not save the variable values (${valRes.status})`));
+      }
+      setValuesDirty(false);
+    }
 
     return id;
   };
@@ -1813,6 +2007,16 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
 
   const mobile = useIsMobile();
 
+  // The preview fills the variables for one real recipient: the first chosen
+  // contact with an uploaded row, else the first chosen contact.
+  const previewContactId = [...selectedContactIds].find(cid => recipientValues[cid]) ?? [...selectedContactIds][0] ?? null;
+  const previewContactName = previewContactId
+    ? (uploadedNames[previewContactId] ?? contacts.find(c => c.id === previewContactId)?.name ?? null)
+    : null;
+  const previewBody = slots.length
+    ? fillSlots(templateBody, 'BODY', slots, activeRules, { name: previewContactName, row: previewContactId ? recipientValues[previewContactId] : null })
+    : templateBody;
+
   const STEPS = [
     { n: 0, title: 'Goal',                            done: !!goal },
     { n: 1, title: 'Campaign Type & WhatsApp Number', done: step1Done },
@@ -1850,6 +2054,18 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
         : `${selectedContactIds.size.toLocaleString()} contacts chosen`,
       ok: selectedContactIds.size > 0,
     },
+    ...(slots.some(sl => !(sl.type === 'BODY' && sl.number === 1) && (activeRules[sl.key] || defaultRule(sl)).source === 'sample') ? [{
+      title: 'Some variables are the same for everyone',
+      detail: slots
+        .filter(sl => !(sl.type === 'BODY' && sl.number === 1) && (activeRules[sl.key] || defaultRule(sl)).source === 'sample')
+        .map(sl => `{{${sl.number}}} = “${sl.sample || 'sample'}”`).join(', ') + ' — the template\'s sample. Pick a CSV column in step 3 to vary it.',
+      ok: false,
+    }] : []),
+    ...(missingValueCount > 0 ? [{
+      title: `${missingValueCount} contact${missingValueCount === 1 ? '' : 's'} missing a value`,
+      detail: 'They have no value in a chosen CSV column and will be skipped, not charged.',
+      ok: false,
+    }] : []),
     {
       title: /\{\{\s*\d+\s*\}\}/.test(templateBody || '') ? 'Personalisation active' : 'No personalisation',
       detail: /\{\{\s*\d+\s*\}\}/.test(templateBody || '')
@@ -1964,6 +2180,14 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
                   contacts={contacts}
                   selectedContactIds={selectedContactIds} setSelectedContactIds={setSelectedContactIds} toggleContact={toggleContact}
                   onContactsReload={reloadContacts}
+                  onAudienceValues={onAudienceValues}
+                  slots={slots}
+                  variablesPanel={
+                    <VariablesPanel
+                      slots={slots} rules={activeRules} setRule={setVariableRule}
+                      columns={csvColumns} missingCount={missingValueCount} valuesKnown={valuesDirty}
+                    />
+                  }
                   onNext={() => { setStep3Done(true); setOpenStep(4); }}
                 />
               )}
@@ -2010,7 +2234,10 @@ export default function CreateCampaign({ onBack, campaignId = null }) {
             moves under the steps and the whole thing becomes one scroll. */}
         <div style={{ width: mobile ? '100%' : '296px', borderLeft: mobile ? 'none' : '1px solid var(--bd)', borderTop: mobile ? '1px solid var(--bd)' : 'none', padding: mobile ? '18px 14px 28px' : '20px 18px', overflowY: mobile ? 'visible' : 'auto', flexShrink: 0, background: 'var(--surf2)' }}>
           <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '13px', color: 'var(--t1)', marginBottom: '16px' }}>Message Preview</p>
-          <PhonePreview template={selectedTemplate} templateBody={templateBody} ctaLabel={aiAgentEnabled ? aiCtaLabel : ''} />
+          <PhonePreview template={selectedTemplate} templateBody={previewBody} ctaLabel={aiAgentEnabled ? aiCtaLabel : ''} />
+          {previewContactName && slots.length > 0 && (
+            <p style={{ fontSize: 11, color: 'var(--t3)', textAlign: 'center', marginTop: 10 }}>As {previewContactName} will see it</p>
+          )}
         </div>
       </div>
       )}

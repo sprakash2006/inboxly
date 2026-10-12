@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma.js';
 import { decrypt } from '../lib/encryption.js';
 import { sendWhatsAppMessage } from '../lib/meta.js';
 import { buildTemplateSendPayload } from '../services/templatePayload.service.js';
-import { contactVariableResolver } from '../lib/templateParams.js';
+import { campaignVariableResolver, missingCampaignVariables } from '../lib/templateParams.js';
 import { campaignCtaComponent, buildCampaignContext } from '../services/campaignAi.service.js';
 import { env } from '../config/env.js';
 import { queueCampaignCompletedEmail, queueCampaignFailedEmail } from '../services/email.service.js';
@@ -56,6 +56,23 @@ async function takeSendCredit(campaign, reason, memo = null) {
 const creditFailureReason = (code) => (code === 'SUBSCRIPTION_INACTIVE'
   ? 'Subscription is not active'
   : 'Quota and wallet balance exhausted');
+
+// Skips a recipient whose CSV row has no value for one of the campaign's
+// column-mapped variables. Launch already skips these; this catches a retry,
+// or a row whose values were cleared after launch. Never charged, like an
+// opt-out skip. Returns true when the recipient was skipped.
+async function skipIfMissingValues(campaign, recipient) {
+  const missing = missingCampaignVariables(campaign.template?.components, campaign.variableConfig, recipient.variables);
+  if (missing.length === 0) return false;
+  const reason = `No value for ${missing.join(', ')}`.slice(0, 500);
+  await prisma.campaignRecipient.update({
+    where: { id: recipient.id },
+    data: { status: 'SKIPPED', failReason: reason, lastFailureReason: reason, retryStatus: 'SKIPPED', nextRetryAt: null },
+  });
+  await prisma.campaign.update({ where: { id: campaign.id }, data: { skipped: { increment: 1 } } });
+  console.log(`[CampaignWorker] Skipped ${recipient.contact?.phoneNumber} — ${reason}`);
+  return true;
+}
 
 // Marks a recipient as skipped because the number is opted out. Skips are
 // tracked separately from failures: they cost nothing, are never retried, and
@@ -124,7 +141,7 @@ const describeMetaError = (metaErr, fallback) => {
 // `campaign` is passed so a campaign with an AI agent can stamp its CTA
 // quick-reply with the recipient's id: that payload comes straight back on the
 // tap, which is what lets the agent open on the right campaign.
-const buildTemplatePayload = async (template, contact, { phoneNumberId, accessToken, campaign = null, recipientId = null }) => {
+const buildTemplatePayload = async (template, contact, { phoneNumberId, accessToken, campaign = null, recipientId = null, values = null }) => {
   const ctaComponent = campaign?.aiAgentEnabled
     ? campaignCtaComponent(template.components, { ctaLabel: campaign.aiAgentCtaLabel, recipientId })
     : null;
@@ -133,9 +150,10 @@ const buildTemplatePayload = async (template, contact, { phoneNumberId, accessTo
     workspaceId: campaign?.workspaceId ?? template.workspaceId,
     phoneNumberId,
     accessToken,
-    // A campaign's template is the message: its approval samples are the
-    // intended values for {{2}}+ (templateParams.js#contactVariableResolver).
-    resolve: contactVariableResolver(contact, { samples: true }),
+    // The campaign's variable mapping when it has one (this recipient's CSV
+    // row, fixed text, the name); otherwise the template's approval samples
+    // are the intended values for {{2}}+ (templateParams.js).
+    resolve: campaignVariableResolver(contact, { config: campaign?.variableConfig, values }),
     extraComponents: ctaComponent ? [ctaComponent] : [],
     campaignId: campaign?.id ?? null,
   });
@@ -155,6 +173,7 @@ const snapshotRecipientContext = async (campaign, recipient) => {
           campaign,
           template: campaign.template,
           contact: recipient.contact,
+          values: recipient.variables,
           ctaLabel: campaign.aiAgentCtaLabel,
         }),
       },
@@ -225,7 +244,7 @@ async function sendToRecipient(campaign, recipient, { phoneNumberId, accessToken
   const templatePayload = await buildTemplatePayload(
     campaign.template,
     recipient.contact,
-    { phoneNumberId, accessToken, campaign, recipientId: recipient.id },
+    { phoneNumberId, accessToken, campaign, recipientId: recipient.id, values: recipient.variables },
   );
   const result = await sendWhatsAppMessage(
     phoneNumberId,
@@ -331,6 +350,10 @@ async function processRetryJob(job) {
   // The customer may have opted out between the original send and this retry.
   if (await isOptedOut(workspaceId, recipient.contact.phoneNumber)) {
     await skipOptedOutRecipient(campaignId, recipient);
+    await checkAndCompleteCampaign(campaignId);
+    return;
+  }
+  if (await skipIfMissingValues(campaign, recipient)) {
     await checkAndCompleteCampaign(campaignId);
     return;
   }
@@ -441,6 +464,7 @@ async function sendClaimedRecipient(campaign, recipient, { phoneNumberId, access
       await skipOptedOutRecipient(campaignId, recipient);
       return false;
     }
+    if (await skipIfMissingValues(campaign, recipient)) return false;
 
     const credit = await takeSendCredit(campaign, 'Campaign overage', memo);
     creditSource = credit.ok ? credit.source : null;

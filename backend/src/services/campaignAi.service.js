@@ -1,7 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { composeAgentPrompt, AGENT_PROMPT_SELECT } from './aiAgent.service.js';
 import { llmText, llmAvailable } from '../lib/llm.js';
-import { contactVariableResolver, fillVariables } from '../lib/templateParams.js';
+import { campaignVariableResolver, fillVariables } from '../lib/templateParams.js';
 import { sendAutomatedReply } from './outbound.service.js';
 import { planAllows } from './planFeatures.service.js';
 
@@ -123,10 +123,11 @@ const textOf = (components, type) =>
 // Everything the agent is allowed to know about this campaign, captured as
 // plain data. `contact` is optional: at launch there is no single recipient, so
 // the campaign-level snapshot keeps the template's own example values.
-export function buildCampaignContext({ campaign, template, contact = null, ctaLabel = null }) {
+export function buildCampaignContext({ campaign, template, contact = null, values = null, ctaLabel = null }) {
   const components = Array.isArray(template?.components) ? template.components : [];
-  // Must reproduce exactly what the campaign worker sent, samples included.
-  const resolve = contactVariableResolver(contact, { samples: true });
+  // Must reproduce exactly what the campaign worker sent: the same resolver,
+  // the campaign's variable mapping and this recipient's CSV row included.
+  const resolve = campaignVariableResolver(contact, { config: campaign?.variableConfig, values });
   const render = (type) => {
     const component = components.find(
       (c) => String(c?.type || '').toUpperCase() === type && typeof c?.text === 'string',

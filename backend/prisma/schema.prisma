@@ -568,6 +568,11 @@ model Campaign {
   // the step existed has no answer, and inventing one would be a lie about
   // what the sender chose.
   goal                       String?
+  // Where each template variable's value comes from, per recipient:
+  // { columns: [csv headers], map: { "BODY:2": { source: "column", column: "cart_item" } } }.
+  // Null keeps the original rule ({{1}} = contact name, {{2}}+ = the
+  // template's approval sample). See lib/templateParams.js#campaignVariableResolver.
+  variableConfig             Json?
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @default(now()) @updatedAt
   // NoAction, not the implicit Restrict: a template still used by a campaign
@@ -605,6 +610,9 @@ model CampaignRecipient {
   // retry #3 is indistinguishable from one that succeeded first time, so
   // "how many needed retrying" could not be answered after the fact.
   initialStatus     String?
+  // This recipient's row from the campaign's uploaded CSV, { column: value },
+  // read through Campaign.variableConfig to fill the template's variables.
+  variables         Json?
   // One entry per attempt: { attempt, at, ok, reason, metaCode }. Bounded to
   // the last 10 so a 24-hour hourly retry pattern cannot grow the row without
   // limit.

@@ -107,7 +107,7 @@ mock.module(here('../lib/meta.js'), {
   },
 });
 mock.module(here('../services/templatePayload.service.js'), { namedExports: { buildTemplateSendPayload: async () => ({ name: 'tpl' }) } });
-mock.module(here('../lib/templateParams.js'), { namedExports: { contactVariableResolver: () => () => '' } });
+mock.module(here('../lib/templateParams.js'), { namedExports: { campaignVariableResolver: () => () => '', missingCampaignVariables: () => [] } });
 mock.module(here('../services/campaignAi.service.js'), { namedExports: { campaignCtaComponent: () => null, buildCampaignContext: () => ({}) } });
 mock.module(here('../services/email.service.js'), { namedExports: { queueCampaignCompletedEmail: async () => {}, queueCampaignFailedEmail: async () => {} } });
 mock.module(here('../services/subscription.service.js'), {

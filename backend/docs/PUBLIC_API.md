@@ -269,7 +269,7 @@ agent named as the sender, and are billed like `POST /messages`.
 |---|---|---|---|
 | `GET` | `/campaigns?page=1&limit=20` | `campaigns:read` | Paginated list |
 | `GET` | `/campaigns/:id` | `campaigns:read` | One campaign with its results |
-| `POST` | `/campaigns` | `campaigns:write` | Create a draft: `{ "name", "templateId", "numberId" }` |
+| `POST` | `/campaigns` | `campaigns:write` | Create a draft: `{ "name", "templateId", "numberId", "variableConfig"? }` (see *Per-recipient variables*) |
 | `POST` | `/campaigns/:id/recipients` | `campaigns:write` | Add recipients: `{ "contactIds": ["..."] }` (max 10,000) |
 | `PUT` | `/campaigns/:id/recipients` | `campaigns:write` | Replace the audience: `{ "contactIds": [...] }` |
 | `POST` | `/campaigns/:id/launch` | `campaigns:write` | Launch (or schedule with `{ "scheduledAt": "ISO-8601" }`; optional `retryConfig`). The campaign's cost is charged to the wallet at launch |
@@ -279,6 +279,37 @@ agent named as the sender, and are billed like `POST /messages`.
 | `POST` | `/campaigns/:id/resume` | `campaigns:write` | Resume a paused campaign |
 | `POST` | `/campaigns/:id/cancel` | `campaigns:write` | Cancel the campaign |
 | `GET` | `/campaigns/:id/recipients/export` | `campaigns:read` | Per-recipient results as CSV |
+| `POST` | `/campaigns/audience-import` | `campaigns:write` | Upload a CSV (multipart `file`) of recipients with a column per variable; creates or matches contacts and returns `{ columns, contacts, values }` |
+| `PUT` | `/campaigns/:id/recipient-values` | `campaigns:write` | Save each recipient's row: `{ "values": { "<contactId>": { "<column>": "..." } }, "replace"? }`, up to 2,000 per request |
+
+### Per-recipient variables
+
+By default `{{1}}` is the contact's name and `{{2}}` onwards are the template's
+approval samples, the same for everyone. To give each person their own value:
+
+1. `POST /campaigns/audience-import` with a CSV such as
+   `phoneNumber,name,cart_item`.
+2. Create the campaign with a `variableConfig` naming the column for each variable:
+
+   ```json
+   {
+     "columns": ["cart_item"],
+     "map": {
+       "BODY:1": { "source": "name" },
+       "BODY:2": { "source": "column", "column": "cart_item" },
+       "BODY:3": { "source": "text", "value": "15%" }
+     }
+   }
+   ```
+
+   Keys are `BODY:n` or `HEADER:n`. Sources: `name`, `column` (per person),
+   `text` (same for everyone), `sample` (the template's sample). A variable with
+   no rule keeps the default.
+3. `PUT /campaigns/:id/recipients` with the returned contact ids, then
+   `PUT /campaigns/:id/recipient-values` with the returned `values`.
+
+Recipients with an empty value in a mapped column are skipped at launch and not
+charged. `POST /campaigns/estimate` reports them as `missingValueContacts`.
 
 ---
 

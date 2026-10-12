@@ -47,3 +47,31 @@ test('unknown top-level keys are dropped instead of passed through', () => {
   const out = campaignSchemas.update.parse({ name: 'x1', somethingElse: { big: true } });
   assert.equal(out.somethingElse, undefined);
 });
+
+test('a variable mapping is accepted when every column it names was uploaded', () => {
+  const variableConfig = {
+    columns: ['cart_item'],
+    map: { 'BODY:1': { source: 'name' }, 'BODY:2': { source: 'column', column: 'cart_item' }, 'BODY:3': { source: 'text', value: '15%' } },
+  };
+  assert.deepEqual(campaignSchemas.create.parse({ ...base, variableConfig }).variableConfig, variableConfig);
+  assert.equal(campaignSchemas.update.parse({ variableConfig: null }).variableConfig, null);
+});
+
+test('a variable mapping cannot name a missing column, leave fixed text empty, or use an unknown slot', () => {
+  const bad = [
+    { columns: [], map: { 'BODY:2': { source: 'column', column: 'cart_item' } } },
+    { columns: [], map: { 'BODY:2': { source: 'text', value: '  ' } } },
+    { columns: [], map: { 'FOOTER:1': { source: 'name' } } },
+    { columns: [], map: { 'BODY:2': { source: 'ai' } } },
+  ];
+  for (const variableConfig of bad) {
+    assert.equal(campaignSchemas.update.safeParse({ variableConfig }).success, false, JSON.stringify(variableConfig));
+  }
+});
+
+test('recipient values are bounded per request', () => {
+  const ok = campaignSchemas.recipientValues.parse({ values: { c1: { item: 'Lamp', qty: 2 } } });
+  assert.deepEqual(ok, { values: { c1: { item: 'Lamp', qty: '2' } }, replace: false });
+  const tooMany = Object.fromEntries(Array.from({ length: 2001 }, (_, i) => [`c${i}`, { item: 'x' }]));
+  assert.equal(campaignSchemas.recipientValues.safeParse({ values: tooMany }).success, false);
+});

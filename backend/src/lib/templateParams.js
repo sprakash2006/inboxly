@@ -76,6 +76,75 @@ export const contactVariableResolver = (contact, { samples = false } = {}) => {
   };
 };
 
+// ─── Per-campaign variable mapping ──────────────────────────────────────────
+//
+// A campaign can say where each variable's value comes from instead of relying
+// on the rule above. Campaign.variableConfig.map is keyed by slot, "BODY:2" or
+// "HEADER:1" — a header and a body each number their own {{1}} — and each rule
+// is one of:
+//
+//   { source: 'name' }                    the contact's name
+//   { source: 'column', column: 'item' }  this recipient's value from the CSV
+//                                         uploaded with the campaign
+//   { source: 'text', value: '25%' }      the same fixed text for everyone
+//   { source: 'sample' }                  the template's approval sample
+//
+// A slot with no rule keeps contactVariableResolver's behaviour, so campaigns
+// created before mappings existed send exactly what they always did.
+
+const slotType = (component) => String(component?.type || 'BODY').toUpperCase();
+export const slotKey = (component, index) => `${slotType(component)}:${index + 1}`;
+
+// Every variable slot a template has, in display order, with the sample Meta
+// approved it with.
+export const templateVariableSlots = (components) => (components || [])
+  .filter((c) => /\{\{\d+\}\}/.test(c?.text || ''))
+  .flatMap((c) => Array.from({ length: countVariables(c.text) }, (_, i) => ({
+    key: slotKey(c, i),
+    type: slotType(c),
+    number: i + 1,
+    sample: String(bodyExamples(c)[i] ?? '').trim(),
+  })));
+
+const ruleFor = (config, component, index) => {
+  const map = config?.map;
+  return map && typeof map === 'object' ? map[slotKey(component, index)] ?? null : null;
+};
+
+// `values` is the recipient's CSV row ({ column: value }).
+export const campaignVariableResolver = (contact, { config = null, values = null } = {}) => {
+  const fallback = contactVariableResolver(contact, { samples: true });
+  if (!config?.map) return fallback;
+  const name = (contact?.name || '').trim() || 'there';
+  return (index, component) => {
+    const rule = ruleFor(config, component, index);
+    switch (rule?.source) {
+      case 'name': return name;
+      case 'text': return String(rule.value ?? '').trim() || fallback(index, component);
+      // Empty when the row has no value; missingCampaignVariables() is what
+      // stops such a recipient from being sent to at all. With no recipient
+      // (a campaign-level summary) the column is named instead.
+      case 'column': return values == null ? `[${rule.column}]` : String(values[rule.column] ?? '').trim();
+      default: return fallback(index, component);
+    }
+  };
+};
+
+// The slots this recipient has no value for — each one a CSV column rule whose
+// cell is empty or absent. A non-empty list means the recipient must be
+// skipped: Meta refuses an empty parameter, and sending anything else in its
+// place is how every customer was told they left "a Bluetooth Speaker" in
+// their cart.
+export const missingCampaignVariables = (components, config, values) => {
+  if (!config?.map) return [];
+  return templateVariableSlots(components)
+    .filter((slot) => {
+      const rule = config.map[slot.key];
+      return rule?.source === 'column' && !String(values?.[rule.column] ?? '').trim();
+    })
+    .map((slot) => `{{${slot.number}}}${slot.type === 'BODY' ? '' : ` in the ${slot.type.toLowerCase()}`} (column "${config.map[slot.key].column}")`);
+};
+
 // Renders a component's text the way the recipient sees it, with {{n}}
 // replaced by the same values the send used.
 export const fillVariables = (text, component, resolve) =>

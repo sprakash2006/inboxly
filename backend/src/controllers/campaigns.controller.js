@@ -1,4 +1,5 @@
 import * as campaignsService from '../services/campaigns.service.js';
+import { importCampaignAudience } from '../services/campaignAudience.service.js';
 import { getExportableCampaign, campaignRecipientsCsv, exportFilename } from '../services/campaignExport.service.js';
 
 export async function list(req, res) {
@@ -35,6 +36,17 @@ export async function addRecipients(req, res) {
 export async function setRecipients(req, res) {
   const result = await campaignsService.setRecipients(req.params.workspaceId, req.params.id, req.body.contactIds);
   res.json(result);
+}
+
+// A CSV of recipients with per-person variable values. Creates or matches the
+// contacts; attaches nothing to a campaign (see campaignAudience.service.js).
+export async function audienceImport(req, res) {
+  if (!req.file) return res.status(400).json({ error: 'Attach the CSV file as "file".' });
+  res.json(await importCampaignAudience(req.params.workspaceId, req.file.buffer));
+}
+
+export async function setRecipientValues(req, res) {
+  res.json(await campaignsService.setRecipientValues(req.params.workspaceId, req.params.id, req.body));
 }
 
 export async function update(req, res) {

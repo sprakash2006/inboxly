@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { findManyChunked } from '../lib/paging.js';
 import { campaignQueue } from '../queues/campaign.queue.js';
@@ -12,6 +13,7 @@ import { getAgent } from './aiAgent.service.js';
 import { normalizeCtaLabel, buildCampaignContext, findCtaButton } from './campaignAi.service.js';
 import { isCopyCodeAuthenticationTemplate } from '../authentication/authentication.service.js';
 import { assertPlanFeature } from './planFeatures.service.js';
+import { missingCampaignVariables, templateVariableSlots } from '../lib/templateParams.js';
 
 const money = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -253,7 +255,7 @@ export async function listCampaigns(workspaceId, { page = 1, limit = 20, type } 
   };
 }
 
-export async function createCampaign(workspaceId, { name, templateId, numberId, whatsappNumberId, retryConfig, fallbackConfig, aiAgent, goal }, user = null) {
+export async function createCampaign(workspaceId, { name, templateId, numberId, whatsappNumberId, retryConfig, fallbackConfig, aiAgent, goal, variableConfig }, user = null) {
   if (!name || !String(name).trim()) { const e = new Error('Campaign name is required'); e.status = 400; throw e; }
   // Plan's campaign cap (null = unlimited); reads the plan live so admin edits
   // in the Plans tab apply immediately.
@@ -277,6 +279,7 @@ export async function createCampaign(workspaceId, { name, templateId, numberId, 
 
   const aiConfig = await resolveAiAgentConfig(workspaceId, aiAgent);
   await assertFallbackAllowed(workspaceId, fallbackConfig);
+  const variables = normalizeVariableConfig(variableConfig, template);
 
   return prisma.campaign.create({
     data: {
@@ -289,13 +292,25 @@ export async function createCampaign(workspaceId, { name, templateId, numberId, 
       retryConfig: retryConfig ? normalizeRetryConfig(retryConfig) : undefined,
       goal: goal ?? undefined,
       fallbackConfig: fallbackConfig ?? undefined,
+      variableConfig: variables ?? undefined,
     },
   });
 }
 
+// Keeps only the rules for variables the template actually has, so a mapping
+// left over from a previously chosen template cannot fill slots that no longer
+// exist. Null (or a map with nothing left in it) means "the original rule".
+function normalizeVariableConfig(config, template) {
+  if (!config?.map) return null;
+  const slots = new Set(templateVariableSlots(template?.components).map((slot) => slot.key));
+  const map = Object.fromEntries(Object.entries(config.map).filter(([key]) => slots.has(key)));
+  if (Object.keys(map).length === 0) return null;
+  return { columns: Array.isArray(config.columns) ? config.columns : [], map };
+}
+
 export async function updateCampaign(workspaceId, campaignId, {
   name, retryConfig, fallbackConfig, aiAgent, goal,
-  templateId, numberId, whatsappNumberId, scheduledAt,
+  templateId, numberId, whatsappNumberId, scheduledAt, variableConfig,
 }) {
   const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
   if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
@@ -361,7 +376,47 @@ export async function updateCampaign(workspaceId, campaignId, {
   const aiConfig = await resolveAiAgentConfig(workspaceId, aiAgent);
   if (aiConfig) Object.assign(data, aiConfig);
 
+  // Like the template, what each variable says is fixed once the campaign has
+  // been costed and queued.
+  if (variableConfig !== undefined) {
+    if (campaign.status !== 'DRAFT') {
+      const e = new Error('Variable values can only be changed while the campaign is a draft'); e.status = 400; throw e;
+    }
+    const template = await prisma.template.findFirst({
+      where: { id: data.templateId ?? campaign.templateId, workspaceId }, select: { components: true },
+    });
+    data.variableConfig = normalizeVariableConfig(variableConfig, template) ?? Prisma.DbNull;
+  }
+
   return prisma.campaign.update({ where: { id: campaignId }, data });
+}
+
+// Stores each recipient's CSV row on its CampaignRecipient, for the campaign's
+// column rules to read at send time. One UPDATE per call rather than one per
+// recipient: a 10,000-row upload arrives as five of these.
+export async function setRecipientValues(workspaceId, campaignId, { values = {}, replace = false } = {}) {
+  const campaign = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId }, select: { status: true } });
+  if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
+  if (campaign.status !== 'DRAFT') {
+    const e = new Error('Recipient values can only be changed while the campaign is a draft'); e.status = 400; throw e;
+  }
+
+  if (replace) {
+    await prisma.campaignRecipient.updateMany({ where: { campaignId }, data: { variables: Prisma.DbNull } });
+  }
+  const entries = Object.entries(values);
+  if (entries.length === 0) return { updated: 0, notOnCampaign: 0 };
+
+  const contactIds = entries.map(([contactId]) => contactId);
+  const rows = entries.map(([, row]) => JSON.stringify(row));
+  const updated = await prisma.$executeRaw`
+    UPDATE "CampaignRecipient" AS r
+    SET "variables" = v.vars::jsonb
+    FROM (SELECT unnest(${contactIds}::text[]) AS cid, unnest(${rows}::text[]) AS vars) AS v
+    WHERE r."campaignId" = ${campaignId} AND r."contactId" = v.cid`;
+  // A contact id that is not on the campaign is ignored rather than refused:
+  // the audience and its values are saved by separate requests.
+  return { updated, notOnCampaign: entries.length - updated };
 }
 
 // Makes the campaign's audience exactly `contactIds`.
@@ -570,7 +625,7 @@ export async function estimateCampaignCost(workspaceId, { contactIds, campaignId
   if (campaignId) {
     const campaign = await prisma.campaign.findFirst({
       where: { id: campaignId, workspaceId },
-      select: { id: true, template: { select: { category: true } } },
+      select: { id: true, variableConfig: true, template: { select: { category: true, components: true } } },
     });
     if (!campaign) { const e = new Error('Campaign not found'); e.status = 404; throw e; }
     category = campaign.template?.category ?? null;
@@ -578,7 +633,14 @@ export async function estimateCampaignCost(workspaceId, { contactIds, campaignId
       where: { campaignId, status: 'PENDING' },
       include: { contact: { select: AUDIENCE_CONTACT_FIELDS } },
     });
-    contacts = recipients.map((r) => r.contact).filter(Boolean);
+    // Recipients missing a value are skipped at launch and never charged, so
+    // the quote leaves them out too.
+    const missing = recipients.filter((r) =>
+      missingCampaignVariables(campaign.template?.components, campaign.variableConfig, r.variables).length > 0);
+    const missingIds = new Set(missing.map((r) => r.id));
+    contacts = recipients.filter((r) => !missingIds.has(r.id)).map((r) => r.contact).filter(Boolean);
+    const summary = await priceAudience(workspaceId, contacts, category);
+    return { ...summary, totalContacts: summary.totalContacts + missing.length, missingValueContacts: missing.length };
   } else {
     category = await resolveTemplateCategory(workspaceId, templateId);
     const ids = Array.isArray(contactIds) ? contactIds.filter(Boolean) : [];
@@ -674,14 +736,29 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
     const e = new Error('Add at least one recipient before launching'); e.status = 400; throw e;
   }
 
-  const contacts = recipients.map((r) => r.contact).filter(Boolean);
+  // A recipient whose CSV row has no value for a mapped variable is skipped
+  // here, before the charge: sending them the template's sample instead is
+  // exactly the wrong message this mapping exists to prevent.
+  const missingValues = recipients.filter((r) =>
+    missingCampaignVariables(campaign.template?.components, campaign.variableConfig, r.variables).length > 0);
+  if (missingValues.length > 0) {
+    for (const r of missingValues) {
+      const reason = `No value for ${missingCampaignVariables(campaign.template?.components, campaign.variableConfig, r.variables).join(', ')}`;
+      await prisma.campaignRecipient.update({
+        where: { id: r.id },
+        data: { status: 'SKIPPED', failReason: reason.slice(0, 500), retryStatus: 'SKIPPED' },
+      });
+    }
+  }
+  const missingIds = new Set(missingValues.map((r) => r.id));
+  const contacts = recipients.filter((r) => !missingIds.has(r.id)).map((r) => r.contact).filter(Boolean);
   const { valid, blocked, invalid } = await analyseAudience(workspaceId, contacts);
   const sendableIds = new Set(valid.map((c) => c.id));
 
   // Opted-out and unsendable recipients are marked up front so they are never
   // attempted and never billed. A blocked number is a skip, not a failure —
   // and one blocked number must never stop the campaign.
-  const skipIds = recipients.filter((r) => !sendableIds.has(r.contactId)).map((r) => r.id);
+  const skipIds = recipients.filter((r) => !missingIds.has(r.id) && !sendableIds.has(r.contactId)).map((r) => r.id);
   const blockedIds = new Set(blocked.map((c) => c.id));
   if (skipIds.length > 0) {
     await prisma.campaignRecipient.updateMany({
@@ -700,9 +777,11 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
 
   if (valid.length === 0) {
     const e = new Error(
-      blocked.length > 0
-        ? 'Every recipient on this campaign has opted out — there is nobody left to send to.'
-        : 'No recipient on this campaign has a valid phone number.'
+      missingValues.length > 0 && blocked.length === 0 && invalid.length === 0
+        ? 'No recipient has values for every variable this template needs. Check the CSV columns chosen for each variable.'
+        : blocked.length > 0
+          ? 'Every recipient on this campaign has opted out — there is nobody left to send to.'
+          : 'No recipient on this campaign has a valid phone number.'
     );
     e.status = 400;
     throw e;
@@ -796,7 +875,7 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
     quotaPeriodStart: quotaUnits > 0 ? reservation.periodStart : null,
     // Baselines for the live counters the campaigns list reads. The worker
     // increments from here as it sends.
-    skipped: blocked.length,
+    skipped: blocked.length + missingValues.length,
     failed: invalid.length,
     ...(user?.id ? { createdByUserId: user.id } : {}),
     ...(normRetry !== undefined ? { retryConfig: normRetry } : {}),

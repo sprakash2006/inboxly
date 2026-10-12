@@ -140,6 +140,28 @@ const unavailableCampaignFeature = (label) => z.unknown()
   .refine((v) => v === null || v === undefined, { message: `${label} are not available yet` })
   .optional();
 
+// Where each template variable gets its value (lib/templateParams.js
+// #campaignVariableResolver). Keys are slots: "BODY:2", "HEADER:1".
+const csvColumn = z.string().trim().min(1).max(100);
+const campaignVariableRule = z.discriminatedUnion('source', [
+  z.object({ source: z.literal('name') }),
+  z.object({ source: z.literal('sample') }),
+  z.object({ source: z.literal('text'), value: z.string().trim().min(1, 'Enter the text to send for this variable').max(1000) }),
+  z.object({ source: z.literal('column'), column: csvColumn }),
+], { errorMap: () => ({ message: 'Each variable needs a source: name, column, text or sample' }) });
+const campaignVariableConfig = z.object({
+  // The headers of the CSV uploaded with the campaign, so a reopened draft can
+  // offer them again without the file.
+  columns: z.array(csvColumn).max(50).optional().default([]),
+  map: z.record(z.string().regex(/^(HEADER|BODY):\d{1,2}$/, 'Variable keys look like "BODY:2"'), campaignVariableRule),
+}).strict().superRefine((v, ctx) => {
+  for (const [key, rule] of Object.entries(v.map)) {
+    if (rule.source === 'column' && !v.columns.includes(rule.column)) {
+      ctx.addIssue({ code: 'custom', path: ['map', key], message: `"${rule.column}" is not one of the uploaded CSV columns` });
+    }
+  }
+});
+
 export const campaignSchemas = {
   create: z.object({
     name: meaningfulText(z.string().trim().min(1).max(120), 'Campaign name'),
@@ -152,6 +174,7 @@ export const campaignSchemas = {
     fallbackConfig: z.union([campaignFallbackConfig, z.null()]).optional(),
     aiAgent: aiAgentConfig.optional(),
     goal: z.enum(['sales', 'launch', 'reengage', 'nurture']).optional(),
+    variableConfig: z.union([campaignVariableConfig, z.null()]).optional(),
   }).refine((v) => v.numberId || v.whatsappNumberId, { message: 'numberId is required' }),
   addRecipients: z.object({ contactIds: z.array(id).min(1, 'At least one contact is required').max(10_000) }),
   // Replacing an audience may legitimately empty it ΓÇö a draft mid-edit does
@@ -170,6 +193,15 @@ export const campaignSchemas = {
     whatsappNumberId: id.optional(),
     scheduledAt: z.union([z.string(), z.date(), z.null()]).optional(),
     goal: z.enum(['sales', 'launch', 'reengage', 'nurture']).optional(),
+    variableConfig: z.union([campaignVariableConfig, z.null()]).optional(),
+  }),
+  // Each recipient's CSV row, by contact id. Sent in chunks: a 10,000-row
+  // upload does not fit one JSON body. `replace` clears every recipient's
+  // values first, so the first chunk of a re-upload drops the old file.
+  recipientValues: z.object({
+    values: z.record(id, z.record(z.string().max(100), z.union([z.string().max(1000), z.number()]).transform(String)))
+      .refine((v) => Object.keys(v).length <= 2000, { message: 'Send at most 2,000 recipients per request' }),
+    replace: z.boolean().optional().default(false),
   }),
   launch: z.object({
     scheduledAt: z.union([z.string(), z.date(), z.null()]).optional(),

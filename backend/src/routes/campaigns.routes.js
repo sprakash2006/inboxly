@@ -6,12 +6,16 @@ import { authorize } from '../middleware/authorize.js';
 import { validate, campaignSchemas } from '../validators/index.js';
 import { realtimeOnWrite } from '../middleware/realtimeOnWrite.js';
 import { realtime } from '../lib/realtimeBus.js';
+import { uploader, verifyFileContents, uploadRateLimit, ACCEPTS } from '../lib/uploadGuard.js';
+
+// The audience CSV: same type and size rules as the Contacts import.
+const csvUpload = uploader(ACCEPTS.csv, 10 * 1024 * 1024);
 
 const router = Router({ mergeParams: true });
 
 router.use(authenticate, workspaceContext);
 // Other open campaign screens refresh after a create, edit, launch, pause, cancel…
-router.use(realtimeOnWrite(({ workspaceId, id }) => { if (id !== 'estimate') realtime.campaignUpdated(workspaceId, id); }));
+router.use(realtimeOnWrite(({ workspaceId, id }) => { if (id !== 'estimate' && id !== 'audience-import') realtime.campaignUpdated(workspaceId, id); }));
 
 // Building and sending campaigns is core workspace work, not administration:
 // a member who can add contacts can also campaign to them. Admin-only
@@ -22,6 +26,8 @@ router.get('/', campaignsController.list);
 router.get('/fallback-capabilities', campaignsController.fallbackCapabilities);
 router.post('/', authorize('CLIENT'), validate({ body: campaignSchemas.create }), campaignsController.create);
 router.post('/estimate', authorize('CLIENT'), validate({ body: campaignSchemas.estimate }), campaignsController.estimate);
+// Recipients plus a value per person for the template's variables, from a CSV.
+router.post('/audience-import', authorize('CLIENT'), uploadRateLimit, csvUpload.single('file'), verifyFileContents, campaignsController.audienceImport);
 // The recipient report carries phone numbers, so it is member-level, not
 // open to viewers and agents.
 router.get('/:id/export', authorize('CLIENT'), campaignsController.exportRecipients);
@@ -31,6 +37,7 @@ router.put('/:id', authorize('CLIENT'), validate({ body: campaignSchemas.update 
 router.post('/:id/recipients', authorize('CLIENT'), validate({ body: campaignSchemas.addRecipients }), campaignsController.addRecipients);
 // PUT replaces the audience (draft editing); POST above only adds to it.
 router.put('/:id/recipients', authorize('CLIENT'), validate({ body: campaignSchemas.setRecipients }), campaignsController.setRecipients);
+router.put('/:id/recipient-values', authorize('CLIENT'), validate({ body: campaignSchemas.recipientValues }), campaignsController.setRecipientValues);
 router.post('/:id/launch', authorize('CLIENT'), validate({ body: campaignSchemas.launch }), campaignsController.launch);
 router.patch('/:id/cancel', authorize('CLIENT'), campaignsController.cancel);
 // Pausing is reversible; cancelling is not. Both are member-level work.

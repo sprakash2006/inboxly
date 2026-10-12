@@ -284,7 +284,7 @@ export const GROUPS = [
   {
     id: 'campaigns',
     title: 'WhatsApp campaigns',
-    intro: 'Send one template to many contacts. The usual flow is: create a draft → add recipients → estimate the cost → launch. Launching charges the campaign\'s cost against the quota and wallet.',
+    intro: 'Send one template to many contacts. The usual flow is: create a draft → add recipients → estimate the cost → launch. Launching charges the campaign\'s cost against the quota and wallet. To give each person their own value for a template variable (their cart item, order number…), upload the audience as a CSV with `POST /campaigns/audience-import`, save each row with `PUT /campaigns/:id/recipient-values`, and say which column fills which variable in `variableConfig`.',
     endpoints: [
       {
         id: 'camp-list', method: 'GET', path: '/campaigns', scope: 'campaigns:read',
@@ -309,8 +309,9 @@ export const GROUPS = [
           ['retryConfig', 'object', false, 'Automatic retries for failed sends: `{ "enabled": true, "retryPattern": "smart" | "hourly", "retryEndDate": "ISO-8601" }`.'],
           ['fallbackConfig', 'object', false, 'SMS / email fallback for numbers not on WhatsApp. SMS needs DLT ids.'],
           ['aiAgent', 'object', false, '`{ "enabled": true, "agentId": "..." }`: let the AI agent answer replies.'],
+          ['variableConfig', 'object | null', false, 'Where each template variable gets its value. `{ "columns": [csv headers], "map": { "BODY:2": rule } }`. Keys are `BODY:n` or `HEADER:n`. A rule is `{ "source": "name" }`, `{ "source": "column", "column": "cart_item" }` (each person\'s CSV value), `{ "source": "text", "value": "15%" }` (same for everyone) or `{ "source": "sample" }` (the template\'s sample). Variables without a rule: `{{1}}` is the contact\'s name, the rest are the template\'s samples.'],
         ],
-        example: { name: 'Diwali sale', templateId: 'cm1tpl...', numberId: 'cm1num...', goal: 'sales' },
+        example: { name: 'Abandoned cart', templateId: 'cm1tpl...', numberId: 'cm1num...', goal: 'sales', variableConfig: { columns: ['cart_item'], map: { 'BODY:1': { source: 'name' }, 'BODY:2': { source: 'column', column: 'cart_item' } } } },
         response: { id: 'cm1camp...', name: 'Diwali sale', status: 'DRAFT' },
         errors: [['400', 'Missing name, template or number.'], ['404', 'Template or number not found.']],
       },
@@ -324,6 +325,7 @@ export const GROUPS = [
           ['numberId', 'string', false, 'New number (draft only).'],
           ['scheduledAt', 'string | null', false, 'ISO-8601 time, or `null` to unschedule.'],
           ['goal / retryConfig / fallbackConfig / aiAgent', '—', false, 'As in create.'],
+          ['variableConfig', 'object | null', false, 'As in create (draft only). `null` goes back to name + samples.'],
         ],
         example: { name: 'Diwali sale — final', scheduledAt: '2026-10-20T09:00:00+05:30' },
       },
@@ -342,6 +344,27 @@ export const GROUPS = [
         example: { contactIds: ['cm1ct1...'] },
       },
       {
+        id: 'camp-audience', method: 'POST', path: '/campaigns/audience-import', scope: 'campaigns:write', multipart: true,
+        title: 'Upload an audience CSV',
+        summary: 'Reads a CSV of recipients with a value per person for the template\'s variables. Contacts are created or matched by phone number, exactly as the Contacts import does. Every column other than the phone becomes available to `variableConfig`. Nothing is attached to a campaign yet: add the returned contact ids with `PUT /campaigns/:id/recipients`, then save the values with `PUT /campaigns/:id/recipient-values`.',
+        body: [['file', 'file', true, 'CSV, up to 10 MB and 10,000 rows. Needs a `phoneNumber` column; `name`, `email`, `tags` and any other columns are optional, e.g. `phoneNumber,name,cart_item`.']],
+        response: { columns: ['name', 'cart_item'], contacts: [{ id: 'cm1ct...', name: 'Priya', phoneNumber: '+919876543210' }], values: { 'cm1ct...': { name: 'Priya', cart_item: 'Wireless Earbuds' } }, totalRows: 1, created: 1, matched: 1, repeated: 0, invalid: 0 },
+        errors: [['400', 'No `phoneNumber` column, no rows, more than 10,000 rows, or a file that is not CSV.'], ['403', 'The import would exceed the plan\'s contact limit.']],
+      },
+      {
+        id: 'camp-values', method: 'PUT', path: '/campaigns/:id/recipient-values', scope: 'campaigns:write',
+        title: 'Save recipient values',
+        summary: 'Stores each recipient\'s CSV row on the campaign, for `column` rules to read at send time. Send up to 2,000 recipients per request; for bigger lists, send several requests with `replace: true` only on the first. Draft campaigns only.',
+        params: [id('campaign')],
+        body: [
+          ['values', 'object', true, '`{ "<contactId>": { "<column>": "value", ... } }`, usually the `values` from the CSV upload. Contacts not on the campaign are ignored.'],
+          ['replace', 'boolean', false, 'Clear every recipient\'s values first. Default `false`.'],
+        ],
+        example: { values: { 'cm1ct...': { cart_item: 'Wireless Earbuds' } }, replace: true },
+        response: { updated: 1, notOnCampaign: 0 },
+        notes: 'At launch, anyone with an empty value in a column used by `variableConfig` is skipped and not charged; their report row says which variable was missing. Nobody is ever sent the template\'s sample in its place.',
+      },
+      {
         id: 'camp-estimate', method: 'POST', path: '/campaigns/estimate', scope: 'campaigns:read',
         title: 'Estimate cost',
         summary: 'Prices a send without charging anything: how many recipients are valid, blocked or duplicate, how much the quota covers and what the wallet would pay.',
@@ -351,7 +374,8 @@ export const GROUPS = [
           ['templateId', 'string', false, 'Template to price by category (with `contactIds`).'],
         ],
         example: { campaignId: 'cm1camp...' },
-        response: { totalContacts: 1000, validContacts: 980, duplicateContacts: 5, blockedContacts: 10, invalidContacts: 5, messageCategory: 'MARKETING', costPerMessage: 0.88, quotaCoveredMessages: 500, walletChargedMessages: 480, totalCost: 422.4, walletBalance: 1500, remainingBalance: 1077.6 },
+        notes: 'For an existing campaign, `missingValueContacts` counts recipients who will be skipped for a missing variable value; they are not priced.',
+        response: { totalContacts: 1000, validContacts: 980, duplicateContacts: 5, blockedContacts: 10, invalidContacts: 5, missingValueContacts: 0, messageCategory: 'MARKETING', costPerMessage: 0.88, quotaCoveredMessages: 500, walletChargedMessages: 480, totalCost: 422.4, walletBalance: 1500, remainingBalance: 1077.6 },
       },
       {
         id: 'camp-launch', method: 'POST', path: '/campaigns/:id/launch', scope: 'campaigns:write',

@@ -34,6 +34,17 @@ test('a normal token has no impersonator', async () => {
   assert.equal(req.user.impersonatedBy, null);
 });
 
+test('an HttpOnly access cookie authenticates when no Bearer header is sent', async () => {
+  const token = jwt.sign({ sub: 'u1', workspaceId: 'w1', role: 'AGENT', jti: 'j' }, SECRET);
+  const req = { headers: { cookie: `inboxly_access=${encodeURIComponent(token)}` }, method: 'GET', originalUrl: '/api/v1/users/me' };
+  let nexted = false;
+  const res = { status() { return this; }, json() { return this; } };
+  await authenticate(req, res, () => { nexted = true; });
+  assert.equal(nexted, true);
+  assert.equal(req.user.id, 'u1');
+  assert.equal(req.user.role, 'AGENT');
+});
+
 test('an impersonation token cannot mint lasting credentials', async () => {
   const token = jwt.sign({ sub: 'u1', workspaceId: 'w1', role: 'ADMIN', imp: 'admin1', jti: 'j' }, SECRET);
   for (const [method, url] of [

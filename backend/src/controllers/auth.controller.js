@@ -5,6 +5,7 @@ import { revokeAccessToken } from '../lib/tokenDenylist.js';
 import { env } from '../config/env.js';
 import { prisma } from '../lib/prisma.js';
 import * as audit from '../services/audit.service.js';
+import { clearAuthCookies, refreshTokenFromRequest, setAuthCookies } from '../lib/authCookies.js';
 
 // ─── OTP signup ───────────────────────────────────────────────────────────────
 export async function startSignup(req, res) {
@@ -13,6 +14,7 @@ export async function startSignup(req, res) {
 }
 export async function verifySignup(req, res) {
   const result = await authService.verifySignup(req.body);
+  setAuthCookies(res, result);
   res.status(201).json(result);
 }
 export async function resendSignupOtp(req, res) {
@@ -32,13 +34,15 @@ export async function resetPassword(req, res) {
 
 export async function login(req, res) {
   const result = await authService.login(req.body);
+  setAuthCookies(res, result);
   res.json(result);
 }
 
 export async function refresh(req, res) {
-  const { refreshToken } = req.body;
+  const refreshToken = refreshTokenFromRequest(req);
   if (!refreshToken) return res.status(400).json({ error: 'refreshToken required' });
   const result = await authService.refresh(refreshToken);
+  setAuthCookies(res, result);
   res.json(result);
 }
 
@@ -47,7 +51,7 @@ export async function refresh(req, res) {
 // revoked by jti so it stops working immediately instead of remaining valid for
 // the rest of its lifetime.
 export async function logout(req, res) {
-  const { refreshToken } = req.body || {};
+  const refreshToken = refreshTokenFromRequest(req);
   await authService.logout(refreshToken);
   if (req.user?.jti) await revokeAccessToken(req.user.jti, req.user.exp);
   // "Return to admin" ends an impersonation through here; close the trail.
@@ -61,6 +65,7 @@ export async function logout(req, res) {
       meta: { userId: req.user.id, workspaceId: req.user.workspaceId || null },
     });
   }
+  clearAuthCookies(res);
   res.json({ message: 'Logged out successfully' });
 }
 
@@ -107,5 +112,7 @@ export async function exchangeOneTimeCode(req, res) {
   }
   
   if (!raw) return res.status(400).json({ error: 'Code expired or already used' });
-  res.json(JSON.parse(raw));
+  const session = JSON.parse(raw);
+  setAuthCookies(res, session);
+  res.json(session);
 }

@@ -1,5 +1,6 @@
 import * as invitationsService from '../services/invitations.service.js';
 import * as authService from '../services/auth.service.js';
+import { setAuthCookies } from '../lib/authCookies.js';
 
 export async function create(req, res) {
   const invitation = await invitationsService.createInvitation(req.params.workspaceId, req.body, req.user.id);
@@ -36,5 +37,6 @@ export async function getByToken(req, res) {
 export async function accept(req, res) {
   const result = await invitationsService.acceptInvitation(req.params.token, req.user.id);
   const session = await authService.mintSessionForWorkspace(req.user.id, result.workspaceId, result.role);
+  setAuthCookies(res, session);
   res.json(session);
 }

@@ -74,7 +74,9 @@ export const authSchemas = {
     email: z.string().trim().email('Valid email required'),
     password: z.string().min(1, 'Password is required'),
   }),
-  refresh: z.object({ refreshToken: z.string().min(1) }),
+  // A browser may carry this in the HttpOnly refresh cookie. Keep the body
+  // token accepted for existing SPA/API clients during the gradual migration.
+  refresh: z.object({ refreshToken: z.string().min(1).optional() }),
   forgotPassword: z.object({ email: z.string().trim().email('Valid email required') }),
   resetPassword: z.object({
     email: z.string().trim().email('Valid email required'),

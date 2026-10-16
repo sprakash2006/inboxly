@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { isAccessTokenRevoked } from '../lib/tokenDenylist.js';
+import { accessTokenFromRequest } from '../lib/authCookies.js';
 
 function userFromPayload(payload) {
   return {
@@ -39,11 +40,10 @@ export function isForbiddenWhileImpersonating(method, url) {
 }
 
 export async function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
+  const token = accessTokenFromRequest(req);
+  if (!token) {
     return res.status(401).json({ error: 'Missing or invalid authorization header' });
   }
-  const token = authHeader.slice(7);
 
   let payload;
   try {
@@ -76,10 +76,10 @@ export async function authenticate(req, res, next) {
 // even once the access token has already expired, but when it is still live we
 // need its jti in order to revoke it.
 export function authenticateOptional(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return next();
+  const token = accessTokenFromRequest(req);
+  if (!token) return next();
   try {
-    const payload = jwt.verify(authHeader.slice(7), env.JWT_ACCESS_SECRET);
+    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
     req.user = userFromPayload(payload);
   } catch {
     // An expired or malformed token is not an error here — there is simply

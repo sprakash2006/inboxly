@@ -3001,7 +3001,9 @@ const WhatsAppFormsTab = () => {
 // ─────────────────────────────────────────────
 // 9. SMART LISTS
 // ─────────────────────────────────────────────
-const SmartListsTab = () => {
+// Exported for the Contact Lists section (Dashboard.jsx): Automation is hidden
+// from the app, but campaigns still target these lists.
+export const SmartListsTab = () => {
   const [segments, setSegments] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [viewingSegmentId, setViewingSegmentId] = useState(null);

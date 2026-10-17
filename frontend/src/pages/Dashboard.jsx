@@ -19,26 +19,16 @@ import { StatusBadge } from '../components/StatusBadge.jsx';
 import { TemplateModal, TEMPLATE_TYPE_META } from '../components/TemplateModal.jsx';
 import { TemplatePreviewModal } from '../components/TemplatePreviewModal.jsx';
 import { WalletSummaryCards } from '../components/WalletSummaryCards.jsx';
-// Chart-heavy screens are loaded on demand so Recharts stays out of the
-// initial bundle for anyone who never opens them.
-const CrmDashboardView = lazy(() =>
-  import('./CrmDashboardView.jsx').then(m => ({ default: m.CrmDashboardView })));
 import WalletStatusBanner from '../components/WalletStatusBanner.jsx';
 // Every section view is fetched the first time it is opened, so landing on
 // Home does not download the CRM, the automation builder and the rest.
 const CreateCampaign = lazy(() => import('./CreateCampaign.jsx'));
 const EmailCampaignBuilder = lazy(() => import('./EmailCampaign.jsx'));
 const ContactsView = lazy(() => import('./ContactsView.jsx'));
-const LeadsView = lazy(() => import('./LeadsView.jsx'));
-const DealsView = lazy(() => import('./DealsView.jsx'));
-const TasksView = lazy(() => import('./TasksView.jsx'));
 const AiAgentsView = lazy(() => import('./AiAgentsView.jsx'));
-const InboxView = lazy(() => import('./InboxView.jsx'));
 const WidgetsView = lazy(() => import('./WidgetsView.jsx'));
-const AutomationView = lazy(() => import('./AutomationView.jsx'));
 const AnalyticsView = lazy(() => import('./AnalyticsView.jsx'));
-const UserAnalyticsView = lazy(() => import('./UserAnalyticsView.jsx'));
-const ChatAnalytics = lazy(() => import('../components/dashboard/ChatAnalytics.jsx'));
+const ContactListsView = lazy(() => import('./AutomationView.jsx').then(m => ({ default: m.SmartListsTab })));
 import { useIsMobile } from '../lib/useMediaQuery.js';
 const NumberSetupView = lazy(() => import('./NumberSetupView.jsx'));
 const ApiKeysView = lazy(() => import('./ApiKeysView.jsx'));
@@ -626,57 +616,6 @@ const NextBestAction = ({ onGo, stats }) => {
   );
 };
 
-// The other half of the phone home screen: who is talking to you right now.
-// Open conversations, most recent first, tapping through to the inbox.
-const LiveConversations = () => {
-  const [convs, setConvs] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-    // Only the four most recent are shown, so only four are asked for.
-    wFetch('/conversations?limit=4')
-      .then(r => (r.ok ? r.json() : []))
-      .then(d => { if (alive) setConvs(Array.isArray(d) ? d : (d?.data || [])); })
-      .catch(() => { if (alive) setConvs([]); });
-    return () => { alive = false; };
-  }, []);
-
-  if (!convs || convs.length === 0) return null;
-  const top = convs.slice(0, 4);
-
-  return (
-    <div style={{ ...card, padding: '16px 18px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--success)', flexShrink: 0 }} />
-        <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, color: 'var(--t1)' }}>Live conversations</span>
-        <button onClick={() => window.dispatchEvent(new CustomEvent('app:nav', { detail: 'inbox' }))}
-          style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--accent)', fontFamily: "'Manrope',sans-serif" }}>
-          Open inbox
-        </button>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {top.map(c => (
-          <button key={c.id} onClick={() => window.dispatchEvent(new CustomEvent('app:nav', { detail: 'inbox' }))}
-            style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 0', background: 'none', border: 'none', borderBottom: '1px solid var(--bd)', cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: "'Manrope',sans-serif" }}>
-            <Avatar variant="gradient" name={c.contact?.name || c.contact?.phoneNumber || '?'} size={30} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--t1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {c.contact?.name || c.contact?.phoneNumber || 'Unknown'}
-              </div>
-              <div style={{ fontSize: 11.5, color: 'var(--t2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {c.messages?.[0]?.body || c.contact?.phoneNumber || '—'}
-              </div>
-            </div>
-            {c.unreadCount > 0 && (
-              <span style={{ flexShrink: 0, padding: '1px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: 'var(--green)', color: '#08090c' }}>{c.unreadCount}</span>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 // Legal & Policies inside the app. Same documents as the public /legal pages,
 // rendered in the dashboard shell so they are reachable from the sidebar like
 // any other section. The chosen document rides in ?tab= — the convention the
@@ -716,8 +655,6 @@ const LegalView = ({ initialTab }) => {
 const HomeStatTiles = ({ stats }) => {
   const tiles = [
     { label: 'Contacts', value: stats.contacts?.total ?? 0, section: 'contacts' },
-    { label: 'Open conversations', value: stats.conversations?.open ?? 0, section: 'inbox' },
-    { label: 'Unread messages', value: stats.conversations?.unread ?? 0, section: 'inbox', accent: (stats.conversations?.unread ?? 0) > 0 ? 'var(--accent)' : undefined },
     { label: 'Active campaigns', value: stats.campaigns?.active ?? 0, section: 'campaigns', sub: `${(stats.campaigns?.total ?? 0).toLocaleString()} in total` },
     { label: 'WhatsApp numbers', value: stats.numbers?.total ?? 0, section: canManage() ? 'setup' : null, sub: `${stats.numbers?.active ?? 0} active` },
   ];
@@ -744,7 +681,6 @@ const HomeView = () => {
   const number = stats?.numbers?.primary ?? null;
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState(null);
-  const [instagram, setInstagram] = useState(undefined);
   const [aiResponse, setAiResponse] = useState(null);
   const [aiError, setAiError] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -764,21 +700,11 @@ const HomeView = () => {
         .then(d => setPlan(d?.plan || null))
         .catch(() => setPlan(null));
     }
-    wFetch('/instagram/connection')
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => setInstagram(d))
-      .catch(() => setInstagram(null));
   }, []);
 
   // The paid tiers are the ones that carry integrations and AI onboarding;
   // a workspace already on one has nothing to upgrade to here.
   const canUpgrade = !!plan && !(plan.features?.integrations && plan.features?.aiOnboarding);
-  const openInstagram = () => window.dispatchEvent(new CustomEvent('app:nav', { detail: { section: 'automation', subTab: 'ig-quick' } }));
-  const igState = instagram === undefined ? null
-    : !instagram ? { badge: 'Unavailable', tone: 'muted', title: 'Instagram', text: 'Not available on this workspace.' }
-    : instagram.connected ? { badge: 'Connected', tone: 'ok', title: instagram.username ? `@${instagram.username}` : 'Account connected', text: 'Manage Instagram Quickflows in Automation.' }
-    : instagram.configured === false ? { badge: 'Not configured', tone: 'muted', title: 'Not available yet', text: 'Instagram is not configured on this server.' }
-    : { badge: 'Not connected', tone: 'warn', title: 'Connect Account', text: 'Link your Instagram business account in Automation.' };
 
   const handleSend = async () => {
     if (!prompt.trim() || aiLoading) return;
@@ -969,10 +895,8 @@ const HomeView = () => {
           )}
         </div>
 
-        <LiveConversations />
-
-        {/* auto-fit rather than a hard 1fr 1fr: the two channel cards sit side
-            by side on a laptop and stack on a phone without a second grid. */}
+        {/* auto-fit rather than a hard column count, so the card fills a
+            laptop row and still fits a phone. */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
           <div style={{ ...card, padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', rowGap: 10 }}>
@@ -995,29 +919,6 @@ const HomeView = () => {
               </div>
             </div>
           </div>
-          {igState && (
-          <div style={{ ...card, padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', rowGap: 10 }}>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: '10px', fontWeight: 600, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Instagram</span>
-              <span style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
-                ...(igState.tone === 'ok' ? { background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--green)' }
-                  : igState.tone === 'warn' ? { background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.25)', color: '#b45309' }
-                  : { background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', color: 'var(--t2)' }) }}>{igState.badge}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '11px', background: 'rgba(15,23,42,0.04)', border: '1px solid var(--bd)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1, opacity: igState.tone === 'ok' ? 1 : .55 }}><I n="insta" s={20} c="var(--accent)" /></span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '15px', color: 'var(--t1)', marginBottom: '2px' }}>{igState.title}</p>
-                <p style={{ fontSize: '12px', color: 'var(--t2)' }}>{igState.text}</p>
-              </div>
-              {instagram && instagram.configured !== false && canManage() && (
-                <Btn size="sm" variant="ghost" onClick={openInstagram}>{instagram.connected ? 'Manage' : 'Connect'}</Btn>
-              )}
-            </div>
-          </div>
-          )}
         </div>
         </>
         )}
@@ -1375,12 +1276,21 @@ const CampaignsView = ({ onCreateCampaign, onCreateEmailCampaign, onEditCampaign
   const campaignType = 'regular';
 
   // `silent` refreshes in place; only the first load shows the spinner.
+  // Every WhatsApp campaign is listed, including ones sent with an
+  // Authentication template (no other screen lists those), and every page is
+  // fetched: the API returns 20 at a time and this list has no pager.
   const loadCampaigns = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await wFetch(`/campaigns?type=${campaignType}`);
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      const list = [];
+      for (let page = 1; page <= 50; page += 1) {
+        const res = await wFetch(`/campaigns?page=${page}&limit=100`);
+        if (!res.ok) break;
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+        list.push(...rows);
+        if (Array.isArray(data) || rows.length < 100 || list.length >= (data?.total ?? 0)) break;
+      }
       setCampaigns(list);
     } catch (e) {
       // ignore
@@ -2605,25 +2515,18 @@ const PlaceholderView = ({ title, icon }) => (
 // offering screens whose every control would answer 403.
 const ADMIN_NAV = [
   { id: 'home',           label: 'Home',           icon: 'home'  },
-  { id: 'inbox',          label: 'Inbox',          icon: 'msg'   },
   { id: 'contacts',       label: 'Contacts',       icon: 'users' },
+  { id: 'contact-lists',  label: 'Contact Lists',  icon: 'users' },
 
   { id: 'campaigns',      label: 'Campaigns',      icon: 'send'  },
   { id: 'templates',      label: 'Templates',      icon: 'file'  },
   { id: 'authentication', label: 'Authentication', icon: 'shield' },
 
-  { id: 'crm-overview',   label: 'CRM Overview',   icon: 'layout' },
-  { id: 'leads',          label: 'Leads',          icon: 'target' },
-  { id: 'deals',          label: 'Deals',          icon: 'briefcase' },
-  { id: 'tasks',          label: 'Tasks',          icon: 'check-square' },
-
-  // The one AI Agents area: WhatsApp agent, agent studio, autonomous CRM agent.
-  { id: 'ai-agent',       label: 'AI Agents',      icon: 'bot'   },
-  { id: 'automation',     label: 'Automation',     icon: 'zap'   },
+  // The agent a campaign's CTA hands customers to (Campaign AI). The rest of
+  // the AI Agents area, Automation, CRM and Inbox are hidden from the app.
+  { id: 'ai-agent',       label: 'Campaign AI',    icon: 'bot'   },
 
   { id: 'analytics',      label: 'Analytics',      icon: 'chart' },
-  { id: 'chat-analysis',  label: 'Chat Analysis',  icon: 'chart' },
-  { id: 'user-analytics', label: 'User Analytics', icon: 'user'  },
 
   { id: 'setup',          label: 'Number Setup',   icon: 'phone' },
   { id: 'widget',         label: 'Website Widget', icon: 'globe' },
@@ -2671,7 +2574,7 @@ const SUPERADMIN_NAV = [...ADMIN_TABS, { id: 'settings', label: 'Settings', icon
 // row's colour: teal when active, slate otherwise.
 const NAV_ICONS = {
   home: 'home', inbox: 'inbox', campaigns: 'megaphone', templates: 'template', authentication: 'fingerprint',
-  contacts: 'contacts', 'ai-agent': 'sparkl', automation: 'zap',
+  contacts: 'contacts', 'contact-lists': 'users', 'ai-agent': 'sparkl', automation: 'zap',
   analytics: 'chart', 'chat-analysis': 'scan', 'user-analytics': 'trending',
   setup: 'smartphone', api: 'key', payments: 'credit',
   support: 'support', settings: 'cog', profile: 'user',
@@ -2685,11 +2588,9 @@ const NAV_ICONS = {
 };
 
 const NAV_GROUPS = [
-  { name: 'WORKSPACE',        ids: ['home', 'inbox', 'contacts'] },
-  { name: 'MESSAGING',        ids: ['campaigns', 'templates', 'authentication'] },
-  { name: 'CRM & SALES',      ids: ['crm-overview', 'leads', 'deals', 'tasks'] },
-  { name: 'AI & AUTOMATION',  ids: ['ai-agent', 'automation'] },
-  { name: 'ANALYTICS',        ids: ['analytics', 'chat-analysis', 'user-analytics'] },
+  { name: 'WORKSPACE',        ids: ['home', 'contacts', 'contact-lists'] },
+  { name: 'MESSAGING',        ids: ['campaigns', 'templates', 'authentication', 'ai-agent'] },
+  { name: 'ANALYTICS',        ids: ['analytics'] },
   { name: 'CHANNELS & API',   ids: ['setup', 'widget', 'api'] },
   { name: 'ACCOUNT',          ids: ['payments', 'settings'] },
   { name: 'HELP',             ids: ['resources', 'api-docs', 'support'] },
@@ -2780,7 +2681,7 @@ function legacyRedirect(path, search) {
 const MOBILE_TABS = [
   { id: 'home',      label: 'Home',      icon: 'home'  },
   { id: 'campaigns', label: 'Campaigns', icon: 'send'  },
-  { id: 'inbox',     label: 'Inbox',     icon: 'msg'   },
+  { id: 'contacts',  label: 'Contacts',  icon: 'users' },
   { id: 'analytics', label: 'Analytics', icon: 'chart' },
 ];
 const MOBILE_TABS_SUPERADMIN = [
@@ -2834,23 +2735,6 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
   const isSuperAdmin = user?.superAdmin === true;
   const GROUPS = navGroupsForUser(user);
   const planLabel = isSuperAdmin ? 'Super Admin' : (ROLE_LABELS[user?.role] || 'Member');
-  const [crmBadge, setCrmBadge] = useState(0);
-
-  // Workspace-wide count of overdue tasks, from the server total rather than
-  // the length of one page. Super admins have no workspace to count.
-  usePolling(() => wFetch('/tasks?isOverdue=true')
-    .then(r => (r.ok ? r.json() : null))
-    .catch(() => null) // polled every 2 min; a miss keeps the last badge
-    .then((tData) => {
-      if (!tData) return;
-      setCrmBadge(tData.total ?? tData.data?.length ?? 0);
-    }), 120000, { enabled: !isSuperAdmin });
-
-  useEffect(() => {
-    const onCrmBadge = (e) => setCrmBadge(Number(e.detail) || 0);
-    window.addEventListener('crm:badge-updated', onCrmBadge);
-    return () => window.removeEventListener('crm:badge-updated', onCrmBadge);
-  }, []);
 
   // Server-authoritative balance, shared with every other wallet consumer
   // (one poll, refreshed on focus and on wallet:balance-updated).
@@ -2922,7 +2806,7 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
                     borderLeft: col ? 'none' : `2px solid ${on ? 'var(--accent)' : 'transparent'}` }}
                   onMouseEnter={e => { if (!on) e.currentTarget.style.background = 'rgba(15,23,42,0.04)'; }}
                   onMouseLeave={e => { if (!on) e.currentTarget.style.background = 'transparent'; }}
-                  title={col ? (item.id === 'crm-overview' && crmBadge > 0 ? `${item.label} (${crmBadge} urgent)` : item.label) : ''}>
+                  title={col ? item.label : ''}>
                   {/* Fixed-width cell so every label lines up. */}
                   <span aria-hidden="true" style={{ width: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <I n={NAV_ICONS[item.id] || item.icon || 'layout'} s={17} w={on ? 2 : 1.75} c={on ? 'var(--accent)' : 'var(--t2)'} />
@@ -2930,23 +2814,7 @@ const Sidebar = ({ page, setPage, onNav, user, mobile = false, open = false, onC
                   {!col && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: '13.5px', fontWeight: on ? 700 : 500, color: on ? 'var(--t1)' : 'var(--t2)', whiteSpace: 'nowrap' }}>{item.label}</span>
-                      {item.id === 'crm-overview' && crmBadge > 0 && (
-                        <span style={{
-                          background: '#ef4444',
-                          color: '#fff',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          padding: '1px 6px',
-                          borderRadius: '9px',
-                          marginLeft: '6px'
-                        }}>
-                          {crmBadge > 99 ? '99+' : crmBadge}
-                        </span>
-                      )}
                     </div>
-                  )}
-                  {col && item.id === 'crm-overview' && crmBadge > 0 && (
-                    <span style={{ position: 'absolute', top: 6, right: 6, width: 7, height: 7, borderRadius: '50%', background: '#ef4444' }} />
                   )}
                 </div>
               );
@@ -3102,7 +2970,6 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     window.history.pushState({}, '', target);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
-  const isInbox = page === 'inbox';
   const mobile = useIsMobile();
   const [navOpen, setNavOpen] = useState(false);
 
@@ -3156,7 +3023,9 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
       if (action === 'signout') return onNav('landing');
       if (action === 'login')  return onNav('login');
       if (action === 'profile') return setPage('profile');
-      if (action) setPage(action, subTab);
+      // A link into a hidden section (an old notification, a help link to the
+      // Inbox or Automation) lands on Home rather than rendering nothing.
+      if (action) VALID_SECTIONS.has(action) ? setPage(action, subTab) : setPage('home');
     };
     window.addEventListener('app:nav', onAppNav);
     return () => window.removeEventListener('app:nav', onAppNav);
@@ -3188,7 +3057,6 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
       return <PlaceholderView title="Platform Admin" icon="chart" />;
     }
     if (page === 'home')       return <HomeView />;
-    if (page === 'inbox')      return <InboxView />;
 
     if (page === 'campaigns')  return (
       <CampaignsView
@@ -3202,18 +3070,16 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
     if (page === 'authentication') return <AuthenticationDashboard header={<DashHeader title="Authentication" subtitle="Secure WhatsApp OTP verification for your customers." />} />;
     if (page === 'widget')     return <WidgetsView />;
     if (page === 'contacts')   return <ContactsView />;
-    if (page === 'automation')     return <AutomationView initialTab={initialSubTab || 'basic'} />;
-    // One AI Agents area (WhatsApp agent, studio, autonomous agent). AI Intent
-    // Matching stays an Automation tab with its own route and sidebar entry.
-    // 'ai-chatbots' is an old route, redirected above; it renders the same.
-    if (page === 'ai-agent' || page === 'ai-chatbots') return <AiAgentsView initialTab={initialSubTab} />;
-    if (page === 'crm-overview') return <CrmDashboardView user={user} />;
-    if (page === 'leads')      return <LeadsView />;
-    if (page === 'deals')      return <DealsView initialTab={initialSubTab} />;
-    if (page === 'tasks')       return <TasksView />;
+    if (page === 'contact-lists') return (
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <DashHeader title="Contact Lists" subtitle="Saved lists of contacts to target with campaigns." />
+        <div style={{ padding: '24px 28px' }}><ContactListsView /></div>
+      </div>
+    );
+    // Only the WhatsApp agent Campaign AI hands customers to; the studio and
+    // the autonomous CRM agent are hidden.
+    if (page === 'ai-agent') return <AiAgentsView initialTab="whatsapp" />;
     if (page === 'analytics')      return <AnalyticsView />;
-    if (page === 'chat-analysis')  return <ChatAnalytics workspaceId={user.workspaceId} />;
-    if (page === 'user-analytics') return <UserAnalyticsView />;
     if (page === 'setup')          return <NumberSetupView />;
     if (page === 'payments')       return <PaymentsView initialTab={initialSubTab || 'wallet'} />;
     if (page === 'api')            return <ApiKeysView />;
@@ -3283,7 +3149,7 @@ export default function Dashboard({ onNav, routePath, routeSearch }) {
           page={page} setPage={setPage} onNav={onNav} user={user}
           mobile={mobile} open={navOpen} onClose={() => setNavOpen(false)}
         />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: (isInbox || page === 'campaigns-create' || page === 'campaigns-email') ? 'hidden' : 'auto', minWidth: 0 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: (page === 'campaigns-create' || page === 'campaigns-email') ? 'hidden' : 'auto', minWidth: 0 }}>
           <Suspense fallback={
             <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--t2)', fontSize: 13 }}>
               <div style={{ width: 24, height: 24, border: '2px solid var(--green)', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 10px', animation: 'spin 1s linear infinite' }} />

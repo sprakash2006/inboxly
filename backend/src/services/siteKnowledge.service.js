@@ -299,11 +299,10 @@ async function planDocuments() {
       ? `The ${plan.name} plan is free — there is no monthly charge and no card is required.`
       : `The ${plan.name} plan costs ${monthly} per month${quarterly ? `, or ${quarterly} per quarter` : ''}.`;
 
-    const quota = plan.messageQuota === -1
-      ? 'It includes unlimited messages per billing cycle.'
-      : plan.messageQuota === 0
-        ? 'It includes no messages — every message is charged to the workspace wallet.'
-        : `It includes ${plan.messageQuota.toLocaleString('en-IN')} messages per billing cycle.`;
+    // Every message is paid from the wallet on every plan
+    // (subscription.service.js#consumeMessageCredit); the plan's quota only
+    // counts usage, so it is not described as included messages.
+    const quota = 'Every message sent on this plan is charged to the workspace wallet at its category rate; the plan fee does not include free messages.';
 
     const limits = [
       describeLimit(plan.contactLimit, 'contacts', 'contact'),
@@ -325,7 +324,7 @@ async function planDocuments() {
         `${price} ${quota}`,
         `${plan.name} plan limits: ${limits}.`,
         enabled.length ? `Features enabled on ${plan.name}: ${enabled.join(', ')}.` : null,
-        `Once the included messages are used up, further messages on ${plan.name} are charged to the workspace wallet at the plan's overage rate.`,
+        'A message the wallet balance cannot cover is refused until the wallet is recharged.',
       ].filter(Boolean).join('\n\n'),
     };
   });
@@ -339,9 +338,8 @@ async function planDocuments() {
       body: `${site.SITE_NAME} currently offers these plans:\n\n${bulletList(plans.map((plan) => {
         const monthly = Number(plan.priceMonthly) === 0 ? 'free' : `${money(plan.priceMonthly, plan.currency)} per month`;
         const quarterly = plan.priceQuarterly === null ? '' : ` (or ${money(plan.priceQuarterly, plan.currency)} per quarter)`;
-        const quota = plan.messageQuota === -1 ? 'unlimited messages' : `${plan.messageQuota.toLocaleString('en-IN')} messages per cycle`;
-        return `${plan.name}: ${monthly}${quarterly}, ${quota}`;
-      }))}\n\nEnterprise pricing is bespoke and arranged through "Talk to sales" rather than bought from the site.`,
+        return `${plan.name}: ${monthly}${quarterly}`;
+      }))}\n\nOn every plan, each message is charged to the workspace wallet at its category rate.\n\nEnterprise pricing is bespoke and arranged through "Talk to sales" rather than bought from the site.`,
     });
   }
 
@@ -360,7 +358,7 @@ function rateCardDocument() {
     source: 'db',
     title: 'Per-message rates by category',
     topic: 'Pricing',
-    body: `WhatsApp messages are charged per conversation category. These are the current published rates, and they are the same rates campaign launches are billed against:\n\n${lines.join('\n')}\n\nOn paid plans this is Meta's rate passed through without a markup. Message charges come out of the workspace wallet and are separate from the plan subscription fee.`,
+    body: `WhatsApp messages are charged per conversation category. These are the current published rates, and they are the same rates campaign launches are billed against:\n\n${lines.join('\n')}\n\nEvery message is charged at these rates from the workspace wallet, on every plan, and a send the balance cannot cover is refused. Message charges are separate from the plan subscription fee.`,
   };
 }
 

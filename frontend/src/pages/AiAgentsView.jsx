@@ -49,10 +49,11 @@ function sectionFor(tab) {
   return 'studio';
 }
 
+// Only the WhatsApp agent is shown: it is the agent a campaign's CTA hands
+// customers to (Campaign AI). The studio and the autonomous CRM agent are
+// hidden from the app, so their sections are no longer listed or rendered.
 const SECTIONS = [
-  { id: 'whatsapp',   label: 'WhatsApp agent',       icon: 'bot',   hint: 'The live agent answering customers' },
-  { id: 'studio',     label: 'Agent studio',         icon: 'spark', hint: 'Draft, test and apply personas' },
-  { id: 'autonomous', label: 'Autonomous CRM agent', icon: 'brain', hint: 'Background CRM work and its queue' },
+  { id: 'whatsapp',   label: 'WhatsApp agent',       icon: 'bot',   hint: 'The agent campaign CTAs hand customers to' },
 ];
 
 export default function AiAgentsView({ initialTab }) {
@@ -61,7 +62,7 @@ export default function AiAgentsView({ initialTab }) {
   // another section of this page), so the prop is followed, not just read once.
   useEffect(() => { if (initialTab) setTab(initialTab); }, [initialTab]);
 
-  const section = sectionFor(tab);
+  const section = SECTIONS.some((s) => s.id === sectionFor(tab)) ? sectionFor(tab) : 'whatsapp';
   const isMobile = useIsMobile();
 
   // Keeps the address bar on the section shown. The popstate tells the router
@@ -81,13 +82,13 @@ export default function AiAgentsView({ initialTab }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           {isMobile && <MobileNavButton />}
           <div>
-            <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--t1)' }}>AI Agents</h1>
+            <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--t1)' }}>Campaign AI</h1>
             <p style={{ margin: '3px 0 0', color: 'var(--t2)', fontSize: 12.5 }}>
-              Every AI agent in this workspace, in one place.
+              The AI agent that answers customers who tap a campaign's button.
             </p>
           </div>
         </div>
-        <div role="tablist" aria-label="AI Agents sections" style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
+        {SECTIONS.length > 1 && <div role="tablist" aria-label="AI Agents sections" style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
           {SECTIONS.map((sec) => {
             const on = sec.id === section;
             return (
@@ -104,7 +105,7 @@ export default function AiAgentsView({ initialTab }) {
               </button>
             );
           })}
-        </div>
+        </div>}
       </div>
 
       {section === 'whatsapp' && (

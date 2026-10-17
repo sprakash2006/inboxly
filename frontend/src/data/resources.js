@@ -34,7 +34,7 @@ export const MODULE_ROUTE = {
 
 // Each category has its own dedicated page (/resources/category/:id) describing
 // what the area is, what you use it for, and its key features.
-export const CATEGORIES = [
+const ALL_CATEGORIES = [
   {
     id: 'getting-started', name: 'Getting Started', icon: 'home',
     blurb: 'Create a workspace, connect a number and send your first message.',
@@ -330,6 +330,12 @@ export const CATEGORIES = [
   },
 ];
 
+// Areas hidden from the app (Inbox, Automation and the channels configured
+// there). Their guides stay in this file but are not listed, searched or
+// linked anywhere in the Resource Center.
+const HIDDEN_CATEGORIES = new Set(['inbox', 'automation', 'instagram', 'voice-ai']);
+export const CATEGORIES = ALL_CATEGORIES.filter((c) => !HIDDEN_CATEGORIES.has(c.id));
+
 export const CATEGORY_NAME = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.name]));
 export const CATEGORY_ICON = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.icon]));
 
@@ -349,7 +355,7 @@ export const QUICK_TYPES = [
 /* ── Resources ─────────────────────────────────────────────────────────────── */
 // Shape: { slug, title, category, type, difficulty, duration, description,
 //          tags[], featured?, popular?, intro, learn[], steps[], tips[] }
-export const RESOURCES = [
+const ALL_RESOURCES = [
   {
     slug: 'getting-started-with-inboxly',
     title: 'Getting Started with Inboxly',
@@ -940,7 +946,10 @@ export const RESOURCES = [
 ];
 
 /* ── Interactive product journeys ───────────────────────────────────────────── */
-export const JOURNEYS = [
+export const RESOURCES = ALL_RESOURCES.filter((r) => !HIDDEN_CATEGORIES.has(r.category));
+const VISIBLE_SLUGS = new Set(RESOURCES.map((r) => r.slug));
+
+const ALL_JOURNEYS = [
   {
     id: 'launch-first-campaign',
     title: 'Launch Your First Campaign',
@@ -1188,7 +1197,13 @@ export const JOURNEYS = [
 ];
 
 /* ── Troubleshooting explorer map ───────────────────────────────────────────── */
-export const TROUBLESHOOTING = [
+// A journey built around a hidden area is dropped; elsewhere only the steps
+// that point into one are.
+export const JOURNEYS = ALL_JOURNEYS
+  .filter((j) => !j.steps.every((st) => HIDDEN_CATEGORIES.has(st.module)) && j.id !== 'setup-automation')
+  .map((j) => ({ ...j, steps: j.steps.filter((st) => !HIDDEN_CATEGORIES.has(st.module)) }));
+
+const ALL_TROUBLESHOOTING = [
   { id: 'connect-whatsapp', label: 'Connect WhatsApp',
     resources: ['connect-whatsapp-number', 'whatsapp-number-quality-rating'],
     tips: ['Number stuck in Pending → check Meta Business Manager for an incomplete verification task.',
@@ -1222,6 +1237,9 @@ export const TROUBLESHOOTING = [
     tips: ['401 responses → key revoked or missing the Bearer prefix.',
       'Webhooks retrying → your endpoint is not returning 2xx fast enough; process async.'] },
 ];
+export const TROUBLESHOOTING = ALL_TROUBLESHOOTING
+  .map((t) => ({ ...t, resources: t.resources.filter((slug) => VISIBLE_SLUGS.has(slug)) }))
+  .filter((t) => t.resources.length);
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 const norm = (s) => String(s || '').toLowerCase();

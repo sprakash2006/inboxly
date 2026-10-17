@@ -55,7 +55,7 @@ export const AI_PROMPT_EXAMPLES = [
   'Create a template for an abandoned cart',
   'Build a Diwali sale campaign for my VIP list',
   'Set up an agent that answers offer questions',
-  'Draft a welcome flow for new contacts',
+  'Write a utility template for order updates',
 ];
 
 export const FEATURES = [
@@ -65,59 +65,59 @@ export const FEATURES = [
     desc: 'Attach your agent to a campaign and it answers questions about that campaign — the price, the discount, the deadline, the fine print — from the exact message that customer received. Edit the campaign later and their answers stay true to what was sent.',
   },
   {
-    span: 2, icon: 'spark', color: '#0EA5E9',
-    title: 'Replies that route themselves',
-    desc: 'A deployed agent answers free-form questions when no keyword rule or workflow matches.',
+    span: 2, icon: 'file', color: 'var(--green)',
+    title: 'Template studio',
+    desc: 'Write copy with AI, generate the header image, add buttons, submit to Meta, and sync the approval status back.',
   },
   {
-    span: 2, icon: 'wflow', color: '#F59E0B', visual: 'flow',
-    title: 'Workflows that actually run',
-    desc: 'Triggers, conditions, delays and multi-step sends — with a run history, so “did it fire?” is answerable.',
+    span: 2, icon: 'globe', color: '#0EA5E9',
+    title: 'Website chat widget',
+    desc: 'An AI assistant for your own website that answers from your knowledge base, hands visitors over to WhatsApp, and captures their details as contacts.',
   },
   {
     span: 4, icon: 'credit', color: 'var(--green)', visual: 'ledger',
     title: 'Billing you can audit',
-    desc: 'Campaigns reserve at launch and settle on completion. Opted-out and unsendable numbers are skipped, retries are never charged twice, and everything that never went out comes back to your wallet.',
+    desc: 'Every message is paid from your wallet at its category rate, and a send the balance cannot cover is refused rather than run up a debt. Campaigns are charged at launch, opted-out numbers are skipped, and everything that never went out comes back to your wallet.',
   },
   {
-    span: 2, icon: 'note', color: '#A78BFA',
-    title: 'Forms over chat',
-    desc: 'Collect answers one question per message, with validation, and a completed submission at the end.',
-  },
-  {
-    span: 2, icon: 'phone', color: '#0EA5E9',
-    title: 'Voice AI reception',
-    desc: 'Inbound calls answered, transcribed and turned into a lead, with a handoff when the caller needs a person.',
-  },
-  {
-    span: 2, icon: 'insta', color: '#F59E0B',
-    title: 'Instagram quickflows',
-    desc: 'DMs, comments and story replies automated on the same keyword model as WhatsApp.',
-  },
-  {
-    span: 2, icon: 'file', color: 'var(--green)',
-    title: 'Template studio',
-    desc: 'Write copy with AI, generate the header image, add buttons, submit to Meta, and watch approval status land by webhook.',
+    span: 2, icon: 'users', color: '#A78BFA',
+    title: 'Contacts and lists',
+    desc: 'Import contacts from CSV, tag them, group them into clusters and contact lists, and target any of them with a campaign.',
   },
   {
     span: 2, icon: 'chart', color: '#A78BFA',
-    title: 'Delivery and revenue',
-    desc: 'Sent, delivered, read and failed per campaign, tied back to spend — plus retries and SMS or email fallback.',
+    title: 'Delivery and spend',
+    desc: 'Sent, delivered, read and failed per campaign, tied back to what it cost — plus retries and SMS or email fallback.',
   },
   {
     span: 2, icon: 'key', color: '#0EA5E9',
-    title: 'API, webhooks, integrations',
-    desc: 'Scoped API keys, outbound webhooks and OAuth connections for the tools your team already runs.',
+    title: 'API and webhooks',
+    desc: 'Scoped API keys, a public API for messages, templates, contacts and campaigns, and outbound webhooks to your own systems.',
+  },
+  {
+    span: 2, icon: 'shield', color: '#F59E0B',
+    title: 'WhatsApp OTP',
+    desc: 'Send one-time passcodes over WhatsApp with Authentication templates, and follow every request from sent to verified.',
+  },
+  {
+    span: 2, icon: 'send', color: 'var(--green)',
+    title: 'Email campaigns',
+    desc: 'Write an email with AI, preview it live, send a test to yourself, then send it to your contacts or a CSV now or on a schedule.',
+  },
+  {
+    span: 2, icon: 'zap', color: '#0EA5E9',
+    title: 'Retries and fallback',
+    desc: 'Retry failed sends on a schedule you choose, or fall back to SMS or email for recipients WhatsApp could not reach.',
   },
 ];
 
 export const USE_CASES = [
   { icon: 'send', color: '#1EBF5E', title: 'E-commerce', metric: 'Cart recovery', desc: 'Abandoned-cart nudges, order updates and catalogue sends — with the agent fielding “is it in stock?”.' },
-  { icon: 'users', color: '#0EA5E9', title: 'Education', metric: 'Admissions', desc: 'Enrolment reminders, fee notices and a form that collects student details over chat.' },
-  { icon: 'phone', color: '#A78BFA', title: 'Clinics', metric: 'Appointments', desc: 'Booking confirmations, reminders and reports, with inbound calls answered when the desk is busy.' },
-  { icon: 'building', color: '#F59E0B', title: 'Real estate', metric: 'Site visits', desc: 'Property drops to a smart list, then an agent that answers price and location questions per listing.' },
+  { icon: 'users', color: '#0EA5E9', title: 'Education', metric: 'Admissions', desc: 'Enrolment reminders and fee notices, with an agent answering course and batch questions about the campaign a student received.' },
+  { icon: 'phone', color: '#A78BFA', title: 'Clinics', metric: 'Appointments', desc: 'Booking confirmations and reminders on Utility templates, and OTP verification for patient sign-in.' },
+  { icon: 'building', color: '#F59E0B', title: 'Real estate', metric: 'Site visits', desc: 'Property drops to a contact list, then an agent that answers price and location questions per listing.' },
   { icon: 'globe', color: '#1EBF5E', title: 'Agencies', metric: 'Multi-client', desc: 'A workspace per client, separate numbers and wallets, and one place to report from.' },
-  { icon: 'zap', color: '#0EA5E9', title: 'Travel', metric: 'Itineraries', desc: 'Booking confirmations and itinerary sends, with after-hours questions handled automatically.' },
+  { icon: 'zap', color: '#0EA5E9', title: 'Travel', metric: 'Itineraries', desc: 'Booking confirmations and itinerary sends, with a website widget answering trip questions before people book.' },
 ];
 
 // Plan cards, exactly as the pricing section renders them.
@@ -138,13 +138,13 @@ export const PLAN_CARDS = [
     name: 'Basic', planKey: 'BASIC', popular: false,
     price: '₹1,500', per: '/mo', note: 'or ₹3,500 per quarter',
     desc: 'For a small team running its first campaigns.',
-    features: ['Up to 10 team members and 10 API keys', '10,000 included messages per cycle', 'Campaigns, templates, team inbox', 'Campaign AI Agent', 'Workflows, auto-replies and Instagram flows', 'Email support'],
+    features: ['Up to 10 team members and 10 API keys', 'Campaigns, templates and contact lists', 'Campaign AI Agent', 'Website chat widget', 'Every message billed from your wallet', 'Email support'],
   },
   {
     name: 'Growth', planKey: 'GROWTH', popular: true,
     price: '₹2,500', per: '/mo', note: 'or ₹7,500 per quarter',
     desc: 'For teams whose WhatsApp runs itself.',
-    features: ['Everything in Basic', 'Unlimited team members and API keys', 'No cap on included messages', 'Campaign sends billed per message from your wallet', 'Priority support'],
+    features: ['Everything in Basic', 'Unlimited team members and API keys', 'Every message billed from your wallet', 'Priority support'],
   },
   {
     name: 'Enterprise', planKey: null, popular: false, enquiry: true,
@@ -162,9 +162,9 @@ export const FAQ_ITEMS = [
   ['Can the AI agent invent a price or a date?',
    'It is given the campaign message that specific customer received, plus your knowledge base, and is instructed to answer from those only. Asked something neither covers, it says it does not have that and offers a human — it does not fill the gap.'],
   ['What if someone wants to stop hearing from us?',
-   'A reply of STOP blocks that number for good. It is skipped on every future campaign, excluded from the cost before you are charged, and no automation replies to it again.'],
+   'Block the number under Settings, Blocked Numbers. A blocked or opted-out number is skipped on every future campaign and excluded from the cost before you are charged.'],
   ['Who can see my data?',
-   'Everything — contacts, campaigns, conversations, wallet — is scoped to your workspace, and members only reach it through their membership. WhatsApp access tokens are encrypted at rest.'],
+   'Everything — contacts, campaigns, templates, wallet — is scoped to your workspace, and members only reach it through their membership. WhatsApp access tokens are encrypted at rest.'],
 ];
 
 export const CTA = {
@@ -174,7 +174,7 @@ export const CTA = {
 };
 
 export const FOOTER_COLS = [
-  { title: 'Product', links: ['Features', 'Pricing', 'Campaign AI Agent', 'Workflows', 'API'] },
+  { title: 'Product', links: ['Features', 'Pricing', 'Campaign AI Agent', 'Website widget', 'API'] },
   { title: 'Solutions', links: ['E-commerce', 'Education', 'Clinics', 'Real estate', 'Agencies'] },
   { title: 'Company', links: ['About', 'Blog', 'Careers', 'Contact', 'Privacy', 'Legal Center'] },
 ];
@@ -192,9 +192,9 @@ export const FOOTER_LEGAL = '© 2026 Inboxly · Meta WhatsApp Business API partn
 // customers into a void. The routes named here are the ones that exist.
 export const ABOUT = `Inboxly is a WhatsApp Business API platform for teams that send campaigns and then have to answer for them. It is an official Meta WhatsApp Business API partner, so numbers, templates and message delivery run on Meta's own infrastructure rather than an unofficial bridge.
 
-The product covers the whole loop: connect a WhatsApp number, build and submit message templates, import contacts, send a campaign, and let AI agents, workflows and a shared team inbox handle the conversations the campaign starts. Per-message cost is Meta's rate passed through without markup, and money for messages that were never sent is refunded to the workspace wallet.
+The product covers the campaign loop: connect a WhatsApp number, build and submit message templates, import contacts into lists, send a campaign, and attach the Campaign AI agent so customers who tap the campaign's button get answers about that exact offer. It also sends email campaigns and WhatsApp one-time passcodes, and runs an AI chat widget on your own website. Every message is paid from the workspace wallet at its category rate, and money for messages that were never sent is refunded to it.
 
-Work is organised into workspaces. A workspace owns its own numbers, contacts, campaigns, conversations, wallet and team, and members reach data only through their membership in it — which is what lets an agency run a separate workspace per client.`;
+Work is organised into workspaces. A workspace owns its own numbers, contacts, campaigns, templates, wallet and team, and members reach data only through their membership in it — which is what lets an agency run a separate workspace per client.`;
 
 export const CONTACT = `To reach the Inboxly team, open the dashboard and go to Support, where you can raise a ticket with a subject, a category and a message. Tickets are tied to your workspace and the team replies to the account's email address.
 
@@ -235,16 +235,16 @@ export const CAMPAIGN_AI = {
     { num: '01', title: 'Attach context', body: 'When you build a campaign, its offer, product, rules and personalization are bound to the message as structured context.' },
     { num: '02', title: 'Customer taps in', body: 'The recipient taps the CTA and lands in a thread that already carries the exact campaign they received.' },
     { num: '03', title: 'AI answers, grounded', body: 'Questions are answered only from that campaign context and your knowledge base — never invented details.' },
-    { num: '04', title: 'Escalate or convert', body: 'Low confidence or high intent routes to a human in the shared inbox; ready-to-buy customers convert in-thread.' },
+    { num: '04', title: 'Escalate or convert', body: 'Refunds, complaints, unhappy customers or a request for a person make the agent step back for your team; ready-to-buy customers convert in-thread.' },
   ],
 
   capabilities: [
     { icon: 'send', title: 'Per-campaign grounding', body: 'Each campaign carries its own context. The same customer gets different, correct answers per offer.' },
     { icon: 'shield', title: 'No-hallucination guardrails', body: 'If a fact is not in the campaign or your knowledge base, the AI says so instead of guessing.' },
-    { icon: 'wflow', title: 'Confidence-based handoff', body: 'Set a threshold so uncertain or sensitive questions land with a human automatically.' },
+    { icon: 'wflow', title: 'Escalation rules', body: 'Choose when the agent steps back for a person: refund or complaint intent, negative sentiment, a request for a human, or high purchase intent.' },
     { icon: 'globe', title: 'Multilingual replies', body: 'Answers in the customer’s language, including Hindi, Hinglish and major regional Indian languages.' },
     { icon: 'play', title: 'Test Lab', body: 'Preview answers against real campaign context before you deploy to live customers.' },
-    { icon: 'chart', title: 'Answer analytics', body: 'See which questions the AI resolved, escalated or could not answer — and improve the source.' },
+    { icon: 'chart', title: 'Readiness check', body: 'See what is still missing — purpose, knowledge, answering rules — before the agent is ready for customers.' },
   ],
 
   useCases: [
@@ -259,9 +259,8 @@ export const CAMPAIGN_AI = {
     rows: [
       ['Knows the specific campaign received', 'Yes, per message', 'No — one shared bot'],
       ['Invents offers or dates when unsure', 'Never — guardrailed', 'Common risk'],
-      ['Confidence-based human handoff', 'Built in', 'Manual or limited'],
+      ['Rule-based human handoff', 'Built in', 'Manual or limited'],
       ['Test before deploy', 'Test Lab', 'Rare'],
-      ['Answer-quality analytics', 'Included', 'Basic logs'],
     ],
   },
 
@@ -269,7 +268,7 @@ export const CAMPAIGN_AI = {
     'Campaigns still use Meta-approved templates; template approval times are controlled by WhatsApp, not Inboxly.',
     'The AI answers only from campaign context and your knowledge base — it will not reach data you have not connected.',
     'Messaging is subject to WhatsApp Business Platform policy and the per-conversation pricing Meta sets.',
-    'Conversion tracking requires connecting your store or payment provider; without it, revenue is estimated.',
+    'Customer replies reach Inboxly through Meta’s webhook, so the agent only answers once the workspace’s number is connected and receiving messages.',
   ],
 
   faqs: [
@@ -278,14 +277,14 @@ export const CAMPAIGN_AI = {
     ['Will it make up a discount or a date?',
      'No. Campaign AI is guarded to answer only from the attached campaign context and your knowledge base. If a fact isn’t available it says it doesn’t know, and can route the customer to a human.'],
     ['What happens when the AI is unsure?',
-     'You set a confidence threshold. Below it — or on sensitive intents like refunds — the conversation escalates to the shared inbox with full context for a human agent.'],
+     'It says it does not have that answer rather than guessing. You also choose escalation rules — refund or complaint intent, negative sentiment, a request for a human, high purchase intent — and when one matches, the agent steps back so your team can take over.'],
     ['Which languages are supported?',
      'Campaign AI replies in the customer’s language, including English, Hindi, Hinglish and major regional Indian languages.'],
     ['Can I test answers before going live?',
      'Yes. The Test Lab runs your questions against a campaign’s real context and shows the exact answer with the sources it came from, before you deploy.'],
   ],
 
-  related: ['AI Agent', 'Shared Inbox', 'Automation', 'WhatsApp Campaigns', 'Templates'],
+  related: ['AI Agent', 'WhatsApp Campaigns', 'Templates'],
 
   cta: {
     headline: 'Let your next campaign answer questions.',
@@ -310,12 +309,12 @@ export const REACTOR = {
       body: 'Everyone who taps a CTA arrives carrying the exact campaign, offer and personalisation they received — not a blank slate.' },
     { num: '03', kicker: 'INTELLIGENCE', title: 'AI that knows the offer.',
       body: 'The agent answers grounded in your real campaign data. It never invents a discount, a date or a product it was not given.' },
-    { num: '04', kicker: 'FLOW',         title: 'Every reply routes itself.',
-      body: 'Keyword rules and automation branches decide the next step — qualify, nurture, escalate or convert.' },
+    { num: '04', kicker: 'GUARDRAILS',   title: 'Rules decide the edges.',
+      body: 'Your guardrails and escalation rules decide what the agent must never say and when it should stop answering.' },
     { num: '05', kicker: 'HUMAN',        title: 'Handoff when it counts.',
-      body: 'When intent gets high or sentiment dips, the thread lands in the shared inbox with full context for a real person.' },
-    { num: '06', kicker: 'FEEDBACK',     title: 'Each reply sharpens the next.',
-      body: 'Delivery, reads, conversations and outcomes flow into analytics, so the next campaign starts smarter than the last.' },
+      body: 'Refunds, complaints, unhappy customers or a request for a person make the agent step back so your team can take over.' },
+    { num: '06', kicker: 'FEEDBACK',     title: 'Each send sharpens the next.',
+      body: 'Sent, delivered, read, failed and spend flow into analytics, so the next campaign starts smarter than the last.' },
   ],
   // The pipeline diagram beside the chapters. Index-aligned with `chapters`.
   pipeline: [
@@ -323,7 +322,7 @@ export const REACTOR = {
     { key: 'W',  label: 'WhatsApp',   sub: 'delivered to the customer' },
     { key: 'U',  label: 'Customer',   sub: 'taps the CTA, in context' },
     { key: 'AI', label: 'Inboxly AI', sub: 'answers from the campaign' },
-    { key: 'H',  label: 'Human',      sub: 'shared inbox handoff' },
+    { key: 'H',  label: 'Human',      sub: 'your team takes over' },
     { key: 'A',  label: 'Analytics',  sub: 'the signal returns' },
   ],
 };
@@ -376,10 +375,10 @@ export const PLATFORM_MAP = {
   title: 'Everything from broadcast to bank, on one platform.',
   sub: 'Each capability gets its own space in the product.',
   groups: [
-    { name: 'COMMAND',    color: 'var(--cyan)',   items: ['Dashboard', 'Shared inbox'] },
-    { name: 'GROW',       color: 'var(--lime)',   items: ['Campaigns', 'Campaign builder', 'Templates', 'Contacts & clusters'] },
-    { name: 'AUTOMATE',   color: 'var(--violet)', items: ['AI agent & Test Lab', 'Automation workflows', 'WhatsApp forms', 'Voice AI'] },
-    { name: 'UNDERSTAND', color: 'var(--cyan)',   items: ['Analytics', 'Chat analysis', 'User analytics'] },
-    { name: 'CONNECT',    color: 'var(--wa-green)', items: ['Website widget', 'Integrations', 'WhatsApp numbers', 'API keys & webhooks', 'Payments & wallet', 'Settings'] },
+    { name: 'COMMAND',    color: 'var(--cyan)',   items: ['Dashboard home', 'Contacts', 'Contact lists'] },
+    { name: 'GROW',       color: 'var(--lime)',   items: ['WhatsApp campaigns', 'Email campaigns', 'Templates', 'Authentication (OTP)'] },
+    { name: 'AI',         color: 'var(--violet)', items: ['Campaign AI agent & Test Lab', 'Website chat widget'] },
+    { name: 'UNDERSTAND', color: 'var(--cyan)',   items: ['Analytics', 'Paid message insights'] },
+    { name: 'CONNECT',    color: 'var(--wa-green)', items: ['WhatsApp numbers', 'API keys & webhooks', 'Payments & wallet', 'Settings'] },
   ],
 };

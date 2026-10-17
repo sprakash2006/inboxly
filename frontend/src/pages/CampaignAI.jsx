@@ -336,8 +336,6 @@ const Faq = () => {
 // marketing page linking product surfaces.
 const RELATED_HREF = {
   'AI Agent': '/dashboard/ai-agent',
-  'Shared Inbox': '/dashboard/inbox',
-  'Automation': '/dashboard/automation',
   'WhatsApp Campaigns': '/dashboard/campaigns',
   'Templates': '/dashboard/templates',
 };
@@ -350,7 +348,7 @@ const Related = () => (
       </Reveal>
       <Reveal delay={60}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          {CAMPAIGN_AI.related.map(r => (
+          {CAMPAIGN_AI.related.filter(r => RELATED_HREF[r]).map(r => (
             <a key={r} href={RELATED_HREF[r] || '/'}
               onClick={e => { e.preventDefault(); navigate(RELATED_HREF[r] || '/'); }}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 600, color: 'var(--t2)', textDecoration: 'none', padding: '10px 16px', borderRadius: 100, background: 'rgba(15,23,42,0.03)', border: '1px solid var(--bd)', transition: 'all .15s' }}

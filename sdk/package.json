@@ -1,0 +1,41 @@
+{
+  "name": "inboxly",
+  "version": "0.1.0",
+  "description": "Official Node.js client for the Inboxly public API: WhatsApp messages, campaigns, email campaigns, contacts and more.",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.3"
+  },
+  "scripts": {
+    "test": "node --test src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sprakash2006/inboxly.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://github.com/sprakash2006/inboxly/tree/main/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/sprakash2006/inboxly/issues"
+  },
+  "keywords": [
+    "inboxly",
+    "whatsapp",
+    "sdk",
+    "api-client"
+  ],
+  "license": "MIT"
+}

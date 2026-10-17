@@ -15,12 +15,13 @@ all in one workspace.
 1. [Features](#features)
 2. [Tech stack](#tech-stack)
 3. [Project structure](#project-structure)
-4. [Getting started](#getting-started)
-5. [Environment variables](#environment-variables)
-6. [Scripts](#scripts)
-7. [Testing](#testing)
-8. [How it works](#how-it-works)
-9. [Acknowledgements](#acknowledgements)
+4. [Node.js SDK](#nodejs-sdk)
+5. [Getting started](#getting-started)
+6. [Environment variables](#environment-variables)
+7. [Scripts](#scripts)
+8. [Testing](#testing)
+9. [How it works](#how-it-works)
+10. [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -100,14 +101,33 @@ inboxly/
 │       ├── middleware/          Auth, workspace access, roles, rate limiting
 │       ├── queues/ workers/     Background jobs (BullMQ)
 │       └── lib/                 Meta API client, mailer, encryption, LLM, storage
-└── frontend/
-    ├── index.html
-    └── src/
-        ├── App.jsx              Routing (public pages, auth, dashboard)
-        ├── pages/               One file per screen (Inbox, Campaigns, Leads, ...)
-        ├── components/          Shared UI components
-        └── lib/                 API client, permissions, helpers
+├── frontend/
+│   ├── index.html
+│   └── src/
+│       ├── App.jsx              Routing (public pages, auth, dashboard)
+│       ├── pages/               One file per screen (Inbox, Campaigns, Leads, ...)
+│       ├── components/          Shared UI components
+│       └── lib/                 API client, permissions, helpers
+└── sdk/                         `inboxly` npm package: Node.js client for the public API
 ```
+
+---
+
+## Node.js SDK
+
+The [`sdk/`](sdk) folder is the `inboxly` npm package. Instead of sending HTTP
+requests to `/api/v1/public/...` yourself, you call its functions with an API key:
+
+```js
+import Inboxly from 'inboxly';
+
+const inboxly = new Inboxly({ apiKey: process.env.INBOXLY_API_KEY }); // uses the hosted server
+await inboxly.messages.sendText('+919876543210', 'Hello!');
+```
+
+Each function makes one request to the public API, so the server still enforces
+scopes, rate limits and billing. The package contains no server code or secrets.
+See [sdk/README.md](sdk/README.md) for the full reference.
 
 ---
 
@@ -244,6 +264,13 @@ the rest run against mocks.
 cd frontend
 npm test
 ```
+
+```bash
+cd sdk
+npm test
+```
+
+The SDK tests use a fake `fetch`, so they need no running server.
 
 ---
 

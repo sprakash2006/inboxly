@@ -189,6 +189,15 @@ function guideSections(origin) {
       </>,
     },
     {
+      id: 'sdk', title: 'Node.js library',
+      body: <>
+        <p style={para}>From Node.js (20.3 or newer) you can call the API through the <Rich text="`inboxly`" /> package instead of writing HTTP requests. It sends the <Rich text="`x-api-key`" /> header for you, turns error responses into typed errors, and retries when rate limited. Each function calls one of the endpoints below, so the scopes, limits and billing are the same.</p>
+        <Code>{'npm install inboxly'}</Code>
+        <Code>{`import Inboxly from 'inboxly';\n\nconst inboxly = new Inboxly({\n  apiKey: process.env.INBOXLY_API_KEY,\n  baseUrl: '${origin}',\n});\n\nawait inboxly.me();\nawait inboxly.messages.sendTemplate('+919876543210', {\n  name: 'order_update',\n  language: 'en_US',\n  variables: ['Asha', '#1042'],\n});`}</Code>
+        <p style={{ ...para, marginTop:12, fontSize:12.5 }}>Use it on your server only: the key must never reach a browser or mobile app.</p>
+      </>,
+    },
+    {
       id: 'requests', title: 'Requests & responses',
       body: <>
         <p style={para}>Request bodies are JSON: send <Rich text="`Content-Type: application/json`" /> (in Postman: Body → raw → JSON). File uploads are the exception and use <Rich text="`multipart/form-data`" /> (Body → form-data, with a field of type File).</p>

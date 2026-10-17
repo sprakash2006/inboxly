@@ -131,13 +131,12 @@ https://<your-deployment>/api/v1/authentication   # Authentication (OTP) API
 ## Billing
 
 Every message sent through this API — `POST /messages` and every OTP — is billed
-exactly like a message sent from the dashboard: it uses one message from the plan's
-monthly quota, and once the quota is used, the overage rate for the template's
+exactly like a message sent from the dashboard: the rate for the template's
 category (MARKETING / UTILITY / AUTHENTICATION) is charged to the workspace wallet.
-Text messages use the plan's flat overage rate. If WhatsApp rejects the send, the
-quota or wallet charge is refunded.
+Text messages use the plan's flat rate. If WhatsApp rejects the send, the wallet
+charge is refunded.
 
-When neither quota nor wallet balance is left, the send is refused with
+When the wallet balance cannot cover the message, the send is refused with
 `403 { "code": "QUOTA_AND_WALLET_EXHAUSTED" }`.
 
 Every accepted send is recorded on the recipient's conversation (the contact is

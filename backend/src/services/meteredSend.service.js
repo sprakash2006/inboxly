@@ -17,7 +17,7 @@ export function creditRefusedError(code) {
   const inactive = code === 'SUBSCRIPTION_INACTIVE';
   const e = new Error(inactive
     ? 'This workspace\'s subscription is inactive. Renew your plan to send messages.'
-    : 'Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan');
+    : 'Insufficient wallet balance — recharge your wallet to send messages');
   e.status = 403;
   e.code = inactive ? 'SUBSCRIPTION_INACTIVE' : 'QUOTA_AND_WALLET_EXHAUSTED';
   e.expose = true;

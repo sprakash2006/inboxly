@@ -48,7 +48,7 @@ export async function noteAutomatedCreditRefusal(workspaceId, code = 'QUOTA_AND_
       type: CREDIT_NOTICE_TYPE,
       title: inactive
         ? 'Automated replies are paused: the subscription is not active'
-        : 'Automated replies are paused: message quota and wallet are empty — top up',
+        : 'Automated replies are paused: insufficient wallet balance — recharge the wallet',
       body: inactive
         ? 'Workflows, keyword replies and sequences cannot send until the subscription is renewed.'
         : 'Workflows, keyword replies and sequences cannot send until the wallet is topped up or the plan is upgraded.',
@@ -156,7 +156,7 @@ export async function deliverAutomatedReply({
     if (credit?.code === 'SUBSCRIPTION_INACTIVE') {
       return { ok: false, code: 'SUBSCRIPTION_INACTIVE', detail: 'The workspace subscription is not active' };
     }
-    return { ok: false, code: 'NO_CREDIT', detail: 'Message quota and wallet balance exhausted', creditCode: credit?.code ?? null };
+    return { ok: false, code: 'NO_CREDIT', detail: 'Insufficient wallet balance', creditCode: credit?.code ?? null };
   }
   const refund = () => releaseMessageCredit(workspaceId, { source: credit.source, amount: credit.amount ?? null })
     .catch((err) => console.error('[Outbound] Credit refund failed:', err.message));

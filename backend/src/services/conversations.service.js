@@ -308,7 +308,7 @@ async function sendInstagramInboxReply(conversation, userId, body) {
     EMPTY: [400, 'Message is empty'],
     OPTED_OUT: [409, 'This contact asked not to be messaged.'],
     WINDOW_CLOSED: [409, 'Instagram only allows a reply within 24 hours of the customer’s last message. Wait for them to write again.'],
-    NO_CREDIT: [403, 'Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan'],
+    NO_CREDIT: [403, 'Insufficient wallet balance — recharge your wallet to send messages'],
     NOT_CONNECTED: [409, 'Instagram is not connected for this workspace — reconnect it under Automation → Instagram.'],
   };
   const [status, message] = errors[outcome.code] || [502, `Instagram refused the message: ${outcome.detail}`];
@@ -362,7 +362,7 @@ export async function sendMessage(workspaceId, conversationId, userId, { type, b
 
   const credit = await consumeMessageCredit(workspaceId, { reason: 'Message overage' });
   if (!credit.ok) {
-    const e = new Error('Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan');
+    const e = new Error('Insufficient wallet balance — recharge your wallet to send messages');
     e.status = 403;
     throw e;
   }
@@ -458,7 +458,7 @@ export async function sendMediaMessage(workspaceId, conversationId, userId, { bu
 
   const credit = await consumeMessageCredit(workspaceId, { reason: 'Media message' });
   if (!credit.ok) {
-    const e = new Error('Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan');
+    const e = new Error('Insufficient wallet balance — recharge your wallet to send messages');
     e.status = 403;
     throw e;
   }
@@ -597,7 +597,7 @@ export async function sendTemplateMessage(workspaceId, conversationId, userId, {
     messageCategory: template.category ?? null,
   });
   if (!credit.ok) {
-    const e = new Error('Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan');
+    const e = new Error('Insufficient wallet balance — recharge your wallet to send messages');
     e.status = 403;
     e.code = credit.code ?? 'NO_CREDIT';
     throw e;

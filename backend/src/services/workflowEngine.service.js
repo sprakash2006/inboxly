@@ -195,8 +195,8 @@ export async function findMatchingWorkflows(workspaceId, ctx) {
 // send or 24-hour customer window is closed" — an empty wallet, an opted-out
 // contact and a missing number all looked like a WhatsApp problem.
 const SEND_FAILURE_TEXT = {
-  NO_CREDIT: 'Not sent: the message quota and wallet balance are exhausted — top up the wallet or upgrade the plan',
-  QUOTA_AND_WALLET_EXHAUSTED: 'Not sent: the message quota and wallet balance are exhausted — top up the wallet or upgrade the plan',
+  NO_CREDIT: 'Not sent: insufficient wallet balance — recharge the wallet',
+  QUOTA_AND_WALLET_EXHAUSTED: 'Not sent: insufficient wallet balance — recharge the wallet',
   SUBSCRIPTION_INACTIVE: 'Not sent: the workspace subscription is not active',
   OPTED_OUT: 'Not sent: the contact has opted out of messages from this business',
   NO_NUMBER: 'Not sent: the conversation has no connected WhatsApp number',

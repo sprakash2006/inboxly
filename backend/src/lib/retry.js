@@ -90,6 +90,7 @@ export function isRetryableFailure(reason = '', metaCode = null) {
     /template.*paused/,
     /permanent validation/,
     /quota and wallet balance exhausted/,
+    /insufficient wallet balance/,
     /parameter count mismatch/,
   ];
   if (permanentPatterns.some((p) => p.test(text))) return false;

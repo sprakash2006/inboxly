@@ -189,7 +189,7 @@ test('WF-EN-1: a message-triggered run gets the contact\'s lead, so lead steps a
 
 test('WF-EN-3: a refused send records outbound\'s reason, not "Meta rejected or window closed"', async () => {
   const cases = [
-    [{ ok: false, code: 'NO_CREDIT', detail: 'Message quota and wallet balance exhausted' }, /quota and wallet balance are exhausted/],
+    [{ ok: false, code: 'NO_CREDIT', detail: 'Message quota and wallet balance exhausted' }, /insufficient wallet balance/],
     [{ ok: false, code: 'OPTED_OUT', detail: 'Recipient opted out' }, /opted out/],
     [{ ok: false, code: 'WINDOW_CLOSED', detail: 'x' }, /24-hour customer service window is closed/],
     [{ ok: false, code: 'NO_NUMBER', detail: 'x' }, /no connected WhatsApp number/],
@@ -243,7 +243,7 @@ test('WF-EN-2: the reminder trace names the real reason too', async () => {
     sendOutcome = { ok: false, code: 'NO_CREDIT', detail: 'x' };
     const out = await engine.sendReplyReminder(run.id, 2);
     assert.equal(out.sent, false);
-    assert.match(row(run.id).trace.at(-1).detail, /quota and wallet balance are exhausted/);
+    assert.match(row(run.id).trace.at(-1).detail, /insufficient wallet balance/);
   } finally { restore(); }
 });
 
@@ -315,7 +315,7 @@ test('C3: templateId wins over the name; an unapproved template fails clearly', 
 
 test('WF-EN-7: a failed template send is a failed step; the handoff after it still runs', async () => {
   templates = [tpl('order_update', 'Your order is on its way')];
-  templateThrows = Object.assign(new Error('Message quota and wallet balance exhausted — recharge your wallet or upgrade your plan'), { status: 403, code: 'QUOTA_AND_WALLET_EXHAUSTED' });
+  templateThrows = Object.assign(new Error('Insufficient wallet balance — recharge your wallet to send messages'), { status: 403, code: 'QUOTA_AND_WALLET_EXHAUSTED' });
   const restore = quiet();
   try {
     const run = await start([
@@ -324,7 +324,7 @@ test('WF-EN-7: a failed template send is a failed step; the handoff after it sti
     ]);
     assert.ok(convUpdates.some((u) => u.data?.assignedToUserId), 'the handoff ran');
     assert.equal(run.status, 'FAILED');
-    assert.match(run.trace[0].detail, /quota and wallet balance are exhausted/);
+    assert.match(run.trace[0].detail, /insufficient wallet balance/);
     assert.deepEqual(creditNotices, [{ ws: WS, code: 'QUOTA_AND_WALLET_EXHAUSTED' }], 'WF-EN-4: the workspace is told');
   } finally { restore(); }
 });

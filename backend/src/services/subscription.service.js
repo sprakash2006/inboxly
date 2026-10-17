@@ -34,21 +34,21 @@ export async function getActiveSubscription(workspaceId) {
   return { subscription, plan: subscription.plan, usage };
 }
 
-// Two-layer usage model (README §12.2): the plan's included quota is free,
-// then a wallet debit covers overflow. Runs in a single transaction so
-// concurrent worker sends can't both slip past the quota — the quota check
-// is an atomic conditional increment (updateMany re-evaluates its WHERE
-// against the row Postgres just locked), never a read-then-write.
+// Every message is paid from the wallet: the send is charged its category's
+// rate (messagePricing.js#messageRate) before Meta is called, and refused when
+// the balance cannot cover it. The plan's usage counter is still incremented so
+// "messages used this cycle" stays accurate, but it no longer makes a send
+// free. Runs in a single transaction; debit() takes a row lock on the wallet,
+// so two concurrent sends can never both spend the same balance.
 //
 // `prepaid: true` means the wallet was already charged up front for this
 // message (campaigns pay their whole cost at launch). Such a send still meters
-// quota, but must never touch the wallet again — that would double-charge —
+// usage, but must never touch the wallet again — that would double-charge —
 // and must never be refused for an exhausted balance the customer already paid.
 //
 // `messageCategory` is the template's category (MARKETING / UTILITY /
-// AUTHENTICATION). Overage is billed at that category's rate, so an
-// over-quota send costs what the message actually costs. Omit it for a send
-// that carries no template — an inbox reply — and the plan's flat
+// AUTHENTICATION). The send is billed at that category's rate. Omit it for a
+// send that carries no template — an inbox reply — and the plan's flat
 // overageRatePerMsg is used instead.
 export async function consumeMessageCredit(workspaceId, { reason = 'Message send', prepaid = false, messageCategory = null } = {}) {
   if (prepaid) return consumePrepaidCredit(workspaceId);
@@ -58,55 +58,31 @@ export async function consumeMessageCredit(workspaceId, { reason = 'Message send
     // PAST_DUE still sends. It means a renewal charge failed and the grace
     // window is running, and the whole point of that window is that the
     // workspace keeps working while the customer tops up — matching
-    // workspaceContext, which also blocks only CANCELLED and EXPIRED. Refusing
-    // here would have made the grace period cosmetic: access to the screens,
-    // but no messages.
+    // workspaceContext, which also blocks only CANCELLED and EXPIRED.
     if (!['ACTIVE', 'PAST_DUE'].includes(subscription.status)) {
       return { ok: false, code: 'SUBSCRIPTION_INACTIVE' };
     }
 
     const { plan, currentPeriodStart, currentPeriodEnd } = subscription;
     const periodKey = { workspaceId_periodStart: { workspaceId, periodStart: currentPeriodStart } };
-
-    await tx.usageCounter.upsert({
+    const countUsage = () => tx.usageCounter.upsert({
       where: periodKey,
-      update: {},
-      create: { workspaceId, periodStart: currentPeriodStart, periodEnd: currentPeriodEnd, messagesUsed: 0 },
+      update: { messagesUsed: { increment: 1 } },
+      create: { workspaceId, periodStart: currentPeriodStart, periodEnd: currentPeriodEnd, messagesUsed: 1 },
     });
 
-    if (plan.messageQuota === -1) {
-      await tx.usageCounter.update({ where: periodKey, data: { messagesUsed: { increment: 1 } } });
+    // `amount` is returned so releaseMessageCredit can give back exactly what
+    // was taken.
+    const amount = messageRate(plan, messageCategory);
+    // A plan configured with a zero rate makes sends free; debit() rejects a
+    // zero amount, which would otherwise fail the send.
+    if (!(amount > 0)) {
+      await countUsage();
       return { ok: true, source: 'QUOTA', remaining: Infinity };
     }
-
-    const claimed = await tx.usageCounter.updateMany({
-      where: { workspaceId, periodStart: currentPeriodStart, messagesUsed: { lt: plan.messageQuota } },
-      data: { messagesUsed: { increment: 1 } },
-    });
-    if (claimed.count > 0) {
-      const usage = await tx.usageCounter.findUnique({ where: periodKey });
-      return { ok: true, source: 'QUOTA', remaining: plan.messageQuota - usage.messagesUsed };
-    }
-
-    // Quota exhausted. A prepaid message is already paid for, so it just
-    // records the usage and goes out.
-    if (prepaid) {
-      await tx.usageCounter.update({ where: periodKey, data: { messagesUsed: { increment: 1 } } });
-      return { ok: true, source: 'PREPAID' };
-    }
-
-    // Otherwise overflow to the wallet, priced by the message's category so
-    // the charge tracks what the send actually costs. `amount` is returned so
-    // releaseMessageCredit can give back exactly what was taken.
-    const amount = messageRate(plan, messageCategory);
-    // A plan configured with a zero overage rate makes over-quota sends free;
-    // debit() rejects a zero amount, which would otherwise fail the send.
-    if (!(amount > 0)) {
-      await tx.usageCounter.update({ where: periodKey, data: { messagesUsed: { increment: 1 } } });
-      return { ok: true, source: 'QUOTA', remaining: 0 };
-    }
     const result = await debit(workspaceId, amount, { reason, category: 'USAGE' }, tx);
-    if (!result.ok) return { ok: false, code: 'QUOTA_AND_WALLET_EXHAUSTED' };
+    if (!result.ok) return { ok: false, code: 'QUOTA_AND_WALLET_EXHAUSTED', balance: result.balance, required: amount };
+    await countUsage();
     return { ok: true, source: 'WALLET', newBalance: result.balance, amount };
     // Same reasoning as wallet.service.js#TX_OPTS: this runs once per campaign
     // message and can take a row lock on the wallet, so it needs more than
@@ -173,6 +149,11 @@ async function releaseMessageCreditUnsafe(workspaceId, { source, amount: charged
       : messageRate(subscription.plan, messageCategory);
     if (!(amount > 0)) return { released: false };
     await credit(workspaceId, amount, { reason, category: 'REFUND', gateway: 'system' });
+    // The send also counted toward this cycle's usage; it never went out.
+    await prisma.usageCounter.updateMany({
+      where: { workspaceId, periodStart: subscription.currentPeriodStart, messagesUsed: { gt: 0 } },
+      data: { messagesUsed: { decrement: 1 } },
+    });
     return { released: true, source, amount };
   }
 

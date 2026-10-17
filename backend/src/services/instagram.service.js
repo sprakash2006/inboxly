@@ -307,7 +307,7 @@ export async function deliverInstagramReply({
     credit = { ok: false };
   }
   if (!credit?.ok) {
-    return { ok: false, code: 'NO_CREDIT', detail: 'Message quota and wallet balance exhausted', creditCode: credit?.code };
+    return { ok: false, code: 'NO_CREDIT', detail: 'Insufficient wallet balance', creditCode: credit?.code };
   }
   const refund = () => releaseMessageCredit(workspaceId, { source: credit.source, amount: credit.amount ?? null })
     .catch((err) => console.error('[Instagram] Credit refund failed:', err.message));

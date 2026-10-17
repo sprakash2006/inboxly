@@ -207,7 +207,7 @@ function guideSections(origin) {
       id: 'billing', title: 'Billing',
       body: <>
         <p style={para}>WhatsApp messages sent through the API are billed exactly like messages sent from the dashboard. Each message first uses the plan's monthly quota; after that, the per-message price for the template's category (Marketing, Utility or Authentication) is taken from the wallet. If WhatsApp rejects a send, the charge is refunded.</p>
-        <p style={para}>When neither quota nor wallet balance is left, sends are refused with <Rich text="`403`" /> <Rich text="`QUOTA_AND_WALLET_EXHAUSTED`" />. Email campaigns are not billed per message. Use <Rich text="`POST /campaigns/estimate`" /> to see a campaign's cost before launching it.</p>
+        <p style={para}>Every message is charged to the wallet. When the balance cannot cover a message, the send is refused with <Rich text="`403`" /> <Rich text="`QUOTA_AND_WALLET_EXHAUSTED`" />. Email campaigns are not billed per message. Use <Rich text="`POST /campaigns/estimate`" /> to see a campaign's cost before launching it.</p>
       </>,
     },
     {

@@ -84,7 +84,7 @@ test('quota exhausted: the run error names the quota and wallet, not Meta or the
   credit = { ok: false, code: 'QUOTA_AND_WALLET_EXHAUSTED' };
   const run = await quiet(start);
   assert.equal(run.status, 'FAILED');
-  assert.match(run.error, /quota and wallet balance are exhausted/);
+  assert.match(run.error, /insufficient wallet balance/);
   assert.doesNotMatch(run.error, /Meta rejected|24-hour/);
   assert.equal(metaSends.length, 0);
 });
@@ -96,7 +96,7 @@ test('WF-EN-4: the first credit refusal raises one workspace notification; later
   await quiet(start);
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0].workspaceId, WS);
-  assert.equal(notifications[0].title, 'Automated replies are paused: message quota and wallet are empty — top up');
+  assert.equal(notifications[0].title, 'Automated replies are paused: insufficient wallet balance — recharge the wallet');
   // Another process may have raised it already: the stored notice is respected.
   __resetCreditNotices();
   await quiet(start);

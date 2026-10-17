@@ -55,7 +55,7 @@ async function takeSendCredit(campaign, reason, memo = null) {
 
 const creditFailureReason = (code) => (code === 'SUBSCRIPTION_INACTIVE'
   ? 'Subscription is not active'
-  : 'Quota and wallet balance exhausted');
+  : 'Insufficient wallet balance');
 
 // Skips a recipient whose CSV row has no value for one of the campaign's
 // column-mapped variables. Launch already skips these; this catches a retry,

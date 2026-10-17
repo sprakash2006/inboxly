@@ -7,7 +7,7 @@ import { normalizeRetryConfig, retryPolicySummary } from '../lib/retry.js';
 import { credit, debit } from './wallet.service.js';
 import { getOptedOutPhoneSet, normalizePhone } from './optout.service.js';
 import { notifyWorkspace } from './notification.service.js';
-import { billedCount, campaignMessageRate, getRemainingQuota, reserveCampaignQuota, releaseCampaignQuota } from './campaignBilling.service.js';
+import { billedCount, campaignMessageRate, releaseCampaignQuota } from './campaignBilling.service.js';
 import { splitCampaignCharge, settleCampaignUnits } from '../lib/campaignCharge.js';
 import { getAgent } from './aiAgent.service.js';
 import { normalizeCtaLabel, buildCampaignContext, findCtaButton } from './campaignAi.service.js';
@@ -585,7 +585,8 @@ async function priceAudience(workspaceId, contacts, templateCategory = null) {
 
   const { valid, duplicates, blocked, invalid } = await analyseAudience(workspaceId, contacts);
   const costPerMessage = await campaignMessageRate(workspaceId, templateCategory);
-  const { remaining } = await getRemainingQuota(workspaceId);
+  // Every message is paid from the wallet; the plan quota covers none of it.
+  const remaining = 0;
   const { quotaUnits, walletUnits, totalCost } = splitCampaignCharge({
     units: valid.length, remainingQuota: remaining, rate: costPerMessage,
   });
@@ -797,11 +798,9 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
   const costPerMessage = await campaignMessageRate(workspaceId, campaign.template?.category);
   const walletBefore = Number(workspace.walletBalance);
 
-  // The plan's remaining included messages are spent first; the wallet only
-  // pays for the rest. This early check uses a read of the quota; the
-  // reservation below is what actually takes it.
-  const quotaPreview = await getRemainingQuota(workspaceId);
-  const preview = splitCampaignCharge({ units: valid.length, remainingQuota: quotaPreview.remaining, rate: costPerMessage });
+  // Every message is paid from the wallet: the whole audience is charged up
+  // front, and the launch is refused if the balance cannot cover it.
+  const preview = splitCampaignCharge({ units: valid.length, remainingQuota: 0, rate: costPerMessage });
   if (preview.totalCost > walletBefore) {
     const e = new Error('Insufficient Wallet Balance. Please recharge your wallet.');
     e.status = 402;
@@ -821,18 +820,7 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
     const e = new Error('This campaign has already been launched'); e.status = 409; throw e;
   }
 
-  let reservation;
-  try {
-    reservation = await reserveCampaignQuota(workspaceId, valid.length);
-  } catch (err) {
-    await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
-    throw err;
-  }
-  const { quotaUnits, totalCost } = splitCampaignCharge({
-    units: valid.length, remainingQuota: reservation.reserved, rate: costPerMessage,
-  });
-  const undoReservation = () => releaseCampaignQuota(workspaceId, reservation.periodStart, quotaUnits)
-    .catch((e) => console.error(`[Campaign] Could not release quota for ${campaignId}:`, e.message));
+  const { quotaUnits, totalCost } = preview;
 
   let walletAfter = walletBefore;
   if (totalCost > 0) {
@@ -846,15 +834,12 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
         idempotencyKey: `campaign_charge_${campaignId}`,
       });
     } catch (err) {
-      await undoReservation();
       await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
       throw err;
     }
     if (!charge.ok) {
       // Balance moved between the check above and the debit (a concurrent
-      // campaign spent it, or the quota was spent first). Release the claim
-      // so the customer can retry.
-      await undoReservation();
+      // send spent it). Release the claim so the customer can retry.
       await prisma.campaign.updateMany({ where: { id: campaignId }, data: { chargedAt: null } });
       const e = new Error('Insufficient Wallet Balance. Please recharge your wallet.');
       e.status = 402;
@@ -872,7 +857,7 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
     walletBefore,
     walletAfter,
     quotaUnits,
-    quotaPeriodStart: quotaUnits > 0 ? reservation.periodStart : null,
+    quotaPeriodStart: null,
     // Baselines for the live counters the campaigns list reads. The worker
     // increments from here as it sends.
     skipped: blocked.length + missingValues.length,
@@ -921,7 +906,6 @@ export async function launchCampaign(workspaceId, campaignId, scheduledAt, retry
     // that was queued before the bookkeeping failed must not send unpaid.
     if (queuedJob) await queuedJob.remove().catch((err) => console.error(`[Campaign] Could not remove queued job for campaign ${campaignId} after a failed launch — it may send unpaid:`, err.message));
     await refundCampaign(campaignId, totalCost, 'Campaign could not be queued');
-    await undoReservation();
     await prisma.campaign.updateMany({
       where: { id: campaignId },
       data: { chargedAt: null, status: 'DRAFT', quotaUnits: 0, quotaPeriodStart: null },
